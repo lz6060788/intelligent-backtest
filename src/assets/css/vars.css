@@ -1,0 +1,12 @@
+:root {
+  --global-background: rgba(var(--dark-black-8));
+  --panel-background: rgba(var(--dark-black-6));
+  --font-main: rgba(var(--dark-white));
+  --font-secondary: rgba(var(--dark-white), 0.6);
+  --font-supplementry: rgba(var(--dark-white), 0.3);
+  --node-handle-background: rgba(var(--dark-blue-3));
+  --node-border-color: rgba(var(--dark-white), 0.6);
+  --node-border-color__hover: rgba(var(--dark-white));
+  --workflow-link-line__handle: #296dff;
+  --workflow-link-line__normal: #d0d5dc;
+}

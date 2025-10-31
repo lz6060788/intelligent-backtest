@@ -1,0 +1,31 @@
+.vue-flow__handle {
+  height:8px;
+  width:8px;
+  background-color: var(--node-handle-background);
+  border-color: var(--node-border-color);
+}
+.vue-flow__handle:hover {
+  height:16px;
+  width:16px;
+  border-color: var(--node-border-color__hover);
+}
+.vue-flow__handle:hover::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 1px;
+  background-color: var(--node-border-color__hover);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.vue-flow__handle:hover::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 1px;
+  background-color: var(--node-border-color__hover);
+  top: 50%;
+  left: 50%; 
+  transform: translate(-50%, -50%) rotate(90deg);
+}
