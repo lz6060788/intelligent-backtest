@@ -88,3 +88,8 @@ export type WorkflowRetryConfig = {
   retry_enabled: boolean
 }
 
+export enum VarInInspectType {
+  environment = 'environment',
+  conversation = 'conversation',
+}
+

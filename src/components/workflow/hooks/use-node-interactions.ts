@@ -30,7 +30,6 @@ export const useNodesInteractions = () => {
 
     dragNodeStartPosition.x = node.position.x;
     dragNodeStartPosition.y = node.position.y;
-    console.log(e)
   }
   
   const handleNodeDrag = (e: NodeDragEvent) => {
@@ -69,13 +68,11 @@ export const useNodesInteractions = () => {
         // })
       }
     }
-    console.log(e)
   }
 
   const handleNodeMouseEnter = (e: NodeMouseEvent) => {
     const node = e.node;
     const { nodes, edges } = store;
-    console.log('nodes', nodes)
     const { connectingNodePayload, setEnteringNodePayload }
       = workflowStore;
 
@@ -548,9 +545,9 @@ export const useNodesInteractions = () => {
         newNode.position = {
           x: lastOutgoer
             ? lastOutgoer.position.x
-            : prevNode!.position.x + (prevNode!.width as number)! + X_OFFSET,
+            : prevNode!.position.x + prevNode!.dimensions.width + X_OFFSET,
           y: lastOutgoer
-            ? lastOutgoer!.position.y + (lastOutgoer!.height as number) + Y_OFFSET
+            ? lastOutgoer!.position.y + lastOutgoer!.dimensions.height + Y_OFFSET
             : prevNode!.position.y,
         }
         newNode.parentNode = prevNode!.parentNode
@@ -694,7 +691,7 @@ export const useNodesInteractions = () => {
           nodeType !== BlockEnum.IfElse
           // && nodeType !== BlockEnum.QuestionClassifier
         )
-          newNode.data!._connectedSourceHandleIds = [sourceHandle]
+        newNode.data!._connectedSourceHandleIds = [sourceHandle]
         newNode.data!._connectedTargetHandleIds = []
         newNode.position = {
           x: nextNode.position.x,
@@ -1064,7 +1061,6 @@ export const useNodesInteractions = () => {
 
     if (clipboardElements.length) {
       const { x, y } = getTopLeftNodePosition(clipboardElements)
-      console.log('mousePosition: ', mousePosition)
       const currentPosition = project({
         x: mousePosition.pageX,
         y: mousePosition.pageY,
@@ -1185,7 +1181,6 @@ export const useNodesInteractions = () => {
 
         if (newChildren.length) nodesToPaste.push(...newChildren)
       })
-      console.log('nodesToPaste', nodesToPaste)
 
       // only handle edge when paste nested block
       edges.value.forEach((edge) => {

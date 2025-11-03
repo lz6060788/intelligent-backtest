@@ -8,42 +8,51 @@
       opacity: 1,
     }"
   >
-    <EdgeLabelRenderer
-      class="nopan nodrag hover:scale-125"
-      :class="[
-        props.data?._hovering ? 'block' : 'hidden',
-        open && '!block',
-        data.isInIteration && `z-[${ITERATION_CHILDREN_Z_INDEX}]`,
-        data.isInLoop && `z-[${LOOP_CHILDREN_Z_INDEX}]`,
-      ]"
-      :style="{
-        position: 'absolute',
-        transform: `translate(-50%, -50%) translate(${edgePathData.labelX}px, ${edgePathData.labelY}px)`,
-        pointerEvents: 'all',
-        opacity: 1,
-      }"
-    >
-      123
-    </EdgeLabelRenderer>
   </BaseEdge>
+  <EdgeLabelRenderer>
+    <div
+      :style="{
+        display: isHovering ? 'block' : 'none',
+        pointerEvents: 'all',
+        position: 'absolute',
+        transform: `translate(-50%, -50%) translate(${edgePathData.labelX}px,${edgePathData.labelY}px)`,
+      }"
+      class="nodrag nopan"
+    >
+      <blockSelector
+        @select="handleInsert"
+        placement='right'
+        :triggerClassName="() => 'hover:scale-150 transition-all'"
+        :availableBlocksTypes="availableBlocks"
+      >
+      </blockSelector>
+    </div>
+  </EdgeLabelRenderer>
 </template>
 
 <script setup lang="ts">
 import { type EdgeProps, getBezierPath, getBezierEdgeCenter, Position, BaseEdge, EdgeLabelRenderer } from '@vue-flow/core';
-import type { Edge } from '@/types';
+import type { BlockEnum, Edge } from '@/types';
 import { computed, ref } from 'vue';
 import { LOOP_CHILDREN_Z_INDEX, ITERATION_CHILDREN_Z_INDEX } from '../nodes/_base/node/constant'
-
-// const { availablePrevBlocks } = useAvailableBlocks((data as Edge['data'])!.targetType, (data as Edge['data'])?.isInIteration || (data as Edge['data'])?.isInLoop)
-// const { availableNextBlocks } = useAvailableBlocks((data as Edge['data'])!.sourceType, (data as Edge['data'])?.isInIteration || (data as Edge['data'])?.isInLoop)
+import { useAvailableBlocks } from '../hooks';
+import blockSelector from '../block-selector/index.vue';
+import { useNodesInteractions } from '../hooks/use-node-interactions';
 
 const props = withDefaults(defineProps<EdgeProps>(), {});
+
+const { availablePrevBlocks } = useAvailableBlocks((props.data as Edge['data'])!.targetType, (props.data as Edge['data'])?.isInLoop)
+const { availableNextBlocks } = useAvailableBlocks((props.data as Edge['data'])!.sourceType, (props.data as Edge['data'])?.isInLoop)
+const availableBlocks = computed(() => {
+  return [...availablePrevBlocks, ...availableNextBlocks]
+})
+
 const edgePathData = computed(() => {
   const data = getBezierPath({
-    sourceX: props.sourceX - 8,
+    sourceX: props.sourceX,
     sourceY: props.sourceY,
     sourcePosition: Position.Right,
-    targetX: props.targetX + 8,
+    targetX: props.targetX,
     targetY: props.targetY,
     targetPosition: Position.Left,
     curvature: 0.16
@@ -55,20 +64,20 @@ const edgePathData = computed(() => {
   }
 })
 
-// const handleInsert = (nodeType, toolDefaultValue) => {
-//   handleNodeAdd(
-//     {
-//       nodeType,
-//       toolDefaultValue,
-//     },
-//     {
-//       prevNodeId: source,
-//       prevNodeSourceHandle: sourceHandleId || 'source',
-//       nextNodeId: target,
-//       nextNodeTargetHandle: targetHandleId || 'target',
-//     },
-//   )
-// }
+const { handleNodeAdd } = useNodesInteractions()
+const handleInsert = (nodeType: BlockEnum) => {
+  handleNodeAdd(
+    {
+      nodeType,
+    },
+    {
+      prevNodeId: props.source,
+      prevNodeSourceHandle: props.sourceHandleId || 'source',
+      nextNodeId: props.target,
+      nextNodeTargetHandle: props.targetHandleId || 'target',
+    },
+  )
+}
 
 const stroke = computed(() => {
     if (props.selected || props.data?._connectedNodeIsHovering)
@@ -77,5 +86,7 @@ const stroke = computed(() => {
     return 'var(--workflow-link-line__normal)'
 })
 
-const open = ref(false);
+const isHovering = computed(() => {
+  return props.data?._hovering
+})
 </script>

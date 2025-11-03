@@ -10,3 +10,29 @@
 .ellipsis {
   @apply whitespace-nowrap overflow-hidden text-ellipsis;
 }
+
+.add-icon {
+  height:16px;
+  width:16px;
+  border-color: var(--node-border-color__hover);
+}
+.add-icon::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 1px;
+  background-color: var(--node-border-color__hover);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.add-icon::before {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 1px;
+  background-color: var(--node-border-color__hover);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+}

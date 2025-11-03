@@ -14,27 +14,27 @@
           <NodeSourceHandle
             v-bind="props"
             :handleId="caseItem.case_id"
-            handleClassName="!top-1/2 !left-auto !-right-[32px] !-translate-y-1/2"
+            handleClassName="!top-1/2 !left-auto !-right-[32px] !-translate-y-1/2 z-9999"
           />
         </div>
         <div class="space-y-0.5">
           <template v-for="(condition, i) in caseItem.conditions" :key="condition.id">
             <div class="relative">
               <template v-if="checkIsConditionSet(condition)">
-                <!-- <template v-if="!isEmptyRelatedOperator(condition.comparison_operator) && condition.sub_variable_condition">
+                <template v-if="!isEmptyRelatedOperator(condition.comparison_operator!) && condition.sub_variable_condition">
                   <ConditionFilesListValue :condition="condition" />
                 </template>
                 <template v-else>
                   <ConditionValue
-                    :variableSelector="condition.variable_selector"
-                    :operator="condition.comparison_operator"
+                    :variableSelector="condition.variable_selector!"
+                    :operator="condition.comparison_operator!"
                     :value="
                       condition.varType === VarType.boolean || condition.varType === VarType.arrayBoolean
                         ? condition.value ? condition.value : 'False'
                         : condition.value
                     "
                   />
-                </template> -->
+                </template>
               </template>
               <template v-else>
                 <div class="flex h-6 items-center space-x-1 rounded-md bg-workflow-block-parma-bg px-1 text-xs font-normal text-text-secondary">
@@ -44,7 +44,7 @@
 
               <div
                 v-if="i !== caseItem.conditions.length - 1"
-                class="absolute bottom-[-10px] right-1 z-10 text-[10px] font-medium uppercase leading-4 text-text-accent"
+                class="absolute bottom-[-10px] right-1 z-10 text-[10px] font-medium uppercase leading-4 text-blue-400"
               >
                 {{ t(`${i18nPrefix}.${caseItem.logical_operator}`) }}
               </div>
@@ -72,8 +72,8 @@ import type { NodeProps } from '@vue-flow/core'
 import NodeSourceHandle from '../_base/sourceHandle/index.vue'
 import { isEmptyRelatedOperator } from './utils.ts'
 import type { Condition, IfElseNodeType } from './types.ts'
-// import ConditionValue from './components/condition-value.vue'
-// import ConditionFilesListValue from './components/condition-files-list-value.vue'
+import ConditionValue from './components/condition-value.vue'
+import ConditionFilesListValue from './components/condition-files-list-value.vue'
 import { VarType } from '@/types'
 
 const i18nPrefix = 'workflow.nodes.ifElse'
@@ -87,7 +87,6 @@ const props = defineProps<{
 const { t } = useI18n()
 
 // 计算属性
-console.log('props.data', props.data, props)
 const cases = computed(() => props.data.cases)
 const casesLength = computed(() => cases.value.length)
 

@@ -88,6 +88,8 @@ export type NodeProps<T = unknown> = { id: string; data: CommonNodeType<T> }
 export type  HandleProps = {
   handleId: string;
   handleClassName?: string;
+  nodeSelectorClassName?: string
+  showExceptionStatus?: boolean
 } & NodeProps;
 
 export type NodeDefault<T = {}> = {

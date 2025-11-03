@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-2xl border relative bg-blue-200 border-solid"
+    class="rounded-2xl border relative bg-gray-800 border-solid"
     :class="_cls"
     ref="nodeRef"
     :style="_style"
@@ -12,8 +12,8 @@
       </div>
     </div>
     <slot></slot>
-    <targetHandle handle-id="target" v-bind="props"></targetHandle>
-    <sourceHandle handle-id="source" v-bind="props"></sourceHandle>
+    <targetHandle v-if="showTargetHandle" handle-id="target" v-bind="props"></targetHandle>
+    <sourceHandle v-if="showSourceHandle" handle-id="source" v-bind="props"></sourceHandle>
   </div>
 </template>
 
@@ -38,6 +38,8 @@ const _cls = computed(() => {
   ]
 })
 
+const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End].includes(props.data.type))
+const showTargetHandle = computed(() => props.data.type !== BlockEnum.Start)
 </script>
 
 <style scoped>

@@ -1,4 +1,28 @@
 import type { Edge, Node } from "@/types"
+import { v4 as uuid4 } from 'uuid'
+import {
+  BlockEnum,
+} from '@/types'
+import { getOutgoers } from '@vue-flow/core'
+import { uniqBy } from 'lodash-es'
+
+export const canRunBySingle = (nodeType: BlockEnum, isChildNode: boolean) => {
+  // child node means in iteration or loop. Set value to iteration(or loop) may cause variable not exit problem in backend.
+  // if(isChildNode && nodeType === BlockEnum.Assigner)
+  //   return false
+  return nodeType === BlockEnum.LLM
+    || nodeType === BlockEnum.Code
+    || nodeType === BlockEnum.HttpRequest
+    || nodeType === BlockEnum.Loop
+    || nodeType === BlockEnum.Start
+    || nodeType === BlockEnum.IfElse
+    || nodeType === BlockEnum.VariableAggregator
+    || nodeType === BlockEnum.DataSource
+}
+
+export const isSupportCustomRunForm = (nodeType: BlockEnum) => {
+  return nodeType === BlockEnum.DataSource
+}
 
 type ConnectedSourceOrTargetNodesChange = {
   type: string
@@ -51,3 +75,80 @@ export const getNodesConnectedSourceOrTargetHandleIdsMap = (changes: ConnectedSo
 
   return nodesConnectedSourceOrTargetHandleIdsMap
 }
+
+export const getValidTreeNodes = (startNode: Node, nodes: Node[], edges: Edge[]) => {
+  if (!startNode) {
+    return {
+      validNodes: [],
+      maxDepth: 0,
+    }
+  }
+
+  const list: Node[] = [startNode]
+  let maxDepth = 1
+
+  const traverse = (root: Node, depth: number) => {
+    if (depth > maxDepth)
+      maxDepth = depth
+
+    const outgoers = getOutgoers(root, nodes, edges)
+
+    if (outgoers.length) {
+      outgoers.forEach((outgoer) => {
+        list.push(outgoer)
+
+        // if (outgoer.data!.type === BlockEnum.Iteration)
+        //   list.push(...nodes.filter(node => node.parentId === outgoer.id))
+        if (outgoer.data!.type === BlockEnum.Loop)
+          list.push(...nodes.filter(node => node.parentNode === outgoer.id))
+
+        traverse(outgoer, depth + 1)
+      })
+    }
+    else {
+      list.push(root)
+
+      // if (root.data!.type === BlockEnum.Iteration)
+      //   list.push(...nodes.filter(node => node.parentNode === root.id))
+      if (root.data!.type === BlockEnum.Loop)
+        list.push(...nodes.filter(node => node.parentNode === root.id))
+    }
+  }
+
+  traverse(startNode, maxDepth)
+
+  return {
+    validNodes: uniqBy(list, 'id'),
+    maxDepth,
+  }
+}
+
+export const changeNodesAndEdgesId = (nodes: Node[], edges: Edge[]) => {
+  const idMap = nodes.reduce((acc, node) => {
+    acc[node.id] = uuid4()
+
+    return acc
+  }, {} as Record<string, string>)
+
+  const newNodes = nodes.map((node) => {
+    return {
+      ...node,
+      id: idMap[node.id],
+    }
+  })
+
+  const newEdges = edges.map((edge) => {
+    return {
+      ...edge,
+      source: idMap[edge.source],
+      target: idMap[edge.target],
+    }
+  })
+
+  return [newNodes, newEdges] as [Node[], Edge[]]
+}
+
+export const hasErrorHandleNode = (nodeType?: BlockEnum) => {
+  return nodeType === BlockEnum.LLM || nodeType === BlockEnum.HttpRequest || nodeType === BlockEnum.Code
+}
+

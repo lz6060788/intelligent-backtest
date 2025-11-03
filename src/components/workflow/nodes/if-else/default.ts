@@ -1,5 +1,5 @@
 import { type NodeDefault, VarType } from '@/types'
-import { type IfElseNodeType, LogicalOperator } from './types'
+import { ComparisonOperator, type IfElseNodeType, LogicalOperator } from './types'
 import { isEmptyRelatedOperator } from './utils'
 import { genNodeMetaData } from '@/components/workflow/utils'
 import { BlockEnum } from '@/types'
@@ -27,9 +27,44 @@ const nodeDefault: NodeDefault<IfElseNodeType> = {
     ],
     cases: [
       {
-        case_id: 'true',
+        case_id: '1',
         logical_operator: LogicalOperator.and,
-        conditions: [],
+        conditions: [
+          {
+            id: 'condition1',
+            variable_selector: ['variable1'],
+            comparison_operator: ComparisonOperator.is,
+            value: '',
+            varType: VarType.string,
+          },
+          {
+            id: 'condition2',
+            variable_selector: ['variable2'],
+            comparison_operator: ComparisonOperator.largerThan,
+            value: 'value2',
+            varType: VarType.number,
+          },
+        ],
+      },
+      {
+        case_id: '2',
+        logical_operator: LogicalOperator.and,
+        conditions: [
+          {
+            id: 'condition3',
+            variable_selector: ['variable1'],
+            comparison_operator: ComparisonOperator.equal,
+            value: 'value1',
+            varType: VarType.string,
+          },
+          {
+            id: 'condition4',
+            variable_selector: ['variable2'],
+            comparison_operator: ComparisonOperator.largerThan,
+            value: 'value2',
+            varType: VarType.number,
+          },
+        ],
       },
     ],
   },

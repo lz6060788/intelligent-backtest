@@ -9,7 +9,6 @@ export function generateNewNode({ data, position, id, zIndex, type, ...rest }: O
   newIterationStartNode?: Node
   newLoopStartNode?: Node
 } {
-  console.log('position', position)
   const newNode = {
     id: id || `${Date.now()}`,
     type: type || CUSTOM_NODE,

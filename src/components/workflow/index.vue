@@ -25,6 +25,7 @@
       @selection-context-menu="handleSelectionContextMenu"
       @pane-context-menu="() => null"
       :default-viewport="props.viewport"
+      :connect-on-click="false"
       class="w-full h-full"
     >
       <template #node-custom="customNodeProps">
@@ -48,7 +49,7 @@ import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
-import customNode from './nodes';
+import customNode from './nodes/index.vue';
 import customEdge from './edge/index.vue';
 import { BlockEnum, type Node } from '@/types/node'
 import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions } from './hooks/index'
