@@ -32,10 +32,12 @@ export const LOOP_NODE_Z_INDEX = 1
 export const LOOP_CHILDREN_Z_INDEX = 1002
 export const LOOP_PADDING = {
   top: 65,
-  right: 16,
+  right: 32,
   bottom: 20,
-  left: 16,
+  left: 32,
 }
+export const LOOP_MIN_WIDTH = 272
+export const LOOP_MIN_HEIGHT = 144
 
 export const NODE_LAYOUT_HORIZONTAL_PADDING = 60
 export const NODE_LAYOUT_VERTICAL_PADDING = 60

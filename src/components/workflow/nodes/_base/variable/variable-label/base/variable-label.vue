@@ -11,38 +11,44 @@
       :node-type="nodeType"
       :node-title="nodeTitle"
     />
-    <template v-if="notShowFullPath">
-      <i class="i-ri-more-line h-3 w-3 shrink-0 text-white" />
-      <div class="text-white/50 shrink-0 text-white">/</div>
-    </template>
-    <VariableIcon
-      :variables="variables"
-      :class="varColorClassName"
-    />
-    <VariableName
-      :variables="variables"
-      :class="cn(varColorClassName)"
-      :not-show-full-path="notShowFullPath"
-    />
-    <div
-      v-if="variableType"
-      class="text-xs shrink-0 text-white/50"
-    >
-      {{ capitalize(variableType) }}
-    </div>
-    <Tooltip
-      v-if="errorMsg"
-      :popup-content="errorMsg"
-    >
-      <i class="i-ri-error-warning-fill h-3 w-3 shrink-0 text-red-500" />
-    </Tooltip>
-    <slot name="right-slot" />
+      <template v-if="notShowFullPath">
+        <RiMoreLine className='h-3 w-3 shrink-0 text-text-secondary' />
+        <div class="text-white/50 shrink-0 text-white">/</div>
+      </template>
+      <VariableIcon
+        :variables="variables"
+        :class="varColorClassName"
+      />
+      <VariableName
+        :variables="variables"
+        :class="cn(varColorClassName)"
+        :not-show-full-path="notShowFullPath"
+      />
+      <div
+        v-if="variableType"
+        class="text-xs shrink-0 text-white/50"
+      >
+        {{ capitalize(variableType) }}
+      </div>
+      <el-tooltip
+        v-if="errorMsg"
+        :content="errorMsg"
+        placement="top"
+        :offset="20"
+      >
+        <RiErrorWarningFill class="h-3 w-3 shrink-0 text-util-colors-red-red-500" />
+      </el-tooltip>
+      <slot name="right-slot" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { capitalize } from 'lodash-es'
+import {
+  RiErrorWarningFill,
+  RiMoreLine,
+} from '@remixicon/vue'
 import type { VariablePayload } from '../types'
 import { useVarColor } from '../hooks'
 import VariableNodeLabel from './variable-node-label.vue'

@@ -286,6 +286,7 @@ const translation = {
     'assigner': 'The variable assignment node is used for assigning values to writable variables(like conversation variables).',
     'variable-aggregator': 'Aggregate multi-branch variables into a single variable for unified configuration of downstream nodes.',
     'iteration': 'Perform multiple steps on a list object until all results are outputted.',
+    'loop-start': '',
     'loop': 'Execute a loop of logic until the termination condition is met or the maximum loop count is reached.',
     'loop-end': 'Equivalent to "break". This node has no configuration items. When the loop body reaches this node, the loop terminates.',
     'parameter-extractor': 'Use LLM to extract structured parameters from natural language for tool invocations or HTTP requests.',

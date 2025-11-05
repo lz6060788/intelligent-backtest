@@ -84,6 +84,8 @@ export const DATASET_DEFAULT = {
   score_threshold: 0.8,
 }
 
+export const LOOP_NODE_MAX_COUNT = 100
+
 export const APP_PAGE_LIMIT = 10
 
 export const ANNOTATION_DEFAULT = {

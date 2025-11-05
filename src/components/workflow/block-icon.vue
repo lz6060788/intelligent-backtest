@@ -1,31 +1,116 @@
 <template>
-  <div :class="cn('w-4 h-4', className)">
-    <!-- VarBlockIcon placeholder - 需要根据实际实现替换 -->
-    <i :class="`i-ri-${getIconClass(type)}`" />
+  <div
+    :class="[
+      'flex items-center justify-center border-[0.5px] border-white/2 text-white',
+      sizeClass,
+      showDefaultIcon ? bgColor : '',
+      toolIcon ? '!shadow-none' : '',
+      className
+    ]"
+  >
+    <template v-if="showDefaultIcon">
+      <component
+        :is="getIconComponent"
+        :class="iconSizeClass"
+      />
+    </template>
+
+    <template v-if="isToolOrDataSource && toolIcon">
+      <template v-if="typeof toolIcon === 'string'">
+        <div
+          class="h-full w-full shrink-0 rounded-md bg-cover bg-center"
+          :style="{ backgroundImage: `url(${toolIcon})` }"
+        />
+      </template>
+      <template v-else>
+        <div class="!h-full !w-full shrink-0 bg-red-2"></div>
+      </template>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import cn from '@/utils/classnames'
-import type { BlockEnum } from '@/types/node'
+import { BlockEnum } from '@/types/node'
+import {
+  Agent,
+  Code,
+  Datasource,
+  End,
+  Home,
+  Http,
+  IfElse,
+  Llm,
+  Loop,
+  LoopEnd,
+} from '@/components/base/icons/src/vender/workflow/index'
+// import AppIcon from '@/app/components/base/app-icon'
 
-interface VarBlockIconProps {
+type BlockIconProps = {
   type: BlockEnum
+  size?: string
   className?: string
+  toolIcon?: string | { content: string; background: string }
 }
 
-const props = defineProps<VarBlockIconProps>()
+const props = withDefaults(defineProps<BlockIconProps>(), {
+  size: 'sm'
+})
 
-const getIconClass = (type: BlockEnum): string => {
-  // 根据节点类型返回对应的图标类名
-  const iconMap: Record<string, string> = {
-    [BlockEnum.Start]: 'play-circle-line',
-    [BlockEnum.End]: 'stop-circle-line',
-    [BlockEnum.IfElse]: 'code-line',
-    // 添加更多节点类型映射
-  }
-  return iconMap[type] || 'code-line'
+const ICON_CONTAINER_CLASSNAME_SIZE_MAP: Record<string, string> = {
+  xs: 'w-4 h-4 rounded-[5px] shadow-xs',
+  sm: 'w-5 h-5 rounded-md shadow-xs',
+  md: 'w-6 h-6 rounded-lg shadow-md',
 }
+
+const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
+  [BlockEnum.Start]: 'bg-blue-3',
+  [BlockEnum.LLM]: 'bg-blue-3',
+  [BlockEnum.Code]: 'bg-blue-3',
+  [BlockEnum.End]: 'bg-blue-3',
+  [BlockEnum.IfElse]: 'bg-blue-3',
+  [BlockEnum.Loop]: 'bg-blue-3',
+  [BlockEnum.LoopEnd]: 'bg-blue-3',
+  [BlockEnum.HttpRequest]: 'bg-blue-3',
+  [BlockEnum.Agent]: 'bg-blue-3',
+  [BlockEnum.DataSource]: 'bg-blue-3',
+}
+
+const iconComponentMap = {
+  [BlockEnum.Start]: Home,
+  [BlockEnum.LLM]: Llm,
+  [BlockEnum.Code]: Code,
+  [BlockEnum.End]: End,
+  [BlockEnum.IfElse]: IfElse,
+  [BlockEnum.HttpRequest]: Http,
+  [BlockEnum.Loop]: Loop,
+  [BlockEnum.LoopEnd]: LoopEnd,
+  [BlockEnum.DataSource]: Datasource,
+  [BlockEnum.Agent]: Agent,
+}
+
+// 计算属性
+const isToolOrDataSource = computed(() => 
+  props.type === BlockEnum.DataSource
+)
+
+const showDefaultIcon = computed(() => 
+  !isToolOrDataSource.value || !props.toolIcon
+)
+
+const sizeClass = computed(() => 
+  ICON_CONTAINER_CLASSNAME_SIZE_MAP[props.size] || ICON_CONTAINER_CLASSNAME_SIZE_MAP.sm
+)
+
+const bgColor = computed(() => 
+  ICON_CONTAINER_BG_COLOR_MAP[props.type] || ''
+)
+
+const getIconComponent = computed(() => 
+  iconComponentMap[props.type as keyof typeof iconComponentMap] || 'div'
+)
+
+const iconSizeClass = computed(() => 
+  props.size === 'xs' ? 'w-3 h-3' : 'w-3.5 h-3.5'
+)
 </script>
-

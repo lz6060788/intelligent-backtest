@@ -1,8 +1,5 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-// import StartDefault from '@/app/components/workflow/nodes/start/default'
-// import EndDefault from '@/app/components/workflow/nodes/end/default'
-// import AnswerDefault from '@/app/components/workflow/nodes/answer/default'
 import { WORKFLOW_COMMON_NODES } from "../constant"
 import type { AvailableNodesMetaData } from './use-nodes-meta-data'
 

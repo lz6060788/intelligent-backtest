@@ -1,0 +1,88 @@
+<template>
+  <el-popover
+    v-model:visible="open"
+    placement="bottom-end"
+    :offset="4"
+    trigger="click"
+    teleported
+    :persistent="false"
+    :show-arrow="false"
+    popper-class="custom-popover"
+  >
+    <template #reference>
+      <el-button
+        :class="cn('shrink-0', !selectedOption && 'opacity-50', className)"
+        size="small"
+        :disabled="disabled"
+        @click="open = !open"
+      >
+        {{ selectedOption ? selectedOption.label : t(`${i18nPrefix}.select`) }}
+        <RiArrowDownSLine class="ml-1 h-3.5 w-3.5" />
+      </el-button>
+    </template>
+    <div class="z-10 rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur p-1 shadow-lg">
+      <div
+        v-for="option in options"
+        :key="option.value"
+        class="flex h-7 cursor-pointer items-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-text-secondary hover:bg-state-base-hover"
+        @click="handleSelect(option.value)"
+      >
+        {{ option.label }}
+      </div>
+    </div>
+  </el-popover>
+</template>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { RiArrowDownSLine } from '@remixicon/vue'
+import { getOperators, isComparisonOperatorNeedTranslate } from '../../utils'
+import type { ComparisonOperator } from '../../type'
+import type { VarType } from '@/types/node'
+import cn from '@/utils/classnames'
+
+const i18nPrefix = 'workflow.nodes.ifElse'
+
+/**
+ * 条件操作符组件的属性定义
+ */
+interface ConditionOperatorProps {
+  /** 类名 */
+  className?: string
+  /** 是否禁用 */
+  disabled?: boolean
+  /** 变量类型 */
+  varType: VarType
+  /** 文件对象 */
+  file?: { key: string }
+  /** 值 */
+  value?: string
+  /** 选择回调 */
+  onSelect: (value: ComparisonOperator) => void
+}
+
+const props = defineProps<ConditionOperatorProps>()
+
+const { t } = useI18n()
+const open = ref(false)
+
+const options = computed(() => {
+  return getOperators(props.varType, props.file).map((o) => {
+    return {
+      label: isComparisonOperatorNeedTranslate(o) ? t(`${i18nPrefix}.comparisonOperator.${o}`) : o,
+      value: o,
+    }
+  })
+})
+
+const selectedOption = computed(() => {
+  return options.value.find(o => Array.isArray(props.value) ? o.value === props.value[0] : o.value === props.value)
+})
+
+const handleSelect = (value: ComparisonOperator) => {
+  props.onSelect(value)
+  open.value = false
+}
+</script>
+

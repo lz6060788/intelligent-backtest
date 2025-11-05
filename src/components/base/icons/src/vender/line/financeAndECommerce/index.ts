@@ -1,0 +1,6 @@
+export { default as Balance } from './Balance.vue'
+export { default as CoinsStacked01 } from './CoinsStacked01.vue'
+export { default as GoldCoin } from './GoldCoin.vue'
+export { default as ReceiptList } from './ReceiptList.vue'
+export { default as Tag01 } from './Tag01.vue'
+export { default as Tag03 } from './Tag03.vue'

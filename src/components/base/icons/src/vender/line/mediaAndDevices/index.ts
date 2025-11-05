@@ -1,0 +1,6 @@
+export { default as Microphone01 } from './Microphone01.vue'
+export { default as PlayCircle } from './PlayCircle.vue'
+export { default as SlidersH } from './SlidersH.vue'
+export { default as Speaker } from './Speaker.vue'
+export { default as StopCircle } from './StopCircle.vue'
+export { default as Stop } from './Stop.vue'

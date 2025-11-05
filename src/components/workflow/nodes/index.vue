@@ -12,6 +12,9 @@ import { computed } from 'vue'
 import StartNode from './start/index.vue';
 import EndNode from './end/index.vue';
 import IfElseNode from './if-else/index.vue';
+import CodeNode from './code/index.vue';
+import HttpNode from './http/index.vue';
+import LoopNode from './loop/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BaseNode from './_base/node/index.vue'
 
@@ -20,6 +23,9 @@ const NodeComponentMap = {
   [BlockEnum.Start]: StartNode,
   [BlockEnum.End]: EndNode,
   [BlockEnum.IfElse]: IfElseNode,
+  [BlockEnum.Code]: CodeNode,
+  [BlockEnum.HttpRequest]: HttpNode,
+  [BlockEnum.Loop]: LoopNode,
 } as const
 
 // 声明组件接收的 props

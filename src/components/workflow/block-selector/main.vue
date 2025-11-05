@@ -11,15 +11,20 @@
     :popper-style="customPopperStyle"
   >
     <template #reference>
-      <div
-        :class="cn(
-          'z-10 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-blue-700 hover:bg-blue-800',
-          triggerClassName?.(open)
-        )"
-        :style="triggerStyle"
-      >
-        <div class="add-icon h-2.5 w-2.5" />
-      </div>
+      <template v-if="triggerSlot">
+        <slot name="trigger" :open="open" />
+      </template>
+      <template v-else>
+        <div
+          :class="cn(
+            'z-10 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-blue-700 hover:bg-blue-800',
+            triggerClassName?.(open)
+          )"
+          :style="triggerStyle"
+        >
+          <div class="add-icon h-2.5 w-2.5" />
+        </div>
+      </template>
     </template>
     <template #default>
       <div :class="cn('rounded-lg border-[0.5px] border-solid border-gray-900 bg-gray-700 shadow-lg', popupClassName)">
@@ -65,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, useSlots, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   OffsetOptions,
@@ -142,5 +147,8 @@ const customPopperStyle = `
   box-shadow: none;
   background: transparent;
 `
+
+const slots = useSlots();
+const triggerSlot = computed(() => slots.trigger?.());
 </script>
 

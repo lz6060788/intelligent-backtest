@@ -1,7 +1,7 @@
 import { useVueFlow } from "@vue-flow/core"
 import { useNodesMetaData } from "../../hooks/use-nodes-meta-data"
-import { BlockEnum, type Node } from '@/types';
-import { LOOP_PADDING, CUSTOM_LOOP_START_NODE } from "../_base/node/constant";
+import { BlockEnum, type GraphNode, type Node } from '@/types';
+import { LOOP_PADDING, CUSTOM_LOOP_START_NODE, LOOP_MIN_WIDTH, LOOP_MIN_HEIGHT } from "../_base/node/constant";
 import { generateNewNode } from "../../utils/node";
 
 export const useNodeLoopInteractions = () => {
@@ -12,22 +12,23 @@ export const useNodeLoopInteractions = () => {
     const {
       nodes,
     } = store
-  
+
     const currentNode = nodes.value.find(n => n.id === nodeId)!
     const childrenNodes = nodes.value.filter(n => n.parentNode === nodeId)
-    let rightNode: Node
-    let bottomNode: Node
+    let rightNode: GraphNode
+    let bottomNode: GraphNode
 
+    console.log('childrenNodes', childrenNodes)
     childrenNodes.forEach((n) => {
       if (rightNode) {
-        if ((n.position.x as number) + (n.width as number) > (rightNode.position.x as number) + (rightNode.width as number))
+        if ((n.position.x as number) + (n.dimensions.width as number) > (rightNode.position.x as number) + (rightNode.dimensions.width as number))
           rightNode = n
       }
       else {
         rightNode = n
       }
       if (bottomNode) {
-        if ((n.position.y as number) + (n.height as number) > ((bottomNode.position.y as number) as number) + (bottomNode.height as number))
+        if ((n.position.y as number) + (n.dimensions.height as number) > ((bottomNode.position.y as number) as number) + (bottomNode.dimensions.height as number))
           bottomNode = n
       }
       else {
@@ -35,26 +36,29 @@ export const useNodeLoopInteractions = () => {
       }
     })
 
-    const widthShouldExtend = rightNode! && (currentNode.width as number) < (rightNode.position.x as number) + (rightNode.width as number)
-    const heightShouldExtend = bottomNode! && (currentNode.height as number) < ((bottomNode.position.y as number) as number) + (bottomNode.height as number)
+    const widthShouldExtend = rightNode! && (currentNode.dimensions.width as number) < (rightNode.position.x as number) + (rightNode.dimensions.width as number)
+    const heightShouldExtend = bottomNode! && (currentNode.dimensions.height as number) < ((bottomNode.position.y as number) as number) + (bottomNode.dimensions.height as number)
+
 
     if (widthShouldExtend || heightShouldExtend) {
       nodes.value.forEach((n) => {
         if (n.id === nodeId) {
           if (widthShouldExtend) {
-            n.data.width = (rightNode.position.x as number) + (rightNode.width as number) + LOOP_PADDING.right
-            n.width = (rightNode.position.x as number)+ (rightNode.width as number) + LOOP_PADDING.right
+            const width = Math.max(LOOP_MIN_WIDTH, (rightNode.position.x as number) + (rightNode.dimensions.width as number) + LOOP_PADDING.right)
+            n.data.width = width
+            n.width = width
           }
           if (heightShouldExtend) {
-            n.data.height = (bottomNode.position.y as number) + (bottomNode.height as number) + LOOP_PADDING.bottom
-            n.height = (bottomNode.position.y as number) + (bottomNode.height as number) + LOOP_PADDING.bottom
+            const height = Math.max(LOOP_MIN_HEIGHT, (bottomNode.position.y as number) + (bottomNode.dimensions.height as number) + LOOP_PADDING.bottom)
+            n.data.height = height
+            n.height = height
           }
         }
       })
     }
   }
 
-  const handleNodeLoopChildDrag = (node: Node) => {
+  const handleNodeLoopChildDrag = (node: GraphNode) => {
     const { nodes } = store
 
     const restrictPosition: { x?: number; y?: number } = { x: undefined, y: undefined }
@@ -67,10 +71,10 @@ export const useNodeLoopInteractions = () => {
           restrictPosition.y = LOOP_PADDING.top
         if (node.position.x < LOOP_PADDING.left)
           restrictPosition.x = LOOP_PADDING.left
-        if (node.position.x + (node.width as number) > (parentNode!.width as number) - LOOP_PADDING.right)
-          restrictPosition.x = (parentNode!.width as number)- LOOP_PADDING.right - (node.width as number)
-        if (node.position.y + (node.height as number) > (parentNode!.width as number) - LOOP_PADDING.bottom)
-          restrictPosition.y = (parentNode!.width as number) - LOOP_PADDING.bottom - (node.height as number)
+        if (node.position.x + (node.dimensions.width as number) > (parentNode!.dimensions.width as number) - LOOP_PADDING.right)
+          restrictPosition.x = (parentNode!.dimensions.width as number)- LOOP_PADDING.right - (node.dimensions.width as number)
+        if (node.position.y + (node.dimensions.height as number) > (parentNode!.dimensions.height as number) - LOOP_PADDING.bottom)
+          restrictPosition.y = (parentNode!.dimensions.height as number) - LOOP_PADDING.bottom - (node.dimensions.height as number)
       }
     }
 

@@ -1,4 +1,4 @@
-import { type Node as VueFlowNode, type Position, type XYPosition } from '@vue-flow/core';
+import { type Node as VueFlowNode, type Position, type XYPosition, type GraphNode as VueFlowGraphNode } from '@vue-flow/core';
 import type { ErrorHandleTypeEnum, VarType, WorkflowRetryConfig } from '.';
 
 
@@ -82,6 +82,8 @@ export type CommonNodeType<T = {}> = {
 } & T;
 
 export type Node = VueFlowNode<CommonNodeType>
+
+export type GraphNode = VueFlowGraphNode<CommonNodeType>
 
 export type NodeProps<T = unknown> = { id: string; data: CommonNodeType<T> }
 

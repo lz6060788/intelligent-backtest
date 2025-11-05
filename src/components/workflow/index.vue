@@ -31,6 +31,12 @@
       <template #node-custom="customNodeProps">
         <customNode v-bind="customNodeProps" />
       </template>
+      <template #node-custom-loop-start="customLoopStartNodeProps">
+        <customLoopStartNode v-bind="customLoopStartNodeProps" />
+      </template>
+      <template #node-custom-simple="customSimpleNodeProps">
+        <customSimpleNode v-bind="customSimpleNodeProps" />
+      </template>
       <template #edge-custom="customEdgeProps">
         <customEdge v-bind="customEdgeProps"></customEdge>
       </template>
@@ -51,6 +57,8 @@ import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
 import customNode from './nodes/index.vue';
 import customEdge from './edge/index.vue';
+import customLoopStartNode from './nodes/loop-start/index.vue'
+import customSimpleNode from './simple-node/index.vue'
 import { BlockEnum, type Node } from '@/types/node'
 import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions } from './hooks/index'
 import type { WorkflowProps } from '@/types/workflow'

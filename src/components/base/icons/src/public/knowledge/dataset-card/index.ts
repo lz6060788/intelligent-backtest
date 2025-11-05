@@ -1,0 +1,5 @@
+export { default as ExternalKnowledgeBase } from './ExternalKnowledgeBase.vue'
+export { default as General } from './General.vue'
+export { default as Graph } from './Graph.vue'
+export { default as ParentChild } from './ParentChild.vue'
+export { default as Qa } from './Qa.vue'

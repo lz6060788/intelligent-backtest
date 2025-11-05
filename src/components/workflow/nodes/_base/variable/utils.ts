@@ -61,6 +61,7 @@ import {
   TOOL_OUTPUT_STRUCT,
 } from '@/components/workflow/constant'
 import { VAR_REGEX } from '@/config'
+import type { CodeNodeType } from '../../code/types'
 // import ToolNodeDefault from '@/app/components/workflow/nodes/tool/default'
 // import DataSourceNodeDefault from '@/app/components/workflow/nodes/data-source/default'
 // import type { DataSourceNodeType } from '@/app/components/workflow/nodes/data-source/types'
@@ -1409,16 +1410,16 @@ export const getNodeUsedVarPassToServerKey = (
       if (targetVar) res = `#${valueSelector.join('.')}#`
       break
     }
-    // case BlockEnum.Code: {
-    //   const targetVar = (data as CodeNodeType).variables?.find(
-    //     v =>
-    //       Array.isArray(v.value_selector)
-    //       && v.value_selector
-    //       && v.value_selector.join('.') === valueSelector.join('.'),
-    //   )
-    //   if (targetVar) res = targetVar.variable
-    //   break
-    // }
+    case BlockEnum.Code: {
+      const targetVar = (data as CodeNodeType).variables?.find(
+        v =>
+          Array.isArray(v.value_selector)
+          && v.value_selector
+          && v.value_selector.join('.') === valueSelector.join('.'),
+      )
+      if (targetVar) res = targetVar.variable
+      break
+    }
     // case BlockEnum.TemplateTransform: {
     //   const targetVar = (data as TemplateTransformNodeType).variables?.find(
     //     v =>
@@ -1589,17 +1590,17 @@ export const updateNodeVars = (
         }
         break
       }
-      // case BlockEnum.Code: {
-      //   const payload = data as CodeNodeType
-      //   if (payload.variables) {
-      //     payload.variables = payload.variables.map((v) => {
-      //       if (v.value_selector.join('.') === oldVarSelector.join('.'))
-      //         v.value_selector = newVarSelector
-      //       return v
-      //     })
-      //   }
-      //   break
-      // }
+      case BlockEnum.Code: {
+        const payload = data as CodeNodeType
+        if (payload.variables) {
+          payload.variables = payload.variables.map((v) => {
+            if (v.value_selector.join('.') === oldVarSelector.join('.'))
+              v.value_selector = newVarSelector
+            return v
+          })
+        }
+        break
+      }
       // case BlockEnum.TemplateTransform: {
       //   const payload = data as TemplateTransformNodeType
       //   if (payload.variables) {
@@ -1882,13 +1883,13 @@ export const getNodeOutputVars = (
     //   break
     // }
 
-    // case BlockEnum.Code: {
-    //   const { outputs } = data as CodeNodeType
-    //   Object.keys(outputs).forEach((key) => {
-    //     res.push([id, key])
-    //   })
-    //   break
-    // }
+    case BlockEnum.Code: {
+      const { outputs } = data as CodeNodeType
+      Object.keys(outputs).forEach((key) => {
+        res.push([id, key])
+      })
+      break
+    }
 
     // case BlockEnum.TemplateTransform: {
     //   varsToValueSelectorList(TEMPLATE_TRANSFORM_OUTPUT_STRUCT, [id], res)

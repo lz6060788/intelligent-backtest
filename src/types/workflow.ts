@@ -18,6 +18,12 @@ export type WorkflowContext = {
   id?: string;
 }
 
+export enum ErrorHandleMode {
+  Terminated = 'terminated',
+  ContinueOnError = 'continue-on-error',
+  RemoveAbnormalOutput = 'remove-abnormal-output',
+}
+
 export type WorkflowRunningData = {
   task_id?: string
   message_id?: string

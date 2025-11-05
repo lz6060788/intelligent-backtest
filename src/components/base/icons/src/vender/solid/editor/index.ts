@@ -1,0 +1,5 @@
+export { default as Brush01 } from './Brush01.vue'
+export { default as Citations } from './Citations.vue'
+export { default as Colors } from './Colors.vue'
+export { default as Paragraph } from './Paragraph.vue'
+export { default as TypeSquare } from './TypeSquare.vue'

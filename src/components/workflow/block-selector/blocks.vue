@@ -76,6 +76,7 @@ const groups = computed(() => {
     }
   }, {} as Record<string, typeof props.blocks>)
 })
+console.log('groups', groups)
 
 const isEmpty = computed(() => Object.values(groups.value).every(list => !list.length))
 
@@ -88,6 +89,7 @@ const filteredListMap = computed(() => {
     result[classification] = list
   })
 
+  console.log('result', result)
   return result
 })
 

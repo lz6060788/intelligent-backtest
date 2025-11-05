@@ -3,10 +3,11 @@
     v-if="nodeType"
     class="flex items-center"
   >
-    <!-- <VarBlockIcon
+    <VarBlockIcon
       :type="nodeType"
+      size="xs"
       class="shrink-0 text-text-secondary"
-    /> -->
+    />
     <div
       v-if="nodeTitle"
       :class="cn('text-xs max-w-[60px] truncate text-white ml-1')"
@@ -19,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-// import { VarBlockIcon } from '@/components/workflow/block-icon'
+import VarBlockIcon from '@/components/workflow/block-icon.vue'
 import cn from '@/utils/classnames'
 import type { BlockEnum } from '@/types/node'
 

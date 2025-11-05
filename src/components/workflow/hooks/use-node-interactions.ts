@@ -31,7 +31,7 @@ export const useNodesInteractions = () => {
     dragNodeStartPosition.x = node.position.x;
     dragNodeStartPosition.y = node.position.y;
   }
-  
+
   const handleNodeDrag = (e: NodeDragEvent) => {
     // if (getNodesReadOnly()) return
     const { node, event } = e;
@@ -41,7 +41,6 @@ export const useNodesInteractions = () => {
     const { nodes } = store;
     event.stopPropagation();
 
-    // const { restrictPosition } = handleNodeIterationChildDrag(node)
     const { restrictPosition: restrictLoopPosition }
       = handleNodeLoopChildDrag(node)
 
@@ -497,7 +496,7 @@ export const useNodesInteractions = () => {
       //   nodeId: currentNode.id,
       // })
   }
-  
+
   const handleNodeAdd: OnNodeAdd = ({
       nodeType,
       sourceHandle = 'source',
@@ -555,31 +554,15 @@ export const useNodesInteractions = () => {
 
         const parentNode
           = nodes.value.find(node => node.id === prevNode!.parentNode) || null
-        // const isInIteration
-        //   = !!parentNode && parentNode.data.type === BlockEnum.Iteration
         const isInLoop
           = !!parentNode && parentNode.data.type === BlockEnum.Loop
 
         if (prevNode!.parentNode) {
-          // newNode.data!.isInIteration = isInIteration
           newNode.data!.isInLoop = isInLoop
-          // if (isInIteration) {
-          //   newNode.data.iteration_id = parentNode.id
-          //   newNode.zIndex = ITERATION_CHILDREN_Z_INDEX
-          // }
           if (isInLoop) {
             newNode.data!.loop_id = parentNode.id
             newNode.zIndex = LOOP_CHILDREN_Z_INDEX
           }
-          // if (
-          //   isInIteration
-          //   && (newNode.data.type === BlockEnum.Answer
-          //     || newNode.data.type === BlockEnum.Tool
-          //     || newNode.data.type === BlockEnum.Assigner)
-          // ) {
-          //   const iterNodeData: IterationNodeType = parentNode.data
-          //   iterNodeData._isShowTips = true
-          // }
           // if (
           //   isInLoop
           //   && (newNode.data!.type === BlockEnum.Answer

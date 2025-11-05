@@ -1,10 +1,10 @@
-// import type { VarType as NumberVarType } from '../tool/types'
+import type { VarKindType as NumberVarType } from '@/types'
 import type {
   BlockEnum,
   CommonNodeType,
-  // ErrorHandleMode,
-  // ValueSelector,
-  // ValueType,
+  ErrorHandleMode,
+  ValueSelector,
+  ValueType,
   Var,
   VarType,
 } from '@/types'

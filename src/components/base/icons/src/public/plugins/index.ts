@@ -1,0 +1,7 @@
+export { default as Google } from './Google.vue'
+export { default as PartnerDark } from './PartnerDark.vue'
+export { default as PartnerLight } from './PartnerLight.vue'
+export { default as VerifiedDark } from './VerifiedDark.vue'
+export { default as VerifiedLight } from './VerifiedLight.vue'
+export { default as WebReader } from './WebReader.vue'
+export { default as Wikipedia } from './Wikipedia.vue'

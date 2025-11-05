@@ -3,11 +3,15 @@
     v-bind="props"
     :blocks="blocks!"
     :width="180"
-  />
+  >
+    <template v-if="triggerSlot" #trigger="data">
+      <slot name="trigger" :open="data?.open" />
+    </template>
+  </NodeSelector>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useSlots } from 'vue'
 import type { NodeSelectorProps } from './main.vue'
 import NodeSelector from './main.vue'
 import { useNodesMetaData } from '../hooks/use-nodes-meta-data'
@@ -34,5 +38,7 @@ const blocks = computed(() => {
     return true
   })
 })
+const slots = useSlots();
+const triggerSlot = computed(() => slots.trigger?.());
 </script>
 
