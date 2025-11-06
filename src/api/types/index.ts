@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, CancelTokenSource } from 'axios';
+import type { CancelTokenSource } from 'axios';
 
 // 基础HTTP方法类型
 export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -13,7 +13,7 @@ export interface GlobalConfig {
 }
 
 // 单个接口的配置项（继承全局配置并支持覆盖）
-export interface ApiItemConfig {
+export interface ApiItemConfig<Res = any, Data = any> {
   url: string; // 接口路径
   method: ApiMethod; // 请求方法
   headers?: Record<string, string>; // 接口级请求头（覆盖全局）
@@ -21,6 +21,16 @@ export interface ApiItemConfig {
   showLoading?: boolean; // 接口级加载状态（覆盖全局）
   ignoreError?: boolean; // 接口级错误忽略（覆盖全局）
   cancelTokenSource?: CancelTokenSource; // 取消信号源（用于取消请求）
+  // 类型定义（可选，用于类型推断）
+  _res?: Res; // 响应类型（仅用于类型推断，运行时不存在）
+  _data?: Data; // 请求数据类型（仅用于类型推断，运行时不存在）
+}
+
+// 类型化接口配置辅助函数
+export function defineApiItem<Res = any, Data = any>(
+  config: Omit<ApiItemConfig<Res, Data>, '_res' | '_data'>
+): ApiItemConfig<Res, Data> {
+  return config as ApiItemConfig<Res, Data>;
 }
 
 // API配置结构类型（支持嵌套模块）

@@ -1,5 +1,6 @@
 import type { GlobalConfig, ApiConfigStructure } from '../types';
 import user from './user';
+import workflow from './workflow';
 
 // 1. 全局默认配置
 export const GLOBAL_CONFIG: GlobalConfig = {
@@ -14,6 +15,7 @@ export const GLOBAL_CONFIG: GlobalConfig = {
   ignoreError: false, // 默认不忽略错误提示
 };
 
-export const API_CONFIG: ApiConfigStructure = {
-  user
-}
+export const API_CONFIG = {
+  user,
+  workflow
+} as const satisfies ApiConfigStructure;
