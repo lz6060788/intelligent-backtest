@@ -11,6 +11,10 @@
   @apply whitespace-nowrap overflow-hidden text-ellipsis;
 }
 
+.system-2xs-medium-uppercase {
+  text-transform: uppercase;
+}
+
 .add-icon {
   height:16px;
   width:16px;
@@ -43,4 +47,20 @@
   border: none;
   box-shadow: none;
   background: transparent;
+}
+
+.text-text-warning {
+  @apply text-orange-500;
+}
+.text-util-colors-cyan-cyan-500 {
+  @apply text-cyan-500;
+}
+.text-util-colors-violet-violet-600 {
+  @apply text-violet-400;
+}
+.text-util-colors-teal-teal-700 {
+  @apply text-teal-700;
+}
+.text-text-accent {
+  @apply text-blue-400;
 }

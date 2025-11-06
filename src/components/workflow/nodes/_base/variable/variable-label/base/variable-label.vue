@@ -1,7 +1,7 @@
 <template>
   <div
     :class="cn(
-      'inline-flex h-6 max-w-full items-center space-x-0.5 rounded-md border-[0.5px] border-blue-600 border-solid bg-gray-600 px-1.5 shadow-xs',
+      'inline-flex h-6 max-w-full items-center space-x-0.5 rounded-md border-[0.5px] border-blue-600 border-solid bg-gray-600 px-1.5 shadow-xs text-xs',
       className,
     )"
     @click="handleClick"
@@ -54,7 +54,6 @@ import { useVarColor } from '../hooks'
 import VariableNodeLabel from './variable-node-label.vue'
 import VariableIcon from './variable-icon.vue'
 import VariableName from './variable-name.vue'
-import Tooltip from '@/components/base/tooltip/index.vue'
 import cn from '@/utils/classnames'
 
 const props = defineProps<VariablePayload>()

@@ -14,6 +14,7 @@
     "generate:icons": "node src/components/base/icons/script.mjs"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "@floating-ui/vue": "^1.1.9",
     "@remixicon/vue": "^4.7.0",
     "@vue-flow/background": "^1.3.2",
@@ -25,13 +26,15 @@
     "element-plus": "^2.11.7",
     "hotkeys-js": "^3.13.15",
     "immer": "^10.2.0",
+    "jsonschema": "^1.5.0",
     "lodash-es": "^4.17.21",
     "pinia": "^3.0.3",
     "tailwind-merge": "^3.3.1",
     "uuid": "^13.0.0",
     "vue": "^3.5.22",
     "vue-i18n": "^9.14.5",
-    "vue-router": "^4.6.3"
+    "vue-router": "^4.6.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@rgrove/parse-xml": "^4.2.0",
@@ -43,6 +46,7 @@
     "@unocss/preset-icons": "^66.5.4",
     "@unocss/preset-uno": "^66.5.4",
     "@unocss/preset-wind": "^66.5.4",
+    "@unocss/transformer-directives": "^66.5.4",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.37.0",

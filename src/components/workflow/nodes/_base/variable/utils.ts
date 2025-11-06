@@ -40,6 +40,7 @@ import type {
   EnvironmentVariable,
   Node,
   NodeOutPutVar,
+  PromptItem,
   // ToolWithProvider,
   ValueSelector,
   Var,
@@ -54,6 +55,7 @@ import {
   HTTP_REQUEST_OUTPUT_STRUCT,
   KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT,
   LLM_OUTPUT_STRUCT,
+  OUTPUT_FILE_SUB_VARIABLES,
   PARAMETER_EXTRACTOR_COMMON_STRUCT,
   QUESTION_CLASSIFIER_OUTPUT_STRUCT,
   SUPPORT_OUTPUT_VARS_NODE,
@@ -62,6 +64,10 @@ import {
 } from '@/components/workflow/constant'
 import { VAR_REGEX } from '@/config'
 import type { CodeNodeType } from '../../code/types'
+import type { ToolWithProvider } from '@/components/workflow/block-selector/types'
+import type { LoopNodeType } from '../../loop/type'
+import type { VariableAssignerNodeType } from '../../variable-assigner/types'
+import type { HttpNodeType } from '../../http/types'
 // import ToolNodeDefault from '@/app/components/workflow/nodes/tool/default'
 // import DataSourceNodeDefault from '@/app/components/workflow/nodes/data-source/default'
 // import type { DataSourceNodeType } from '@/app/components/workflow/nodes/data-source/types'
@@ -316,7 +322,7 @@ const formatItem = (
   item: any,
   isChatMode: boolean,
   filterVar: (payload: Var, selector: ValueSelector) => boolean,
-  // allPluginInfoList: Record<string, ToolWithProvider[]>,
+  allPluginInfoList: Record<string, ToolWithProvider[]>,
   // ragVars?: Var[],
   schemaTypeDefinitions: SchemaTypeDefinition[] = [],
 ): NodeOutPutVar => {
@@ -329,64 +335,64 @@ const formatItem = (
   }
   switch (data.type) {
     case BlockEnum.Start: {
-      const { variables } = data as StartNodeType
-      res.vars = variables.map((v) => {
-        const type = inputVarTypeToVarType(v.type)
-        const varRes: Var = {
-          variable: v.variable,
-          type,
-          isParagraph: v.type === InputVarType.paragraph,
-          isSelect: v.type === InputVarType.select,
-          options: v.options,
-          required: v.required,
-        }
-        try {
-          if (type === VarType.object && v.json_schema) {
-            varRes.children = {
-              schema: JSON.parse(v.json_schema),
-            }
-          }
-        }
-        catch (error) {
-          console.error('Error formatting variable:', error)
-        }
+      // const { variables } = data as StartNodeType
+      // res.vars = variables.map((v) => {
+      //   const type = inputVarTypeToVarType(v.type)
+      //   const varRes: Var = {
+      //     variable: v.variable,
+      //     type,
+      //     isParagraph: v.type === InputVarType.paragraph,
+      //     isSelect: v.type === InputVarType.select,
+      //     options: v.options,
+      //     required: v.required,
+      //   }
+      //   try {
+      //     if (type === VarType.object && v.json_schema) {
+      //       varRes.children = {
+      //         schema: JSON.parse(v.json_schema),
+      //       }
+      //     }
+      //   }
+      //   catch (error) {
+      //     console.error('Error formatting variable:', error)
+      //   }
 
-        return varRes
-      })
-      if (isChatMode) {
-        res.vars.push({
-          variable: 'sys.query',
-          type: VarType.string,
-        })
-        res.vars.push({
-          variable: 'sys.dialogue_count',
-          type: VarType.number,
-        })
-        res.vars.push({
-          variable: 'sys.conversation_id',
-          type: VarType.string,
-        })
-      }
-      res.vars.push({
-        variable: 'sys.user_id',
-        type: VarType.string,
-      })
-      res.vars.push({
-        variable: 'sys.files',
-        type: VarType.arrayFile,
-      })
-      res.vars.push({
-        variable: 'sys.app_id',
-        type: VarType.string,
-      })
-      res.vars.push({
-        variable: 'sys.workflow_id',
-        type: VarType.string,
-      })
-      res.vars.push({
-        variable: 'sys.workflow_run_id',
-        type: VarType.string,
-      })
+      //   return varRes
+      // })
+      // if (isChatMode) {
+      //   res.vars.push({
+      //     variable: 'sys.query',
+      //     type: VarType.string,
+      //   })
+      //   res.vars.push({
+      //     variable: 'sys.dialogue_count',
+      //     type: VarType.number,
+      //   })
+      //   res.vars.push({
+      //     variable: 'sys.conversation_id',
+      //     type: VarType.string,
+      //   })
+      // }
+      // res.vars.push({
+      //   variable: 'sys.user_id',
+      //   type: VarType.string,
+      // })
+      // res.vars.push({
+      //   variable: 'sys.files',
+      //   type: VarType.arrayFile,
+      // })
+      // res.vars.push({
+      //   variable: 'sys.app_id',
+      //   type: VarType.string,
+      // })
+      // res.vars.push({
+      //   variable: 'sys.workflow_id',
+      //   type: VarType.string,
+      // })
+      // res.vars.push({
+      //   variable: 'sys.workflow_run_id',
+      //   type: VarType.string,
+      // })
 
       break
     }
@@ -418,7 +424,7 @@ const formatItem = (
         ? Object.keys(outputs).map((key) => {
           return {
             variable: key,
-            type: outputs[key].type,
+            type: outputs[key]!.type,
           }
         })
         : []
@@ -511,28 +517,6 @@ const formatItem = (
     //   break
     // }
 
-    // case BlockEnum.ParameterExtractor: {
-    //   res.vars = [
-    //     ...((data as ParameterExtractorNodeType).parameters || []).map((p) => {
-    //       return {
-    //         variable: p.name,
-    //         type: p.type as unknown as VarType,
-    //       }
-    //     }),
-    //     ...PARAMETER_EXTRACTOR_COMMON_STRUCT,
-    //   ]
-    //   break
-    // }
-
-    // case BlockEnum.Iteration: {
-    //   res.vars = [
-    //     {
-    //       variable: 'output',
-    //       type: (data as IterationNodeType).output_type || VarType.arrayString,
-    //     },
-    //   ]
-    //   break
-    // }
 
     case BlockEnum.Loop: {
       const { loop_variables } = data as LoopNodeType
@@ -582,32 +566,32 @@ const formatItem = (
     //   break
     // }
 
-    case BlockEnum.Agent: {
-      const payload = data as AgentNodeType
-      const outputs: Var[] = []
-      Object.keys(payload.output_schema?.properties || {}).forEach(
-        (outputKey) => {
-          const output = payload.output_schema.properties[outputKey]
-          outputs.push({
-            variable: outputKey,
-            type:
-              output.type === 'array'
-                ? (`Array[${output.items?.type
-                  ? output.items.type.slice(0, 1).toLocaleUpperCase()
-                  + output.items.type.slice(1)
-                  : 'Unknown'
-                }]` as VarType)
-                : (`${output.type
-                  ? output.type.slice(0, 1).toLocaleUpperCase()
-                  + output.type.slice(1)
-                  : 'Unknown'
-                }` as VarType),
-          })
-        },
-      )
-      res.vars = [...outputs, ...TOOL_OUTPUT_STRUCT, ...AGENT_OUTPUT_STRUCT]
-      break
-    }
+    // case BlockEnum.Agent: {
+    //   const payload = data as AgentNodeType
+    //   const outputs: Var[] = []
+    //   Object.keys(payload.output_schema?.properties || {}).forEach(
+    //     (outputKey) => {
+    //       const output = payload.output_schema.properties[outputKey]
+    //       outputs.push({
+    //         variable: outputKey,
+    //         type:
+    //           output.type === 'array'
+    //             ? (`Array[${output.items?.type
+    //               ? output.items.type.slice(0, 1).toLocaleUpperCase()
+    //               + output.items.type.slice(1)
+    //               : 'Unknown'
+    //             }]` as VarType)
+    //             : (`${output.type
+    //               ? output.type.slice(0, 1).toLocaleUpperCase()
+    //               + output.type.slice(1)
+    //               : 'Unknown'
+    //             }` as VarType),
+    //       })
+    //     },
+    //   )
+    //   res.vars = [...outputs, ...TOOL_OUTPUT_STRUCT, ...AGENT_OUTPUT_STRUCT]
+    //   break
+    // }
 
     // case BlockEnum.DataSource: {
     //   const payload = data as DataSourceNodeType
@@ -763,7 +747,7 @@ export const toNodeOutputVars = (
   environmentVariables: EnvironmentVariable[] = [],
   conversationVariables: ConversationVariable[] = [],
   // ragVariables: RAGPipelineVariable[] = [],
-  // allPluginInfoList: Record<string, ToolWithProvider[]>,
+  allPluginInfoList: Record<string, ToolWithProvider[]>,
   schemaTypeDefinitions?: SchemaTypeDefinition[],
 ): NodeOutPutVar[] => {
   // ENV_NODE data format
@@ -829,7 +813,7 @@ export const toNodeOutputVars = (
           node,
           isChatMode,
           filterVar,
-          // allPluginInfoList,
+          allPluginInfoList,
           // ragVariablesInDataSource.map(
           //   (ragVariable: RAGPipelineVariable) =>
           //     ({
@@ -969,7 +953,13 @@ export const getVarType = ({
   environmentVariables = [],
   conversationVariables = [],
   // ragVariables = [],
-  // allPluginInfoList,
+  allPluginInfoList = {
+    buildInTools: [],
+    customTools: [],
+    workflowTools: [],
+    mcpTools: [],
+    dataSourceList: [],
+  },
   schemaTypeDefinitions,
   preferSchemaType,
 }: {
@@ -982,8 +972,8 @@ export const getVarType = ({
   isConstant?: boolean;
   environmentVariables?: EnvironmentVariable[];
   conversationVariables?: ConversationVariable[];
-  // ragVariables?: RAGPipelineVariable[];
-  // allPluginInfoList: Record<string, ToolWithProvider[]>;
+  // ragVariables?: Var[];
+  allPluginInfoList: Record<string, ToolWithProvider[]>;
   schemaTypeDefinitions?: SchemaTypeDefinition[];
   preferSchemaType?: boolean;
 }): VarType => {
@@ -996,7 +986,7 @@ export const getVarType = ({
     environmentVariables,
     conversationVariables,
     // ragVariables,
-    // allPluginInfoList,
+    allPluginInfoList,
     schemaTypeDefinitions,
   )
 
@@ -1123,7 +1113,7 @@ export const toNodeAvailableVars = ({
   conversationVariables,
   filterVar,
   // ragVariables,
-  // allPluginInfoList,
+  allPluginInfoList,
   schemaTypeDefinitions,
 }: {
   parentNode?: Node | null;
@@ -1138,7 +1128,7 @@ export const toNodeAvailableVars = ({
   filterVar: (payload: Var, selector: ValueSelector) => boolean;
   // rag variables
   // ragVariables?: RAGPipelineVariable[];
-  // allPluginInfoList: Record<string, ToolWithProvider[]>;
+  allPluginInfoList: Record<string, ToolWithProvider[]>;
   schemaTypeDefinitions?: SchemaTypeDefinition[];
 }): NodeOutPutVar[] => {
   const beforeNodesOutputVars = toNodeOutputVars(
@@ -1148,8 +1138,8 @@ export const toNodeAvailableVars = ({
     environmentVariables,
     conversationVariables,
     // ragVariables,
-    // allPluginInfoList,
-    // schemaTypeDefinitions,
+    allPluginInfoList,
+    schemaTypeDefinitions,
   )
   // const isInIteration = parentNode?.data.type === BlockEnum.Iteration
   // if (isInIteration) {

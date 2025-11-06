@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { 
   isConversationVar,
   isENV,
@@ -6,28 +6,26 @@ import {
   isSystemVar,
 } from '../utils'
 import { VarInInspectType } from '@/types/workflow'
+import { Variable02 } from '@/components/base/icons/src/vender/solid/development'
+import { BubbleX, Env } from '@/components/base/icons/src/vender/line/others'
+import { Loop } from '@/components/base/icons/src/vender/workflow'
+import { InputField } from '@/components/base/icons/src/vender/pipeline'
 
-// 定义图标组件 - 使用 UnoCSS 图标类名
-const Variable02Icon = 'i-ri-variable-2-line'
-const BubbleXIcon = 'i-ri-bubble-x-line'
-const EnvIcon = 'i-ri-environment-line'
-const LoopIcon = 'i-ri-loop-line'
-const InputFieldIcon = 'i-ri-input-field-line'
 
-export const useVarIcon = (variables: string[], variableCategory?: VarInInspectType | string): string => {
+export const useVarIcon = (variables: string[], variableCategory?: VarInInspectType | string): Component => {
   if (variableCategory === 'loop')
-    return LoopIcon
+    return Loop
 
   if (variableCategory === 'rag' || isRagVariableVar(variables))
-    return InputFieldIcon
+    return InputField
 
   if (isENV(variables) || variableCategory === VarInInspectType.environment || variableCategory === 'environment')
-    return EnvIcon
+    return Env
 
   if (isConversationVar(variables) || variableCategory === VarInInspectType.conversation || variableCategory === 'conversation')
-    return BubbleXIcon
+    return BubbleX
 
-  return Variable02Icon
+  return Variable02
 }
 
 export const useVarColor = (

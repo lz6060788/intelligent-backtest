@@ -22,6 +22,7 @@ export const enum BlockEnum {
   LoopEnd = 'loop-end',
   DataSource = 'DataSource',
   Calculator = 'Calculator',
+  Tool = 'tool',
 }
 
 export type Branch = {
@@ -81,7 +82,7 @@ export type CommonNodeType<T = {}> = {
   // _dimmed?: boolean
 } & T;
 
-export type Node = VueFlowNode<CommonNodeType>
+export type Node<T = {}> = VueFlowNode<CommonNodeType<T>>
 
 export type GraphNode = VueFlowGraphNode<CommonNodeType>
 

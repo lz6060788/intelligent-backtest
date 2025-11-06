@@ -1,5 +1,5 @@
 <template>
-  <i v-if="iconClass" :class="cn('size-3.5 shrink-0', iconClass, className)" />
+  <component :is="iconComponent" :class="cn('size-3.5 shrink-0', className)" />
 </template>
 
 <script setup lang="ts">
@@ -18,6 +18,6 @@ const props = withDefaults(defineProps<VariableIconProps>(), {
   variables: () => [],
 })
 
-const iconClass = computed(() => useVarIcon(props.variables || [], props.variableCategory))
+const iconComponent = computed(() => useVarIcon(props.variables || [], props.variableCategory))
 </script>
 

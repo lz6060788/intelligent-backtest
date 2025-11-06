@@ -1,7 +1,7 @@
 <template>
   <VariableLabel
     :class="cn(
-      'w-full space-x-[1px] bg-workflow-block-parma-bg px-1 shadow-none',
+      'w-full space-x-[1px] px-1 shadow-none',
     )"
     v-bind="variablePayload"
   />

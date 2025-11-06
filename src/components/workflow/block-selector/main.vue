@@ -118,9 +118,12 @@ const tags = ref<string[]>([])
 
 const open = ref(false)
 
+const emit = defineEmits<{
+  (e: 'select', type: BlockEnum, toolDefaultValue: any): void
+}>()
 const handleSelect: OnSelectBlock = (type, toolDefaultValue) => {
   open.value = false;
-  props.onSelect(type, toolDefaultValue)
+  emit('select', type, toolDefaultValue)
 }
 
 const {

@@ -3,6 +3,7 @@ import presetUno from '@unocss/preset-uno'
 import presetAttributify from '@unocss/preset-attributify'
 import presetIcons from '@unocss/preset-icons'
 import presetWind from '@unocss/preset-wind'
+import transformerDirectives from '@unocss/transformer-directives'
 import { cssVars } from './src/theme/index'
 
 export default defineConfig({
@@ -10,7 +11,10 @@ export default defineConfig({
     presetUno(), // 包含 Tailwind 兼容的工具类
     presetAttributify(), // 支持属性模式 (例如 <div text-red-500>)
     presetIcons(), // 支持图标
-    presetWind() // 支持 Wind CSS
+    presetWind(), // 支持 Wind CSS
+  ],
+  transformers: [
+    transformerDirectives(),
   ],
   theme: {},
   rules: [
