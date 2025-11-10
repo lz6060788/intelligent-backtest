@@ -200,3 +200,4 @@ export const FULL_DOC_PREVIEW_LENGTH = 50
 
 export const JSON_SCHEMA_MAX_DEPTH = 10
 
+export const UNDO_REDO_HISTORY_MAX_COUNT = 5

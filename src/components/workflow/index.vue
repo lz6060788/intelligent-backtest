@@ -10,7 +10,7 @@
       @node-click="handleNodeClick"
       @node-drag-start="handleNodeDragStart"
       @node-drag="handleNodeDrag"
-      @node-dragstop="handleNodeDragStop"
+      @node-drag-stop="handleNodeDragStop"
       @node-mouse-enter="handleNodeMouseEnter"
       @node-mouse-leave="handleNodeMouseLeave"
       @node-context-menu="handleNodeContextMenu"
@@ -41,8 +41,8 @@
         <customEdge v-bind="customEdgeProps"></customEdge>
       </template>
       <Background :size="1" pattern-color="#fff" :gap="8"></Background>
-      <Controls />
-      <MiniMap />
+      <!-- <Controls /> -->
+      <Operator />
     </VueFlow>
   </div>
 </template>
@@ -51,10 +51,9 @@
 import { computed, onMounted, provide, ref } from 'vue'
 import { VueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
-import { MiniMap } from '@vue-flow/minimap'
+// import { Controls } from '@vue-flow/controls'
+import Operator from './operator/index.vue'
 import '@vue-flow/controls/dist/style.css'
-import '@vue-flow/minimap/dist/style.css'
 import customNode from './nodes/index.vue';
 import customEdge from './edge/index.vue';
 import customLoopStartNode from './nodes/loop-start/index.vue'

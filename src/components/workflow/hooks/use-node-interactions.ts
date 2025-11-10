@@ -10,15 +10,26 @@ import { generateNewNode, genNewNodeTitleFromOld, getNestedNodePosition, getNode
 import type { LoopNodeType } from '../nodes/loop/type';
 import { useNodeLoopInteractions } from '@/components/workflow/nodes/loop/use-interactions'
 import { useNodesMetaData } from './use-nodes-meta-data';
-import { useWorkflow } from './use-workflow';
+import {
+  useNodesReadOnly,
+  useWorkflow,
+  useWorkflowReadOnly,
+} from './use-workflow'
+import {
+  WorkflowHistoryEvent,
+  useWorkflowHistory,
+} from './use-workflow-history'
 
 export const useNodesInteractions = () => {
   const store = useVueFlow();
   const workflowStore = useWorkflowStore();
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const { getWorkflowReadOnly } = useWorkflowReadOnly()
   const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy }
     = useNodeLoopInteractions()
   const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
   const { getAfterNodesInSameBranch } = useWorkflow()
+  const { store: workflowHistoryStore, saveStateToHistory, undo, redo } = useWorkflowHistory()
 
   const dragNodeStartPosition = reactive({ x: 0, y: 0 } as {
     x: number;
@@ -26,6 +37,7 @@ export const useNodesInteractions = () => {
   })
 
   const handleNodeDragStart = (e: NodeDragEvent) => {
+    if (getNodesReadOnly()) return
     const node = e.node;
 
     dragNodeStartPosition.x = node.position.x;
@@ -33,7 +45,7 @@ export const useNodesInteractions = () => {
   }
 
   const handleNodeDrag = (e: NodeDragEvent) => {
-    // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
     const { node, event } = e;
 
     if (node.type === CUSTOM_LOOP_START_NODE) return
@@ -55,21 +67,24 @@ export const useNodesInteractions = () => {
   }
 
   const handleNodeDragStop = (e: NodeDragEvent) => {
+    if (getNodesReadOnly()) return
     const node = e.node;
     const { x, y } = dragNodeStartPosition
+    console.log(x, y)
     if (!(x === node.position.x && y === node.position.y)) {
       // handleSyncWorkflowDraft()
 
       if (x !== 0 && y !== 0) {
         // selecting a note will trigger a drag stop event with x and y as 0
-        // saveStateToHistory(WorkflowHistoryEvent.NodeDragStop, {
-        //   nodeId: node.id,
-        // })
+        saveStateToHistory(WorkflowHistoryEvent.NodeDragStop, {
+          nodeId: node.id,
+        })
       }
     }
   }
 
   const handleNodeMouseEnter = (e: NodeMouseEvent) => {
+    if (getNodesReadOnly()) return
     const node = e.node;
     const { nodes, edges } = store;
     const { connectingNodePayload, setEnteringNodePayload }
@@ -123,6 +138,7 @@ export const useNodesInteractions = () => {
   }
 
   const handleNodeMouseLeave = (e: NodeMouseEvent) => {
+    if (getNodesReadOnly()) return
     const { setEnteringNodePayload } = workflowStore
     setEnteringNodePayload(undefined)
     const { nodes, edges } = store
@@ -171,11 +187,23 @@ export const useNodesInteractions = () => {
     // handleSyncWorkflowDraft()
   }
 
+  const handleNodesCancelSelected = () => {
+    const { nodes } = store
+
+    nodes.value.forEach((node) => {
+      node.data.selected = false
+    })
+  }
+
   const handleNodeClick = (e: NodeMouseEvent) => {
+    if (e.node.type === CUSTOM_LOOP_START_NODE) return
     handleNodeSelect(e.node.id);
   }
 
   const handleNodeContextMenu = (e: NodeMouseEvent) => {
+
+    if (e.node.type === CUSTOM_LOOP_START_NODE)
+      return
     e.event.preventDefault()
     const container = document.querySelector('#workflow-container')
     const { x, y } = container!.getBoundingClientRect()
@@ -189,7 +217,7 @@ export const useNodesInteractions = () => {
   }
 
   const handleNodeConnectStart = (e: { event?: MouseEvent } & OnConnectStartParams) => {
-    // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
     const { nodeId, handleType, handleId } = e
 
     if (nodeId && handleType) {
@@ -217,6 +245,7 @@ export const useNodesInteractions = () => {
   const handleNodeConnect = 
   ({ source, sourceHandle, target, targetHandle }: Connection) => {
     if (source === target) return
+    if (getNodesReadOnly()) return
 
     const { nodes, edges, addEdges } = store
     const targetNode = nodes.value.find(node => node.id === target!)
@@ -276,13 +305,13 @@ export const useNodesInteractions = () => {
     addEdges(newEdge)
 
     // handleSyncWorkflowDraft()
-    // saveStateToHistory(WorkflowHistoryEvent.NodeConnect, {
-    //   nodeId: targetNode?.id,
-    // })
+    saveStateToHistory(WorkflowHistoryEvent.NodeConnect, {
+      nodeId: targetNode?.id,
+    })
   }
 
   const handleNodeConnectEnd = (e?: MouseEvent) => {
-      // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
 
       const {
         connectingNodePayload,
@@ -350,7 +379,7 @@ export const useNodesInteractions = () => {
   }
 
   const handleNodeDelete = (nodeId: string) => {
-      // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
 
       const { nodes, setNodes, edges, setEdges } = store
 
@@ -492,9 +521,9 @@ export const useNodesInteractions = () => {
       setEdges(newEdges)
       // handleSyncWorkflowDraft()
 
-      // saveStateToHistory(WorkflowHistoryEvent.NodeDelete, {
-      //   nodeId: currentNode.id,
-      // })
+      saveStateToHistory(WorkflowHistoryEvent.NodeDelete, {
+        nodeId: currentNode.id,
+      })
   }
 
   const handleNodeAdd: OnNodeAdd = ({
@@ -502,7 +531,7 @@ export const useNodesInteractions = () => {
       sourceHandle = 'source',
       targetHandle = 'target',
     }, { prevNodeId, prevNodeSourceHandle, nextNodeId, nextNodeTargetHandle }) => {
-      // if (getNodesReadOnly()) return
+      if (getNodesReadOnly()) return
 
       const { nodes, setNodes, edges, setEdges } = store
       const nodesWithSameType = nodes.value.filter(
@@ -990,13 +1019,14 @@ export const useNodesInteractions = () => {
         setEdges(newEdges)
       }
       // handleSyncWorkflowDraft()
-      // saveStateToHistory(WorkflowHistoryEvent.NodeAdd, { nodeId: newNode.id })
+      saveStateToHistory(WorkflowHistoryEvent.NodeAdd, { nodeId: newNode.id })
   }
 
   const handleNodesCopy = (nodeId?: string) => {
+    if (getNodesReadOnly()) return
     const { setClipboardElements } = workflowStore;
     const { nodes } = store;
-    
+
     if (nodeId) {
       const nodeToCopy = nodes.value.find(
         node =>
@@ -1034,8 +1064,8 @@ export const useNodesInteractions = () => {
     }
   }
 
-  // dify粘贴位置为鼠标位置，当前不一致
   const handleNodesPaste = () => {
+    if (getNodesReadOnly()) return
     const { clipboardElements, mousePosition } = workflowStore;
     const { nodes, edges, project, setNodes, setEdges } = store;
 
@@ -1187,22 +1217,22 @@ export const useNodesInteractions = () => {
 
       setNodes([...nodes.value, ...nodesToPaste])
       setEdges([...edges.value, ...edgesToPaste])
-      // saveStateToHistory(WorkflowHistoryEvent.NodePaste, {
-      //   nodeId: nodesToPaste?.[0]?.id,
-      // })
+      saveStateToHistory(WorkflowHistoryEvent.NodePaste, {
+        nodeId: nodesToPaste?.[0]?.id,
+      })
       // handleSyncWorkflowDraft()
     }
   }
 
   const handleNodesDuplicate = (nodeId?: string) => {
-    // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
 
     handleNodesCopy(nodeId)
     handleNodesPaste()
   }
 
   const handleNodesDelete = () => {
-    // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
 
     const { nodes, edges } = store
 
@@ -1227,7 +1257,7 @@ export const useNodesInteractions = () => {
   }
 
   const handleNodeDisconnect = (nodeId: string) => {
-      // if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return
 
       const { nodes, setNodes, edges, setEdges } = store
       const currentNode = nodes.value.find(node => node.id === nodeId)!
@@ -1245,19 +1275,45 @@ export const useNodesInteractions = () => {
           }
         }
       })
-      return edges.value.filter(
+      edges.value = edges.value.filter(
         edge =>
           !connectedEdges.find(
             connectedEdge => connectedEdge.id === edge.id,
           ),
       )
       // handleSyncWorkflowDraft()
-      // saveStateToHistory(WorkflowHistoryEvent.EdgeDelete)
+      saveStateToHistory(WorkflowHistoryEvent.EdgeDelete)
   }
 
-  const handleHistoryBack = () => {}
+  const handleHistoryBack = () => {
+    if (getNodesReadOnly() || getWorkflowReadOnly()) return
 
-  const handleHistoryForward = () => {}
+    const { setEdges, setNodes } = store
+    undo()
+
+    const currentHistory = workflowHistoryStore.getCurrentHistory()
+    if (currentHistory) {
+      const { nodes, edges } = currentHistory
+      if (nodes && edges) {
+        setEdges(edges)
+        setNodes(nodes)
+      }
+    }
+  }
+
+  const handleHistoryForward = () => {
+    if (getNodesReadOnly() || getWorkflowReadOnly()) return
+    const { setEdges, setNodes } = store
+    redo()
+    const currentHistory = workflowHistoryStore.getCurrentHistory()
+    if (currentHistory) {
+      const { nodes, edges } = currentHistory
+      if (nodes && edges) {
+        setEdges(edges)
+        setNodes(nodes)
+      }
+    }
+  }
 
   return {
     handleNodeClick,
@@ -1267,6 +1323,7 @@ export const useNodesInteractions = () => {
     handleNodeMouseEnter,
     handleNodeMouseLeave,
     handleNodeSelect,
+    handleNodesCancelSelected,
     handleNodeContextMenu,
     handleNodeConnectStart,
     handleNodeConnect,

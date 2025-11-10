@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  outline: none;
 }
 
 .ellipsis {
@@ -43,10 +44,10 @@
 }
 
 .custom-popover {
-  padding: 0;
-  border: none;
-  box-shadow: none;
-  background: transparent;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 .text-text-warning {

@@ -34,7 +34,7 @@ export type WorkflowSliceShape = {
 }
 
 export const createWorkflowSlice = () => {
-  const workflowRunningData = ref();
+  const workflowRunningData = ref<WorkflowRunningData>();
   const setWorkflowRunningData = (val: WorkflowSliceShape['workflowRunningData']) => workflowRunningData.value = val;
   const clipboardElements = ref<Node[]>([]);
   const setClipboardElements = (val: WorkflowSliceShape['clipboardElements']) => clipboardElements.value = val;

@@ -18,7 +18,7 @@
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center flex-1">
         <block-icon :type="props.data.type"></block-icon>
-        <div class="flex-1 ellipsis ml-2">{{ props.data.title }}</div>
+        <div class="flex-1 ellipsis ml-2">{{ props.data.title }}-{{ props.id }}</div>
       </div>
     </div>
     <slot></slot>

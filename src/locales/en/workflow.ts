@@ -177,10 +177,7 @@ const translation = {
     clearHistory: 'Clear History',
     hint: 'Hint',
     hintText: 'Your editing actions are tracked in a change history, which is stored on your device for the duration of this session. This history will be cleared when you leave the editor.',
-    stepBackward_one: '{{count}} step backward',
-    stepBackward_other: '{{count}} steps backward',
-    stepForward_one: '{{count}} step forward',
-    stepForward_other: '{{count}} steps forward',
+
     sessionStart: 'Session Start',
     currentState: 'Current State',
     nodeTitleChange: 'Node title changed',
@@ -196,6 +193,8 @@ const translation = {
     noteChange: 'Note changed',
     noteDelete: 'Note deleted',
     edgeDelete: 'Node disconnected',
+    stepForward: '{count, plural, one{{count} step forward} other{{count} steps forward}}',
+    stepBackward: '{count, plural, one{{count} step backward} other{{count} steps backward}}',
   },
   errorMsg: {
     fieldRequired: '{{field}} is required',

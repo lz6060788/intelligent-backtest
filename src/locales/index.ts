@@ -12,4 +12,5 @@ const i18n = createI18n({
   }
 })
 
+console.log(zh)
 export default i18n

@@ -8,7 +8,7 @@
     @click="handleHandleClick"
   >
     <BlockSelector
-      v-if="isConnectable"
+      v-if="isConnectable && !getNodesReadOnly()"
       @select="handleSelect"
       placement='right'
       :triggerClassName="open => `
@@ -31,10 +31,13 @@ import { useNodesInteractions } from '@/components/workflow/hooks/use-node-inter
 import { useAvailableBlocks } from '@/components/workflow/hooks/use-available-blocks'
 import { computed } from 'vue';
 import cn from '@/utils/classnames'
+import { useNodesReadOnly } from '@/components/workflow/hooks/use-workflow'
 
 const { handleNodeAdd } = useNodesInteractions()
 
 const props = withDefaults(defineProps<HandleProps>(), {});
+
+const { getNodesReadOnly } = useNodesReadOnly()
 
 const { availableNextBlocks } = useAvailableBlocks(props.data.type, props.data.isInLoop)
 const isConnectable = computed(() => !!availableNextBlocks.length)

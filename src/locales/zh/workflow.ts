@@ -196,6 +196,8 @@ const translation = {
     noteChange: '注释已更改',
     noteDelete: '注释已删除',
     edgeDelete: '块已断开连接',
+    stepForward: '{count} 步前进',
+    stepBackward: '{count} 步后退',
   },
   errorMsg: {
     fieldRequired: '{{field}} 不能为空',

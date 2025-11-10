@@ -106,3 +106,11 @@ export type EnvironmentVariable = {
   value_type: 'string' | 'number' | 'secret'
   description: string
 }
+
+export enum WorkflowRunningStatus {
+  Waiting = 'waiting',
+  Running = 'running',
+  Succeeded = 'succeeded',
+  Failed = 'failed',
+  Stopped = 'stopped',
+}
