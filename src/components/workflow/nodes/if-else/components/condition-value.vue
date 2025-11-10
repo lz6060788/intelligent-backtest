@@ -41,6 +41,7 @@ import type {
 import {
   VariableLabelInText,
 } from '@/components/workflow/nodes/_base/variable/variable-label'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 /**
  * 条件值组件的属性定义
@@ -59,7 +60,8 @@ interface ConditionValueProps {
 const props = defineProps<ConditionValueProps>()
 
 const { t } = useI18n()
-const { nodes } = useVueFlow()
+const { instanceId } = useWorkflowInstance()
+const { nodes } = useVueFlow(instanceId)
 
 const variableName = computed(() => 
   props.labelName || (isSystemVar(props.variableSelector) 

@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWorkflowStore } from '@/components/workflow/store'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 import { BlockEnum } from '@/types'
 import type {
   Node,
@@ -99,9 +99,10 @@ interface NodeGroupItemProps {
 const props = defineProps<NodeGroupItemProps>()
 
 const { t } = useI18n()
-const workflowStore = useWorkflowStore()
-const { enteringNodePayload, hoveringAssignVariableGroupId } = storeToRefs(workflowStore)
-const { nodes } = useVueFlow()
+const { instance: workflowStore, instanceId } = useWorkflowInstance()
+const enteringNodePayload = computed(() => workflowStore.enteringNodePayload.value)
+const hoveringAssignVariableGroupId = computed(() => workflowStore.hoveringAssignVariableGroupId.value)
+const { nodes } = useVueFlow(instanceId)
 
 const {
   handleGroupItemMouseEnter,

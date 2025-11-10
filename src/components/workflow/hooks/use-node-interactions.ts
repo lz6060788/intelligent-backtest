@@ -1,7 +1,7 @@
 import { getOutgoers, type Connection, type GraphEdge, type NodeDragEvent, type NodeMouseEvent, type OnConnectStartParams } from '@vue-flow/core';
 import { reactive, unref } from 'vue';
 import { useVueFlow, getConnectedEdges } from '@vue-flow/core'
-import { useWorkflowStore } from '../store/index';
+import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { cloneDeep } from 'lodash-es'
 import { BlockEnum, type Edge, type Node, type OnNodeAdd } from '@/types'
 import { CUSTOM_EDGE, CUSTOM_LOOP_START_NODE, LOOP_CHILDREN_Z_INDEX, NODE_WIDTH_X_OFFSET, X_OFFSET, Y_OFFSET } from '../nodes/_base/node/constant';
@@ -21,8 +21,8 @@ import {
 } from './use-workflow-history'
 
 export const useNodesInteractions = () => {
-  const store = useVueFlow();
-  const workflowStore = useWorkflowStore();
+  const { instance: workflowStore, instanceId } = useWorkflowInstance();
+  const store = useVueFlow(instanceId);
   const { getNodesReadOnly } = useNodesReadOnly()
   const { getWorkflowReadOnly } = useWorkflowReadOnly()
   const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy }
@@ -91,10 +91,10 @@ export const useNodesInteractions = () => {
       = workflowStore;
 
     // 连接到特殊节点时高亮对应的节点
-    if (connectingNodePayload) {
-      if (connectingNodePayload.nodeId === node.id) return
+    if (connectingNodePayload.value) {
+      if (connectingNodePayload.value?.nodeId === node.id) return
       const connectingNode: Node = nodes.value.find(
-        n => n.id === connectingNodePayload.nodeId,
+        n => n.id === connectingNodePayload.value?.nodeId,
       )!
       const sameLevel = connectingNode.parentNode === node.parentNode
 
@@ -324,15 +324,16 @@ export const useNodesInteractions = () => {
         //   = workflowStore
         const { project } = store
         const { nodes } = store
-        const fromHandleType = connectingNodePayload.handleType
-        const fromHandleId = connectingNodePayload.handleId
+        const fromHandleType = connectingNodePayload.value?.handleType
+        const fromHandleId = connectingNodePayload.value?.handleId
         const fromNode = nodes.value.find(
-          n => n.id === connectingNodePayload.nodeId,
+          n => n.id === connectingNodePayload.value?.nodeId,
         )!
-        const toNode = nodes.value.find(n => n.id === enteringNodePayload.nodeId)!
-        const toParentNode = nodes.value.find(n => n.id === toNode.parentNode)
+        const toNode = nodes.value.find(n => n.id === enteringNodePayload.value?.nodeId)
+        if (!toNode) return
+        const toParentNode = nodes.value.find(n => n.id === toNode?.parentNode)
 
-        if (fromNode.parentNode !== toNode.parentNode) return
+        if (fromNode?.parentNode !== toNode?.parentNode) return
 
         // const { x, y } = project({ x: e?.x || 0, y: e?.y || 0 })
 

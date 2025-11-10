@@ -28,22 +28,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RiArrowGoBackLine, RiArrowGoForwardFill } from '@remixicon/vue'
-import { useWorkflowStore } from '../store'
 // import { useNodesReadOnly } from '../hooks'
 import ViewWorkflowHistory from './view-workflow-history.vue'
 import cn from '@/utils/classnames'
 import { storeToRefs } from 'pinia'
 import { useVueFlow } from '@vue-flow/core'
-
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
+import { useNodesReadOnly } from '@/components/workflow/hooks/use-workflow'
 
 const { t } = useI18n()
-const workflowStore = useWorkflowStore()
-const { currentHistoryIndex, historyList } = storeToRefs(workflowStore)
-// const { nodesReadOnly } = useNodesReadOnly()
-const nodesReadOnly = ref(false)
+const { instance: workflowStore, instanceId } = useWorkflowInstance()
+const { currentHistoryIndex, historyList } = toRefs(workflowStore)
+const { nodesReadOnly } = useNodesReadOnly()
 
 const buttonsDisabled = computed(() => {
   return {
@@ -53,20 +52,20 @@ const buttonsDisabled = computed(() => {
 })
 
 const handleUndoClick = () => {
-  if (!nodesReadOnly.value && !buttonsDisabled.value.undo) {
+  if (!nodesReadOnly && !buttonsDisabled.value.undo) {
     workflowStore.undo()
     updateNodesAndEdges()
   }
 }
 
 const handleRedoClick = () => {
-  if (!nodesReadOnly.value && !buttonsDisabled.value.redo) {
+  if (!nodesReadOnly && !buttonsDisabled.value.redo) {
     workflowStore.redo()
     updateNodesAndEdges()
   }
 }
 
-const { setNodes, setEdges, nodes } = useVueFlow()
+const { setNodes, setEdges, nodes } = useVueFlow(instanceId)
 const updateNodesAndEdges = () => {
   const currentHistory = workflowStore.getCurrentHistory()
   if (currentHistory) {

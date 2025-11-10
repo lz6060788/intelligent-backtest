@@ -51,6 +51,7 @@ import type { NodeDefault } from '@/types/node'
 import { BLOCK_CLASSIFICATIONS } from './constants.ts'
 import type { ToolDefaultValue } from './types'
 import Badge from '@/components/base/badge/index.vue'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 interface BlocksProps {
   searchText: string
@@ -62,7 +63,8 @@ interface BlocksProps {
 const props = defineProps<BlocksProps>()
 
 const { t } = useI18n()
-const { nodes } = useVueFlow()
+// const { instanceId } = useWorkflowInstance()
+// const { nodes } = useVueFlow(instanceId)
 
 const groups = computed(() => {
   return BLOCK_CLASSIFICATIONS.reduce((acc, classification) => {
@@ -76,7 +78,6 @@ const groups = computed(() => {
     }
   }, {} as Record<string, typeof props.blocks>)
 })
-console.log('groups', groups)
 
 const isEmpty = computed(() => Object.values(groups.value).every(list => !list.length))
 

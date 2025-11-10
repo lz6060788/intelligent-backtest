@@ -22,6 +22,7 @@ import type {
 } from './type'
 import useIsVarFileAttribute from './use-is-var-file-attribute'
 import { useWorkflowStore } from '@/components/workflow/store'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 /**
  * 使用配置的composable
@@ -29,7 +30,8 @@ import { useWorkflowStore } from '@/components/workflow/store'
  * @param payload 循环节点类型数据
  */
 const useConfig = (id: string, payload: LoopNodeType) => {
-  const { nodes } = useVueFlow()
+  const { instanceId } = useWorkflowInstance()
+  const { nodes } = useVueFlow(instanceId)
   const workflowStore = useWorkflowStore()
   
   // 获取节点只读状态（需要根据实际情况实现）

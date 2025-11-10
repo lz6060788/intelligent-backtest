@@ -30,11 +30,13 @@ import LoopStartNodeDumb from '../loop-start/dumb.vue'
 import { useNodeLoopInteractions } from './use-interactions'
 import AddBlock from './add-block.vue'
 import cn from '@/utils/classnames'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 const props = defineProps<NodeProps<LoopNodeType>>()
 
 const { id, data } = props
-const { viewport } = useVueFlow()
+const { instanceId } = useWorkflowInstance()
+const { viewport } = useVueFlow(instanceId)
 const { handleNodeLoopRerender } = useNodeLoopInteractions()
 const nodesInitialized = useNodesInitialized();
 

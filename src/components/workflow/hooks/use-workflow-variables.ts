@@ -1,5 +1,5 @@
 import { useI18n } from 'vue-i18n'
-import { useWorkflowStore } from '../store'
+import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { getVarType, toNodeAvailableVars, type SchemaTypeDefinition } from '@/components/workflow/nodes/_base/variable/utils'
 import type {
   Node,
@@ -13,13 +13,13 @@ import type { Type } from '../nodes/llm/types'
 import { storeToRefs } from 'pinia'
 // import useMatchSchemaType from '../nodes/_base/variable/use-match-schema-type'
 import { api } from '@/api'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { ToolWithProvider } from '../block-selector/types'
 
 export const useWorkflowVariables = () => {
   const { t } = useI18n()
-  const workflowStore = useWorkflowStore()
-  const { environmentVariables } = storeToRefs(workflowStore)
+  const { instance: workflowStore, instanceId } = useWorkflowInstance()
+  const environmentVariables = computed(() => workflowStore.environmentVariables.value)
   // const { schemaTypeDefinitions } = useMatchSchemaType()
   // TODO: 需要后续完善协议获取，用于工具节点的变量输出
   const schemaTypeDefinitions: SchemaTypeDefinition[] = []
@@ -102,7 +102,7 @@ export const useWorkflowVariables = () => {
       availableNodes,
       isChatMode,
       isConstant,
-      environmentVariables,
+      environmentVariables: environmentVariables.value,
       // conversationVariables,
       // ragVariables: ragPipelineVariables,
       allPluginInfoList: {
@@ -124,7 +124,8 @@ export const useWorkflowVariables = () => {
 }
 
 export const useWorkflowVariableType = () => {
-  const store = useVueFlow()
+  const { instanceId } = useWorkflowInstance()
+  const store = useVueFlow(instanceId)
   const {
     nodes,
   } = store

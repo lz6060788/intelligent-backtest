@@ -81,14 +81,13 @@ import NodeTargetHandle from '../nodes/_base/targetHandle/index.vue'
 import BlockIcon from '../block-icon.vue'
 import type { NodeProps } from '@/types'
 import { NodeRunningStatus } from '@/types'
-// import { useNodesReadOnly } from '../hooks/use-nodes-readonly'
+import { useNodesReadOnly } from '../hooks/use-nodes-readonly'
 
 interface SimpleNodeProps extends NodeProps {}
 
 const props = defineProps<SimpleNodeProps>()
 
-// const { nodesReadOnly } = useNodesReadOnly()
-const nodesReadOnly = ref(false)
+const { nodesReadOnly } = useNodesReadOnly()
 
 const showSelectedBorder = computed(() =>
   props.data.selected || props.data._isBundled || props.data._isEntering

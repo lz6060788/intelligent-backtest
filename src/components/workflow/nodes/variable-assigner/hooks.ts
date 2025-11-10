@@ -3,15 +3,16 @@ import { uniqBy } from 'lodash-es'
 import { useNodeDataUpdate, useWorkflow, useWorkflowVariables } from '@/components/workflow/hooks'
 import type { Node, ValueSelector, Var } from '@/types'
 import { useWorkflowStore } from '@/components/workflow/store'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 import type { VarGroupItem, VariableAssignerNodeType } from './types'
 import { useVueFlow } from '@vue-flow/core'
 
 export const useVariableAssigner = () => {
-  const workflowStore = useWorkflowStore()
+  const { instance: workflowStore, instanceId} = useWorkflowInstance()
   const { handleNodeDataUpdate } = useNodeDataUpdate()
 
   const handleAssignVariableValueChange = (nodeId: string, value: ValueSelector, varDetail: Var, groupId?: string) => {
-    const { nodes } = useVueFlow()
+    const { nodes } = useVueFlow(instanceId)
     const node: Node<VariableAssignerNodeType> = nodes.value.find(node => node.id === nodeId)!
 
     let payload
@@ -52,7 +53,7 @@ export const useVariableAssigner = () => {
     value: ValueSelector,
     varDetail: Var,
   ) => {
-    const { nodes } = useVueFlow()
+    const { nodes } = useVueFlow(instanceId)
     const { setShowAssignVariablePopup } = workflowStore
 
     nodes.value.forEach((node) => {
@@ -88,7 +89,8 @@ export const useVariableAssigner = () => {
 }
 
 export const useGetAvailableVars = () => {
-  const { nodes } = useVueFlow()
+  const { instanceId } = useWorkflowInstance()
+  const { nodes } = useVueFlow(instanceId)
   const { getBeforeNodesInSameBranchIncludeParent } = useWorkflow()
   const { getNodeAvailableVars } = useWorkflowVariables()
 

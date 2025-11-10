@@ -3,9 +3,11 @@ import { useNodesMetaData } from "../../hooks/use-nodes-meta-data"
 import { BlockEnum, type GraphNode, type Node } from '@/types';
 import { LOOP_PADDING, CUSTOM_LOOP_START_NODE, LOOP_MIN_WIDTH, LOOP_MIN_HEIGHT } from "../_base/node/constant";
 import { generateNewNode } from "../../utils/node";
+import { useWorkflowInstance } from "../../hooks/use-workflow-instance";
 
 export const useNodeLoopInteractions = () => {
-  const store = useVueFlow();
+  const { instanceId } = useWorkflowInstance()
+  const store = useVueFlow(instanceId)
   const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
 
   const handleNodeLoopRerender = (nodeId: string) => {

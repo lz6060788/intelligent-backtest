@@ -1,12 +1,12 @@
 import type {
   Node,
   Edge,
-  WorkflowRunningData,
+  // WorkflowRunningData,
 } from '@/types'
 // import type { FileUploadConfigResponse } from '@/models/common'
-import { ref, type Ref } from 'vue'
 import type { WorkflowHistoryEventT } from '../hooks/use-workflow-history'
 import { UNDO_REDO_HISTORY_MAX_COUNT } from '@/config'
+import { ref, type Ref } from 'vue'
 
 export type WorkflowHistoryEventMeta = {
   nodeId?: string
@@ -33,6 +33,7 @@ export type WorkflowHistorySliceShape = {
   undo: (step?: number) => void
   redo: (step?: number) => void
   clearHistory: () => void
+  setHistoryList: (list: WorkflowHistoryState[]) => void
 }
 
 export const createWorkflowHistorySlice = () => {

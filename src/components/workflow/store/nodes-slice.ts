@@ -1,4 +1,5 @@
-import { ref } from 'vue'
+import type { Node } from '@/types'
+import { ref, type Ref } from 'vue'
 
 type NodeMenu = {
   top: number
@@ -9,9 +10,28 @@ type NodeMenu = {
 type ConnectionNodePayload = { nodeId: string; nodeType: string; handleType: string; handleId: string | null }
 
 type EnteringNodePayload = {
-    nodeId: string
-    nodeData: any
-  }
+  nodeId: string
+  nodeData: any
+}
+
+export type NodeSliceShape = {
+  showSingleRunPanel: Ref<boolean>
+  setShowSingleRunPanel: (val: boolean) => void
+  nodeAnimation: Ref<boolean>
+  setNodeAnimation: (val: boolean) => void
+  candidateNode: Ref<Node | undefined>
+  setCandidateNode: (val?: Node) => void
+  nodeMenu: Ref<NodeMenu | undefined>
+  setNodeMenu: (val?: NodeMenu) => void
+  showAssignVariablePopup: Ref<any>
+  setShowAssignVariablePopup: (val: any) => void
+  hoveringAssignVariableGroupId: Ref<any>
+  setHoveringAssignVariableGroupId: (val: any) => void
+  connectingNodePayload: Ref<ConnectionNodePayload | undefined>
+  setConnectingNodePayload: (val?: ConnectionNodePayload) => void
+  enteringNodePayload: Ref<EnteringNodePayload | undefined>
+  setEnteringNodePayload: (val?: EnteringNodePayload) => void
+}
 
 export const createNodeSlice = () => {
   const showSingleRunPanel = ref(false)

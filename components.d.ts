@@ -344,6 +344,7 @@ declare module 'vue' {
     PortalToFollowElemContent: typeof import('./src/components/base/portal-to-follow-elem/PortalToFollowElemContent.vue')['default']
     PortalToFollowElemTrigger: typeof import('./src/components/base/portal-to-follow-elem/PortalToFollowElemTrigger.vue')['default']
     PromptEngineering: typeof import('./src/components/base/icons/src/vender/line/development/PromptEngineering.vue')['default']
+    Provider: typeof import('./src/components/workflow/provider.vue')['default']
     PuzzlePiece01: typeof import('./src/components/base/icons/src/vender/line/development/PuzzlePiece01.vue')['default']
     Qa: typeof import('./src/components/base/icons/src/public/knowledge/dataset-card/Qa.vue')['default']
     QuestionAndAnswer: typeof import('./src/components/base/icons/src/vender/knowledge/QuestionAndAnswer.vue')['default']

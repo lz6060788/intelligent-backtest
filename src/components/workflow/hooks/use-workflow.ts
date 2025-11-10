@@ -4,11 +4,13 @@ import { CUSTOM_LOOP_START_NODE, SUPPORT_OUTPUT_VARS_NODE } from "../nodes/_base
 import { type Node, type Edge, type ValueSelector, type BlockEnum, WorkflowRunningStatus } from "@/types"
 import { uniqBy } from "lodash-es"
 import type { LoopNodeType } from "../nodes/loop/type"
-import { useWorkflowStore } from "../store"
+import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { storeToRefs } from "pinia"
+import { computed } from "vue"
 
 export const useWorkflow = () => {
-  const store = useVueFlow()
+  const { instanceId } = useWorkflowInstance()
+  const store = useVueFlow(instanceId)
   const { getAvailableBlocks } = useAvailableBlocks()
   const { nodesMap } = useNodesMetaData()
 
@@ -367,32 +369,32 @@ export const useWorkflow = () => {
 }
 
 export const useWorkflowReadOnly = () => {
-  const workflowStore = useWorkflowStore()
-  const { workflowRunningData } = storeToRefs(workflowStore)
+  const { instance:workflowStore } = useWorkflowInstance()
+  const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
 
   const getWorkflowReadOnly = () => {
-    return workflowRunningData.value?.result.status === WorkflowRunningStatus.Running
+    return workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running
   }
 
   return {
-    workflowReadOnly: workflowRunningData.value?.result.status === WorkflowRunningStatus.Running,
+    workflowReadOnly: workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running,
     getWorkflowReadOnly,
   }
 }
 
 export const useNodesReadOnly = () => {
-  const workflowStore = useWorkflowStore()
-  const { workflowRunningData } = storeToRefs(workflowStore)
+  const { instance: workflowStore } = useWorkflowInstance()
+  const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
   // const historyWorkflowData = workflowStore.historyWorkflowData
   // const isRestoring = workflowStore.isRestoring
 
   const getNodesReadOnly = () => {
-    return workflowRunningData.value?.result.status === WorkflowRunningStatus.Running
+    return workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running
     // return workflowRunningData.value?.result.status === WorkflowRunningStatus.Running || historyWorkflowData.value || isRestoring.value
   }
 
   return {
-    nodesReadOnly: !!(workflowRunningData.value?.result.status === WorkflowRunningStatus.Running),
+    nodesReadOnly: !!(workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running),
     // nodesReadOnly: !!(workflowRunningData.value?.result.status === WorkflowRunningStatus.Running || historyWorkflowData.value || isRestoring.value),
     getNodesReadOnly,
   }

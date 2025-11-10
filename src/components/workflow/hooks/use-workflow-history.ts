@@ -1,6 +1,6 @@
 import { useVueFlow } from "@vue-flow/core"
 import type { WorkflowHistoryEventMeta } from "../store/workflow-history-slice"
-import { useWorkflowStore } from "../store/index"
+import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { useI18n } from "vue-i18n"
 import { ref, unref } from "vue"
 import { cloneDeep, debounce } from "lodash-es"
@@ -27,8 +27,8 @@ export const WorkflowHistoryEvent = {
 export type WorkflowHistoryEventT = keyof typeof WorkflowHistoryEvent
 
 export const useWorkflowHistory = () => {
-  const store = useVueFlow()
-  const workflowHistoryStore = useWorkflowStore()
+  const { instance: workflowHistoryStore, instanceId } = useWorkflowInstance()
+  const store = useVueFlow(instanceId)
   const { t } = useI18n()
 
   const undoCallbacks = ref<(() => void)[]>([])
@@ -58,10 +58,8 @@ export const useWorkflowHistory = () => {
     redoCallbacks.value.forEach(callback => callback())
   }
 
-  // Some events may be triggered multiple times in a short period of time.
-  // We debounce the history state update to avoid creating multiple history states
-  // with minimal changes.
   const saveStateToHistoryRef = debounce((event: WorkflowHistoryEventT, meta?: WorkflowHistoryEventMeta) => {
+    console.log('saveStateToHistoryRef', event, meta, workflowHistoryStore)
     const nodes = unref(store.getNodes)
     const edges = unref(store.getEdges)
     workflowHistoryStore.addHistory(cloneDeep({
@@ -73,6 +71,7 @@ export const useWorkflowHistory = () => {
   }, 500)
 
   const saveStateToHistory = (event: WorkflowHistoryEventT, meta?: WorkflowHistoryEventMeta) => {
+    console.log('saveStateToHistory', event, meta)
     switch (event) {
       case WorkflowHistoryEvent.NoteChange:
         // Hint: Note change does not trigger when note text changes,
@@ -142,7 +141,6 @@ export const useWorkflowHistory = () => {
   const refreshHistoryList = () => {
     const nodes = cloneDeep(unref(store.getNodes))
     const edges = cloneDeep(unref(store.getEdges))
-    console.log('nodes', nodes)
     workflowHistoryStore.setHistoryList([{
       nodes: nodes,
       edges: edges,

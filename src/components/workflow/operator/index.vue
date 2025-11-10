@@ -28,12 +28,12 @@ import UndoRedo from '../undo-redo/index.vue'
 // import ZoomInOut from './zoom-in-out.vue'
 // import VariableTrigger from '../variable-inspect/trigger.vue'
 // import VariableInspectPanel from '../variable-inspect.vue'
-import { useWorkflowStore } from '../store'
-
+// import { useWorkflowStore } from '../store'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 
 const bottomPanelRef = ref<HTMLDivElement | null>(null)
-const store = useWorkflowStore()
+// const { instance: workflowStore, instanceId } = useWorkflowInstance()
 
 // 从store获取状态
 // const workflowCanvasWidth = computed(() => store.workflowCanvasWidth)

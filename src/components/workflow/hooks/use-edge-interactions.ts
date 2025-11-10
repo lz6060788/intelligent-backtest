@@ -3,10 +3,12 @@ import { useVueFlow } from "@vue-flow/core"
 import { WorkflowHistoryEvent, useWorkflowHistory } from './use-workflow-history'
 import { getNodesConnectedSourceOrTargetHandleIdsMap } from "../utils";
 import { useNodesReadOnly } from './use-workflow'
+import { useWorkflowInstance } from './use-workflow-instance'
 
 
 export const useEdgeInteractions = () => {
-  const store = useVueFlow();
+  const { instanceId } = useWorkflowInstance()
+  const store = useVueFlow(instanceId);
   const { saveStateToHistory } = useWorkflowHistory()
   const { getNodesReadOnly } = useNodesReadOnly()
 

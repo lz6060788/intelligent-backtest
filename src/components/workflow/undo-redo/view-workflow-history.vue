@@ -95,16 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, unref, onMounted } from 'vue'
+import { ref, computed, unref, onMounted, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVueFlow } from '@vue-flow/core'
 import { RiCloseLine, RiHistoryLine } from '@remixicon/vue'
 import { useWorkflowHistory } from '../hooks'
-import { useWorkflowStore } from '../store'
+import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 import type { WorkflowHistoryState } from '../store/workflow-history-slice.ts'
 import cn from '@/utils/classnames'
-import { storeToRefs } from 'pinia'
-import { UNDO_REDO_HISTORY_MAX_COUNT } from '@/config'
 
 /**
  * 变更历史条目类型
@@ -120,8 +118,8 @@ const open = ref(false)
 // const { nodesReadOnly } = useNodesReadOnly()
 const nodesReadOnly = ref(false);
 const { store, getHistoryLabel, refreshHistoryList } = useWorkflowHistory()
-const workflowStore = useWorkflowStore()
-const vueFlowStore = useVueFlow()
+const { instance: workflowStore, instanceId } = useWorkflowInstance()
+const vueFlowStore = useVueFlow(instanceId)
 
 // TODO： 临时处理，后续触发方式或者整体历史队列机制需要调整
 onMounted(() => {
@@ -130,7 +128,13 @@ onMounted(() => {
   }, 3000);
 })
 
-const { historyList, currentHistoryIndex } = storeToRefs(workflowStore)
+// const { historyList, currentHistoryIndex } = toRefs(workflowStore)
+const historyList = computed(() => {
+  return workflowStore.historyList.value
+})
+const currentHistoryIndex = computed(() => {
+  return workflowStore.currentHistoryIndex.value
+})
 
 const handleClearHistory = () => {
   workflowStore.clearHistory()

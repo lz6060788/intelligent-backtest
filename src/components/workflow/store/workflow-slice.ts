@@ -1,9 +1,10 @@
-import type {
-  Node,
-  WorkflowRunningData,
+import {
+  WorkflowRunningStatus,
+  type Node,
+  type WorkflowRunningData,
 } from '@/types'
+import { ref, type Ref } from 'vue'
 // import type { FileUploadConfigResponse } from '@/models/common'
-import { ref } from 'vue'
 
 type PreviewRunningData = WorkflowRunningData & {
   resultTabActive?: boolean
@@ -11,20 +12,20 @@ type PreviewRunningData = WorkflowRunningData & {
 }
 
 export type WorkflowSliceShape = {
-  workflowRunningData?: PreviewRunningData
-  setWorkflowRunningData: (workflowData: PreviewRunningData) => void
-  clipboardElements: Node[]
+  workflowRunningData: Ref<WorkflowRunningData | undefined>
+  setWorkflowRunningData: (workflowData?: WorkflowRunningData) => void
+  clipboardElements: Ref<Node[]>
   setClipboardElements: (clipboardElements: Node[]) => void
-  selection: null | { x1: number; y1: number; x2: number; y2: number }
-  setSelection: (selection: WorkflowSliceShape['selection']) => void
-  bundleNodeSize: { width: number; height: number } | null
-  setBundleNodeSize: (bundleNodeSize: WorkflowSliceShape['bundleNodeSize']) => void
-  controlMode: 'pointer' | 'hand'
-  setControlMode: (controlMode: WorkflowSliceShape['controlMode']) => void
-  mousePosition: { pageX: number; pageY: number; elementX: number; elementY: number }
-  setMousePosition: (mousePosition: WorkflowSliceShape['mousePosition']) => void
-  showConfirm?: { title: string; desc?: string; onConfirm: () => void }
-  setShowConfirm: (showConfirm: WorkflowSliceShape['showConfirm']) => void
+  selection: Ref<null | { x1: number; y1: number; x2: number; y2: number }>
+  setSelection: (selection: null | { x1: number; y1: number; x2: number; y2: number }) => void
+  bundleNodeSize: Ref<{ width: number; height: number } | null>
+  setBundleNodeSize: (bundleNodeSize: { width: number; height: number } | null) => void
+  controlMode: Ref<'pointer' | 'hand'>
+  setControlMode: (controlMode: 'pointer' | 'hand') => void
+  mousePosition: Ref<{ pageX: number; pageY: number; elementX: number; elementY: number }>
+  setMousePosition: (mousePosition: { pageX: number; pageY: number; elementX: number; elementY: number }) => void
+  showConfirm?: Ref<{ title: string; desc?: string; onConfirm: () => void } | undefined>
+  setShowConfirm: (showConfirm: { title: string; desc?: string; onConfirm: () => void } | undefined) => void
   // controlPromptEditorRerenderKey: number
   // setControlPromptEditorRerenderKey: (controlPromptEditorRerenderKey: number) => void
   // showImportDSLModal: boolean
@@ -34,23 +35,23 @@ export type WorkflowSliceShape = {
 }
 
 export const createWorkflowSlice = () => {
-  const workflowRunningData = ref<WorkflowRunningData>();
-  const setWorkflowRunningData = (val: WorkflowSliceShape['workflowRunningData']) => workflowRunningData.value = val;
+  const workflowRunningData = ref<WorkflowRunningData | undefined>();
+  const setWorkflowRunningData = (val?: WorkflowRunningData) => workflowRunningData.value = val;
   const clipboardElements = ref<Node[]>([]);
-  const setClipboardElements = (val: WorkflowSliceShape['clipboardElements']) => clipboardElements.value = val;
-  const selection = ref<WorkflowSliceShape['selection']>(null);
-  const setSelection = (val: WorkflowSliceShape['selection']) => selection.value = val;
-  const bundleNodeSize = ref<WorkflowSliceShape['bundleNodeSize']>(null);
-  const setBundleNodeSize = (val: WorkflowSliceShape['bundleNodeSize']) => bundleNodeSize.value = val;
-  const controlMode = ref(localStorage.getItem('workflow-operation-mode') === 'pointer' ? 'pointer'  : 'hand');
-  const setControlMode = (val: WorkflowSliceShape['controlMode']) => {
+  const setClipboardElements = (val: Node[]) => clipboardElements.value = val;
+  const selection = ref<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const setSelection = (val: null | { x1: number; y1: number; x2: number; y2: number }) => selection.value = val;
+  const bundleNodeSize = ref<{ width: number; height: number } | null>(null);
+  const setBundleNodeSize = (val: { width: number; height: number } | null) => bundleNodeSize.value = val;
+  const controlMode = ref(localStorage.getItem('workflow-operation-mode') === 'pointer' ? 'pointer'  : 'hand' as 'pointer' | 'hand');
+  const setControlMode = (val: 'pointer' | 'hand') => {
     controlMode.value = val
     localStorage.setItem('workflow-operation-mode', val);
   };
-  const mousePosition = ref<WorkflowSliceShape['mousePosition']>({ pageX: 0, pageY: 0, elementX: 0, elementY: 0 });
-  const setMousePosition = (val: WorkflowSliceShape['mousePosition']) => mousePosition.value = val;
-  const showConfirm = ref<WorkflowSliceShape['showConfirm']>();
-  const setShowConfirm = (val: WorkflowSliceShape['showConfirm']) => showConfirm.value = val;
+  const mousePosition = ref<{ pageX: number; pageY: number; elementX: number; elementY: number }>({ pageX: 0, pageY: 0, elementX: 0, elementY: 0 });
+  const setMousePosition = (val: { pageX: number; pageY: number; elementX: number; elementY: number }) => mousePosition.value = val;
+  const showConfirm = ref<{ title: string; desc?: string; onConfirm: () => void } | undefined>();
+  const setShowConfirm = (val: { title: string; desc?: string; onConfirm: () => void } | undefined) => showConfirm.value = val;
   // const controlPromptEditorRerenderKey = ref<WorkflowSliceShape['controlPromptEditorRerenderKey']>(0);
   // const setControlPromptEditorRerenderKey = (val: WorkflowSliceShape['controlPromptEditorRerenderKey']) => controlPromptEditorRerenderKey.value = val;
   // const showImportDSLModal = ref(false);
