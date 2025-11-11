@@ -1,7 +1,8 @@
 <template>
   <div
     :class="cn(
-      'rounded-2xl border relative bg-gray-800 border-solid border-transparent',
+      'rounded-2xl border relative bg-gray-800 border-solid',
+      showSelectedBorder ? 'border-blue-500' : 'border-transparent',
       'group relative pb-1 shadow-sm',
       (data.type !== BlockEnum.Loop) && 'w-[240px]',
       (data.type === BlockEnum.Loop) && 'flex h-full w-full flex-col',
@@ -17,8 +18,8 @@
   >
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center flex-1">
-        <block-icon :type="props.data.type"></block-icon>
-        <div class="flex-1 ellipsis ml-2">{{ props.data.title }}-{{ props.id }}</div>
+        <block-icon :type="data.type"></block-icon>
+        <div class="flex-1 ellipsis ml-2">{{ data.title }}-{{ id }}-{{ data.selected }}-{{ data._isBundled }}-{{ data._isEntering }}</div>
       </div>
     </div>
     <slot></slot>

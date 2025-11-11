@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full">
-    <workflow id="main" :nodes="nodes" :edges="edges" :viewport="{ zoom: 1, x: 0, y: 0 }" style="width: 50%; height: 50%;"></workflow>
-    <workflow id="sub" :nodes="nodes" :edges="edges" :viewport="{ zoom: 1, x: 0, y: 0 }" style="width: 50%; height: 50%;"></workflow>
+    <workflow id="main" :nodes="nodes" :edges="edges" :viewport="{ zoom: 1, x: 0, y: 0 }" style="height: 50%;"></workflow>
+    <workflow id="sub" :nodes="nodes" :edges="edges" :viewport="{ zoom: 1, x: 0, y: 0 }" style="height: 50%;"></workflow>
   </div>
 </template>
 

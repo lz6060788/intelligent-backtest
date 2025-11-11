@@ -14,6 +14,12 @@ export type WorkflowProps = {
   viewport?: ViewportTransform
 }
 
+export type WorkflowDataUpdater = {
+  nodes: Node[]
+  edges: Edge[]
+  viewport: Viewport
+}
+
 export type WorkflowContext = {
   id?: string;
 }
@@ -22,6 +28,11 @@ export enum ErrorHandleMode {
   Terminated = 'terminated',
   ContinueOnError = 'continue-on-error',
   RemoveAbnormalOutput = 'remove-abnormal-output',
+}
+
+export enum ControlMode {
+  Pointer = 'pointer',
+  Hand = 'hand',
 }
 
 export type WorkflowRunningData = {

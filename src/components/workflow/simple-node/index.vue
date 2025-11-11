@@ -81,7 +81,7 @@ import NodeTargetHandle from '../nodes/_base/targetHandle/index.vue'
 import BlockIcon from '../block-icon.vue'
 import type { NodeProps } from '@/types'
 import { NodeRunningStatus } from '@/types'
-import { useNodesReadOnly } from '../hooks/use-nodes-readonly'
+import { useNodesReadOnly } from '../hooks'
 
 interface SimpleNodeProps extends NodeProps {}
 

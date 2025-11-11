@@ -96,6 +96,7 @@ export const useNodesInteractions = () => {
       const connectingNode: Node = nodes.value.find(
         n => n.id === connectingNodePayload.value?.nodeId,
       )!
+      console.log(connectingNodePayload.value, connectingNode)
       const sameLevel = connectingNode.parentNode === node.parentNode
 
       if (sameLevel) {

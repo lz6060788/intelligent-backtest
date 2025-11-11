@@ -22,11 +22,27 @@
       @edge-mouse-leave="handleEdgeMouseLeave"
       @edges-change="handleEdgeChange"
       @selection-start="handleSelectionStart"
+      @selectionEnd="selectionEnd"
       @selection-drag="handleSelectionDrag"
       @selection-context-menu="handleSelectionContextMenu"
       @pane-context-menu="() => null"
       :default-viewport="props.viewport"
+      :multiSelectionKeyCode="null"
+      :deleteKeyCode="null"
+      :nodesDraggable="!nodesReadOnly"
+      :nodesConnectable="!nodesReadOnly"
+      :nodesFocusable="!nodesReadOnly"
+      :edgesFocusable="!nodesReadOnly"
+      :panOnScroll="false"
       :connect-on-click="false"
+      :zoomOnPinch="true"
+      :zoomOnScroll="true"
+      :zoomOnDoubleClick="true"
+      :pan-on-drag="controlMode === ControlMode.Hand"
+      :selectNodesOnDrag="controlMode === ControlMode.Pointer && !workflowReadOnly"
+      :selection-mode="SelectionMode.Partial"
+      :selection-key-code="controlMode === ControlMode.Hand ? null : true"
+      :min-zoom="0.25"
       class="w-full h-full"
     >
       <template #node-custom="customNodeProps">
@@ -42,31 +58,42 @@
         <customEdge v-bind="customEdgeProps"></customEdge>
       </template>
       <Background :size="1" pattern-color="#fff" :gap="8"></Background>
-      <!-- <Controls /> -->
       <Operator />
+
+      <div
+        className='pointer-events-none absolute left-0 top-0 z-10 flex w-12 items-center justify-center p-1 pl-2'
+        :style="{ height: controlHeight }"
+      >
+        <Controller />
+      </div>
+      <!-- <VueFlowControls /> -->
     </VueFlow>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from 'vue'
-import { VueFlow } from '@vue-flow/core'
+import { computed, onMounted, provide, ref, toRefs, watch } from 'vue'
+import { useVueFlow, VueFlow, SelectionMode } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
-// import { Controls } from '@vue-flow/controls'
+// import { Controls as VueFlowControls } from '@vue-flow/controls'
 import Operator from './operator/index.vue'
 import '@vue-flow/controls/dist/style.css'
 import customNode from './nodes/index.vue';
 import customEdge from './edge/index.vue';
 import customLoopStartNode from './nodes/loop-start/index.vue'
 import customSimpleNode from './simple-node/index.vue'
-import { BlockEnum, type Node } from '@/types/node'
-import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions } from './hooks/index'
+import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly } from './hooks/index'
 import type { WorkflowProps } from '@/types/workflow'
-import type { Edge } from '@/types/edge'
+import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
+import { ControlMode } from '@/types';
 
 const workflowContainerRef = ref<HTMLDivElement>();
+
+const { instanceId,  instance: workflowStore } = useWorkflowInstance()
+const store = useVueFlow(instanceId)
+const { panOnDrag } = store
 
 const props = withDefaults(defineProps<WorkflowProps>(), {
   nodes: () => [],
@@ -90,17 +117,20 @@ const {
   handleNodeConnect,
   handleNodeConnectEnd,
   handleNodesCopy,
-  handleNodesPaste
+  handleNodesPaste,
+  handleNodesDelete,
 } = useNodesInteractions();
 
 const {
   handleEdgeMouseEnter,
   handleEdgeMouseLeave,
-  handleEdgeChange
+  handleEdgeChange,
+  handleEdgeDelete
 } = useEdgeInteractions();
 
 const {
   handleSelectionStart,
+  selectionEnd,
   handleSelectionDrag,
   handleSelectionContextMenu
 } = useSelectionInteractions();
@@ -119,7 +149,28 @@ hotkeys('ctrl+v', function(event, handler){
   handleNodesPaste();
 });
 
-const { instance: workflowStore } = useWorkflowInstance();
+hotkeys('delete,backspace', function(event, handler){
+  event.preventDefault()
+  handleNodesDelete()
+  handleEdgeDelete()
+});
+
+const controlMode = computed(() => workflowStore.controlMode.value)
+
+const workflowCanvasHeight = computed(() => workflowStore.workflowCanvasHeight.value)
+const bottomPanelHeight = computed(() => workflowStore.bottomPanelHeight.value)
+
+const controlHeight = computed(() => {
+  if (!workflowCanvasHeight.value)
+    return '100%'
+  return (workflowCanvasHeight.value as number) - (bottomPanelHeight.value as number)
+})
+
+const { workflowReadOnly } = useWorkflowReadOnly()
+const { nodesReadOnly } = useNodesReadOnly()
+
+
+
 onMounted(() => {
   workflowContainerRef.value?.addEventListener('mousemove', (e) => {
     const containerClientRect = workflowContainerRef.value?.getBoundingClientRect()
@@ -140,4 +191,3 @@ onMounted(() => {
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/core/dist/theme-default.css';
 </style>
-  
