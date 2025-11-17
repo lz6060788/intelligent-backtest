@@ -68,6 +68,7 @@
       </div>
       <!-- <VueFlowControls /> -->
     </VueFlow>
+    <Panel />
   </div>
 </template>
 
@@ -82,6 +83,7 @@ import customNode from './nodes/index.vue';
 import customEdge from './edge/index.vue';
 import customLoopStartNode from './nodes/loop-start/index.vue'
 import customSimpleNode from './simple-node/index.vue'
+import Panel from './panel/index.vue'
 import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly } from './hooks/index'
 import type { WorkflowProps } from '@/types/workflow'
 import Controller from './operator/controller.vue'

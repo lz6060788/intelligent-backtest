@@ -5,8 +5,8 @@ import { type Node, type Edge, type ValueSelector, type BlockEnum, WorkflowRunni
 import { uniqBy } from "lodash-es"
 import type { LoopNodeType } from "../nodes/loop/type"
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
-import { storeToRefs } from "pinia"
 import { computed } from "vue"
+import { findUsedVarNodes } from "../nodes/_base/variable/utils"
 
 export const useWorkflow = () => {
   const { instanceId } = useWorkflowInstance()
@@ -192,26 +192,28 @@ export const useWorkflow = () => {
   }
 
   // 暂不考虑输出变量名修改
-  // const handleOutVarRenameChange = (nodeId: string, oldValeSelector: ValueSelector, newVarSelector: ValueSelector) => {
-  //   const { getNodes, setNodes } = store.getState()
-  //   const allNodes = getNodes()
-  //   const affectedNodes = findUsedVarNodes(oldValeSelector, allNodes)
-  //   if (affectedNodes.length > 0) {
-  //     const newNodes = allNodes.map((node) => {
-  //       if (affectedNodes.find(n => n.id === node.id))
-  //         return updateNodeVars(node, oldValeSelector, newVarSelector)
+  const handleOutVarRenameChange = (nodeId: string, oldValeSelector: ValueSelector, newVarSelector: ValueSelector) => {
+    // const { instanceId } = useWorkflowInstance()
+    // const store = useVueFlow(instanceId)
+    // const { getNodes, setNodes } = store
+    // const allNodes = getNodes
+    // const affectedNodes = findUsedVarNodes(oldValeSelector, allNodes)
+    // if (affectedNodes.length > 0) {
+    //   const newNodes = allNodes.value.map((node) => {
+    //     if (affectedNodes.find(n => n.id === node.id))
+    //       return updateNodeVars(node, oldValeSelector, newVarSelector)
 
-  //       return node
-  //     })
-  //     setNodes(newNodes)
-  //   }
-  // }
+    //     return node
+    //   })
+    //   setNodes(newNodes)
+    // }
+  }
 
   const isVarUsedInNodes = (varSelector: ValueSelector) => {
-    // const nodeId = varSelector[0]
-    // const afterNodes = getAfterNodesInSameBranch(nodeId)
-    // const effectNodes = findUsedVarNodes(varSelector, afterNodes)
-    // return effectNodes.length > 0
+    const nodeId = varSelector[0]
+    const afterNodes = getAfterNodesInSameBranch(nodeId!)
+    const effectNodes = findUsedVarNodes(varSelector, afterNodes)
+    return effectNodes.length > 0
   }
 
   const removeUsedVarInNodes = (varSelector: ValueSelector) => {
@@ -355,7 +357,7 @@ export const useWorkflow = () => {
     getBeforeNodesInSameBranch,
     getBeforeNodesInSameBranchIncludeParent,
     getAfterNodesInSameBranch,
-    // handleOutVarRenameChange,
+    handleOutVarRenameChange,
     isVarUsedInNodes,
     removeUsedVarInNodes,
     isNodeVarsUsedInNodes,

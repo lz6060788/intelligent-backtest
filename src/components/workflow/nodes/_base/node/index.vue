@@ -19,7 +19,7 @@
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center flex-1">
         <block-icon :type="data.type"></block-icon>
-        <div class="flex-1 ellipsis ml-2">{{ data.title }}-{{ id }}-{{ data.selected }}-{{ data._isBundled }}-{{ data._isEntering }}</div>
+        <div class="flex-1 ellipsis ml-2">{{ data.title }}-{{ id }}</div>
       </div>
     </div>
     <slot></slot>

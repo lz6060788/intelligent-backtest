@@ -1,11 +1,19 @@
 @import './vars.css';
 @import './vueflow.css';
+@import '../../components/base/action-button/index.css';
+
+@tailwind base;
+@tailwind components;
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   outline: none;
+}
+
+button {
+  border: none;
 }
 
 .ellipsis {
@@ -50,6 +58,28 @@
   background: transparent !important;
 }
 
+.custom-dialog {
+  padding: 0 !important;
+  background: rgb(31 41 55 / var(--un-bg-opacity)) /* #1f2937 */ !important;
+}
+
+.custom-dialog .el-dialog__header {
+  height: 48px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.custom-dialog .el-dialog__body {
+  padding: 24px;
+}
+
+.custom-dialog .el-dialog__footer {
+  padding: 24px 16px;
+  border-top: 1px solid rgb(64 64 64 / var(--un-border-opacity)) /* #404040 */;
+}
+
 .text-text-warning {
   @apply text-orange-500;
 }
@@ -64,4 +94,8 @@
 }
 .text-text-accent {
   @apply text-blue-400;
+}
+
+.text-text-tertiary {
+  @apply text-gray-4;
 }

@@ -1,6 +1,6 @@
 <template>
   <el-popover
-    v-model:visible="open"
+    :visible="open"
     placement="left-start"
     :offset="4"
     trigger="hover"
@@ -15,7 +15,7 @@
         ref="itemRef"
         :class="cn(
           (isObj || isStructureOutput) ? 'pr-1' : 'pr-[18px]',
-          isHovering && ((isObj || isStructureOutput) ? 'bg-components-panel-on-panel-item-bg-hover' : 'bg-state-base-hover'),
+          isHovering ? 'bg-gray-700' : 'bg-state-base-hover',
           'relative flex h-6 w-full cursor-pointer items-center rounded-md pl-3',
           props.className,
         )"
@@ -105,7 +105,6 @@ interface Props {
   title: string
   objPath: string[]
   itemData: Var
-  onChange: (value: ValueSelector, item: Var) => void
   onHovering?: (value: boolean) => void
   itemWidth?: number
   isSupportFileVar?: boolean
@@ -118,15 +117,19 @@ interface Props {
   preferSchemaType?: boolean
 }
 
+const emit = defineEmits<{
+  (e: 'change', value: ValueSelector, item: Var): void;
+  (e: 'hovering', value: boolean): void;
+}>()
 const props = defineProps<Props>()
 
 const isStructureOutput = computed(() => 
   props.itemData.type === VarType.object && (props.itemData.children as StructuredOutput)?.schema?.properties
 )
-const isFile = computed(() => 
+const isFile = computed(() =>
   props.itemData.type === VarType.file && !isStructureOutput.value
 )
-const isObj = computed(() => 
+const isObj = computed(() =>
   ([VarType.object, VarType.file].includes(props.itemData.type) && props.itemData.children && (props.itemData.children as Var[]).length > 0)
 )
 const isSys = computed(() => props.itemData.variable.startsWith('sys.'))
@@ -218,7 +221,7 @@ const isHovering = computed(() => isItemHovering.value || isChildrenHovering.val
 const open = computed(() => (isObj.value || isStructureOutput.value) && isHovering.value)
 
 watch(isHovering, (newVal) => {
-  props.onHovering?.(newVal)
+  emit('hovering', newVal)
 })
 
 const setIsChildrenHovering = (value: boolean) => {
@@ -231,13 +234,13 @@ const handleChosen = (e: MouseEvent) => {
     return
 
   if (props.isFlat) {
-    props.onChange([props.itemData.variable], props.itemData)
+    emit('change', [props.itemData.variable], props.itemData)
   }
   else if (isSys.value || isEnv.value || isChatVar.value || isRagVariable.value) {
-    props.onChange([...props.objPath, ...props.itemData.variable.split('.')], props.itemData)
+    emit('change', [...props.objPath, ...props.itemData.variable.split('.')], props.itemData)
   }
   else {
-    props.onChange([props.nodeId, ...props.objPath, props.itemData.variable], props.itemData)
+    emit('change', [props.nodeId, ...props.objPath, props.itemData.variable], props.itemData)
   }
 }
 
@@ -250,7 +253,7 @@ const variableCategory = computed(() => {
 })
 
 const handleSelect = (valueSelector: ValueSelector) => {
-  props.onChange(valueSelector, props.itemData)
+  emit('change', valueSelector, props.itemData)
 }
 </script>
 

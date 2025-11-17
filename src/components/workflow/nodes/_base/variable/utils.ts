@@ -335,30 +335,30 @@ const formatItem = (
   }
   switch (data.type) {
     case BlockEnum.Start: {
-      // const { variables } = data as StartNodeType
-      // res.vars = variables.map((v) => {
-      //   const type = inputVarTypeToVarType(v.type)
-      //   const varRes: Var = {
-      //     variable: v.variable,
-      //     type,
-      //     isParagraph: v.type === InputVarType.paragraph,
-      //     isSelect: v.type === InputVarType.select,
-      //     options: v.options,
-      //     required: v.required,
-      //   }
-      //   try {
-      //     if (type === VarType.object && v.json_schema) {
-      //       varRes.children = {
-      //         schema: JSON.parse(v.json_schema),
-      //       }
-      //     }
-      //   }
-      //   catch (error) {
-      //     console.error('Error formatting variable:', error)
-      //   }
+      const { variables } = data as StartNodeType
+      res.vars = variables.map((v) => {
+        const type = inputVarTypeToVarType(v.type)
+        const varRes: Var = {
+          variable: v.variable,
+          type,
+          isParagraph: v.type === InputVarType.paragraph,
+          isSelect: v.type === InputVarType.select,
+          options: v.options,
+          required: v.required,
+        }
+        try {
+          if (type === VarType.object && v.json_schema) {
+            varRes.children = {
+              schema: JSON.parse(v.json_schema),
+            }
+          }
+        }
+        catch (error) {
+          console.error('Error formatting variable:', error)
+        }
 
-      //   return varRes
-      // })
+        return varRes
+      })
       // if (isChatMode) {
       //   res.vars.push({
       //     variable: 'sys.query',
@@ -373,26 +373,26 @@ const formatItem = (
       //     type: VarType.string,
       //   })
       // }
-      // res.vars.push({
-      //   variable: 'sys.user_id',
-      //   type: VarType.string,
-      // })
-      // res.vars.push({
-      //   variable: 'sys.files',
-      //   type: VarType.arrayFile,
-      // })
-      // res.vars.push({
-      //   variable: 'sys.app_id',
-      //   type: VarType.string,
-      // })
-      // res.vars.push({
-      //   variable: 'sys.workflow_id',
-      //   type: VarType.string,
-      // })
-      // res.vars.push({
-      //   variable: 'sys.workflow_run_id',
-      //   type: VarType.string,
-      // })
+      res.vars.push({
+        variable: 'sys.user_id',
+        type: VarType.string,
+      })
+      res.vars.push({
+        variable: 'sys.files',
+        type: VarType.arrayFile,
+      })
+      res.vars.push({
+        variable: 'sys.app_id',
+        type: VarType.string,
+      })
+      res.vars.push({
+        variable: 'sys.workflow_id',
+        type: VarType.string,
+      })
+      res.vars.push({
+        variable: 'sys.workflow_run_id',
+        type: VarType.string,
+      })
 
       break
     }
@@ -790,6 +790,7 @@ export const toNodeOutputVars = (
     // sort nodes by x position
     return (b.position?.x || 0) - (a.position?.x || 0)
   })
+  console.log('sortedNodes', sortedNodes)
 
   const res = [
     ...sortedNodes.filter(node =>
@@ -1343,14 +1344,14 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
     //   break
     // }
 
-    // case BlockEnum.Loop: {
-    //   const payload = data as LoopNodeType
-    //   res
-    //     = payload.break_conditions?.map((c) => {
-    //       return c.variable_selector || []
-    //     }) || []
-    //   break
-    // }
+    case BlockEnum.Loop: {
+      const payload = data as LoopNodeType
+      res
+        = payload.break_conditions?.map((c) => {
+          return c.variable_selector || []
+        }) || []
+      break
+    }
 
     // case BlockEnum.ListFilter: {
     //   res = [(data as ListFilterNodeType).variable]

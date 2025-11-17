@@ -5,6 +5,8 @@ import i18n from './locales'
 import { createPinia } from 'pinia'
 import 'uno.css';
 import '@/assets/css/index.css';
+import 'element-plus/theme-chalk/dark/css-vars.css';
+import 'element-plus/es/components/notification/style/css'
 
 const pinia = createPinia();
 

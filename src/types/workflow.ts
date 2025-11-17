@@ -1,4 +1,4 @@
-import type { BlockEnum, Node } from './node';
+import type { BlockEnum, CommonNodeType, Node } from './node';
 import type { Edge } from './edge';
 import type { ViewportTransform } from '@vue-flow/core';
 
@@ -17,7 +17,7 @@ export type WorkflowProps = {
 export type WorkflowDataUpdater = {
   nodes: Node[]
   edges: Edge[]
-  viewport: Viewport
+  viewport: ViewportTransform
 }
 
 export type WorkflowContext = {
@@ -124,4 +124,102 @@ export enum WorkflowRunningStatus {
   Succeeded = 'succeeded',
   Failed = 'failed',
   Stopped = 'stopped',
+}
+
+export type NodeTracing = {
+  id: string
+  index: number
+  predecessor_node_id: string
+  node_id: string
+  iteration_id?: string
+  loop_id?: string
+  node_type: BlockEnum
+  title: string
+  inputs: any
+  inputs_truncated: boolean
+  process_data: any
+  process_data_truncated: boolean
+  outputs?: Record<string, any>
+  outputs_truncated: boolean
+  outputs_full_content?: {
+    download_url: string
+  }
+  status: string
+  parallel_run_id?: string
+  error?: string
+  elapsed_time: number
+  execution_metadata?: {
+    total_tokens: number
+    total_price: number
+    currency: string
+    iteration_id?: string
+    iteration_index?: number
+    loop_id?: string
+    loop_index?: number
+    parallel_id?: string
+    parallel_start_node_id?: string
+    parent_parallel_id?: string
+    parent_parallel_start_node_id?: string
+    parallel_mode_run_id?: string
+    iteration_duration_map?: IterationDurationMap
+    loop_duration_map?: LoopDurationMap
+    error_strategy?: ErrorHandleTypeEnum
+    agent_log?: AgentLogItem[]
+    tool_info?: {
+      agent_strategy?: string
+      icon?: string
+    }
+    loop_variable_map?: Record<string, any>
+  }
+  metadata: {
+    iterator_length: number
+    iterator_index: number
+    loop_length: number
+    loop_index: number
+  }
+  created_at: number
+  created_by: {
+    id: string
+    name: string
+    email: string
+  }
+  iterDurationMap?: IterationDurationMap
+  loopDurationMap?: LoopDurationMap
+  finished_at: number
+  extras?: any
+  expand?: boolean // for UI
+  details?: NodeTracing[][] // iteration or loop detail
+  retryDetail?: NodeTracing[] // retry detail
+  retry_index?: number
+  parallelDetail?: { // parallel detail. if is in parallel, this field will be set
+    isParallelStartNode?: boolean
+    parallelTitle?: string
+    branchTitle?: string
+    children?: NodeTracing[]
+  }
+  parallel_id?: string
+  parallel_start_node_id?: string
+  parent_parallel_id?: string
+  parent_parallel_start_node_id?: string
+  agentLog?: AgentLogItemWithChildren[] // agent log
+}
+
+export type NodeRunResult = NodeTracing
+
+export enum ChangeType {
+  changeVarName = 'changeVarName',
+  remove = 'remove',
+}
+
+export type MoreInfo = {
+  type: ChangeType
+  payload?: {
+    beforeKey: string
+    afterKey?: string
+  }
+}
+
+export type NodePanelProps<T> = {
+  id: string
+  data: CommonNodeType<T>
 }

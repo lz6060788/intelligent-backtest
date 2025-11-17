@@ -48,7 +48,7 @@
           :node-id="item.nodeId"
           :obj-path="[]"
           :item-data="v"
-          :on-change="onChange"
+          @change="handleChange"
           :item-width="itemWidth"
           :is-support-file-var="isSupportFileVar"
           :is-exception="v.isException"
@@ -96,7 +96,6 @@ interface Props {
   searchBoxClassName?: string
   vars: NodeOutPutVar[]
   isSupportFileVar?: boolean
-  onChange: (value: ValueSelector, item: Var) => void
   itemWidth?: number
   maxHeightClass?: string
   onClose?: () => void
@@ -109,6 +108,14 @@ interface Props {
   preferSchemaType?: boolean
 }
 
+const emit = defineEmits<{
+  (e: 'change', value: ValueSelector, item: Var): void
+}>()
+
+const handleChange = (value: ValueSelector, item: Var) => {
+  console.log('handleChange', value, item)
+  emit('change', value, item)
+}
 const props = withDefaults(defineProps<Props>(), {
   autoFocus: true,
 })

@@ -19,6 +19,7 @@ import type { ToolWithProvider } from '../block-selector/types'
 export const useWorkflowVariables = () => {
   const { t } = useI18n()
   const { instance: workflowStore, instanceId } = useWorkflowInstance()
+  console.log(workflowStore)
   const environmentVariables = computed(() => workflowStore.environmentVariables.value)
   // const { schemaTypeDefinitions } = useMatchSchemaType()
   // TODO: 需要后续完善协议获取，用于工具节点的变量输出

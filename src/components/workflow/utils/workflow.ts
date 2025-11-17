@@ -152,3 +152,7 @@ export const hasErrorHandleNode = (nodeType?: BlockEnum) => {
   return nodeType === BlockEnum.LLM || nodeType === BlockEnum.HttpRequest || nodeType === BlockEnum.Code
 }
 
+export const hasRetryNode = (nodeType?: BlockEnum) => {
+  return nodeType === BlockEnum.LLM || nodeType === BlockEnum.Tool || nodeType === BlockEnum.HttpRequest || nodeType === BlockEnum.Code
+}
+
