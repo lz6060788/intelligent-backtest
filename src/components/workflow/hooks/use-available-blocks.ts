@@ -46,6 +46,7 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) 
   }
 
   return {
+    availableNodesType,
     getAvailableBlocks,
     availablePrevBlocks: availablePrevBlocks().filter(nType => availableBlocksFilter(nType, inContainer)),
     availableNextBlocks: availableNextBlocks().filter(nType => availableBlocksFilter(nType, inContainer)),

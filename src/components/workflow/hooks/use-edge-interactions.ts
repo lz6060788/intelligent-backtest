@@ -16,7 +16,7 @@ export const useEdgeInteractions = () => {
     if (getNodesReadOnly())
       return
     const { edges } = store
-    
+
     const currentEdge = edges.value.find(edge => edge.id === e.edge.id)!
 
     currentEdge.data._hovering = true
@@ -60,7 +60,7 @@ export const useEdgeInteractions = () => {
 
     const nodesConnectedSourceOrTargetHandleIdsMap = getNodesConnectedSourceOrTargetHandleIdsMap(
       edgeWillBeDeleted.map(edge => ({ type: 'remove', edge })),
-      nodes,
+      nodes.value,
     )
     nodes.value.forEach((node) => {
       if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {

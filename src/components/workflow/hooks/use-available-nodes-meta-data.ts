@@ -26,7 +26,7 @@ export const useAvailableNodesMetaData = () => {
         ...metaData,
         title,
         description,
-        helpLinkUri: `${prefixLink}${metaData.helpLinkUri}`,
+        helpLinkUri: '',
       },
       defaultValue: {
         ...node.defaultValue,

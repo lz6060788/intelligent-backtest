@@ -243,7 +243,7 @@ export const useNodesInteractions = () => {
     }
   }
 
-  const handleNodeConnect = 
+  const handleNodeConnect =
   ({ source, sourceHandle, target, targetHandle }: Connection) => {
     if (source === target) return
     if (getNodesReadOnly()) return

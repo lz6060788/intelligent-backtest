@@ -1,74 +1,78 @@
 <template>
-  <div
-    id="workflow-container"
-    class="w-full h-full min-w-[960px] relative"
-    ref="workflowContainerRef"
-  >
-    <VueFlow
-      :id="props.id"
-      :nodes="props.nodes"
-      :edges="props.edges"
-      @node-click="handleNodeClick"
-      @node-drag-start="handleNodeDragStart"
-      @node-drag="handleNodeDrag"
-      @node-drag-stop="handleNodeDragStop"
-      @node-mouse-enter="handleNodeMouseEnter"
-      @node-mouse-leave="handleNodeMouseLeave"
-      @node-context-menu="handleNodeContextMenu"
-      @connect-start="handleNodeConnectStart"
-      @connect="handleNodeConnect"
-      @connect-end="handleNodeConnectEnd"
-      @edge-mouse-enter="handleEdgeMouseEnter"
-      @edge-mouse-leave="handleEdgeMouseLeave"
-      @edges-change="handleEdgeChange"
-      @selection-start="handleSelectionStart"
-      @selectionEnd="selectionEnd"
-      @selection-drag="handleSelectionDrag"
-      @selection-context-menu="handleSelectionContextMenu"
-      @pane-context-menu="() => null"
-      :default-viewport="props.viewport"
-      :multiSelectionKeyCode="null"
-      :deleteKeyCode="null"
-      :nodesDraggable="!nodesReadOnly"
-      :nodesConnectable="!nodesReadOnly"
-      :nodesFocusable="!nodesReadOnly"
-      :edgesFocusable="!nodesReadOnly"
-      :panOnScroll="false"
-      :connect-on-click="false"
-      :zoomOnPinch="true"
-      :zoomOnScroll="true"
-      :zoomOnDoubleClick="true"
-      :pan-on-drag="controlMode === ControlMode.Hand"
-      :selectNodesOnDrag="controlMode === ControlMode.Pointer && !workflowReadOnly"
-      :selection-mode="SelectionMode.Partial"
-      :selection-key-code="controlMode === ControlMode.Hand ? null : true"
-      :min-zoom="0.25"
-      class="w-full h-full"
+  <div class="w-full h-full flex">
+    <div
+      id="workflow-container"
+      class="h-full min-w-[800px] relative flex-1"
+      ref="workflowContainerRef"
     >
-      <template #node-custom="customNodeProps">
-        <customNode v-bind="customNodeProps" />
-      </template>
-      <template #node-custom-loop-start="customLoopStartNodeProps">
-        <customLoopStartNode v-bind="customLoopStartNodeProps" />
-      </template>
-      <template #node-custom-simple="customSimpleNodeProps">
-        <customSimpleNode v-bind="customSimpleNodeProps" />
-      </template>
-      <template #edge-custom="customEdgeProps">
-        <customEdge v-bind="customEdgeProps"></customEdge>
-      </template>
-      <Background :size="1" pattern-color="#fff" :gap="8"></Background>
-      <Operator />
-
-      <div
-        className='pointer-events-none absolute left-0 top-0 z-10 flex w-12 items-center justify-center p-1 pl-2'
-        :style="{ height: controlHeight }"
+      <VueFlow
+        :id="props.id"
+        :nodes="props.nodes"
+        :edges="props.edges"
+        @node-click="handleNodeClick"
+        @node-drag-start="handleNodeDragStart"
+        @node-drag="handleNodeDrag"
+        @node-drag-stop="handleNodeDragStop"
+        @node-mouse-enter="handleNodeMouseEnter"
+        @node-mouse-leave="handleNodeMouseLeave"
+        @node-context-menu="handleNodeContextMenu"
+        @connect-start="handleNodeConnectStart"
+        @connect="handleNodeConnect"
+        @connect-end="handleNodeConnectEnd"
+        @edge-mouse-enter="handleEdgeMouseEnter"
+        @edge-mouse-leave="handleEdgeMouseLeave"
+        @edges-change="handleEdgeChange"
+        @selection-start="handleSelectionStart"
+        @selectionEnd="selectionEnd"
+        @selection-drag="handleSelectionDrag"
+        @selection-context-menu="handleSelectionContextMenu"
+        @pane-context-menu="() => null"
+        :default-viewport="props.viewport"
+        :multiSelectionKeyCode="null"
+        :deleteKeyCode="null"
+        :nodesDraggable="!nodesReadOnly"
+        :nodesConnectable="!nodesReadOnly"
+        :nodesFocusable="!nodesReadOnly"
+        :edgesFocusable="!nodesReadOnly"
+        :panOnScroll="false"
+        :connect-on-click="false"
+        :zoomOnPinch="true"
+        :zoomOnScroll="true"
+        :zoomOnDoubleClick="true"
+        :pan-on-drag="controlMode === ControlMode.Hand"
+        :selectNodesOnDrag="controlMode === ControlMode.Pointer && !workflowReadOnly"
+        :selection-mode="SelectionMode.Partial"
+        :selection-key-code="controlMode === ControlMode.Hand ? null : true"
+        :min-zoom="0.25"
+        class="w-full h-full"
       >
-        <Controller />
-      </div>
-      <!-- <VueFlowControls /> -->
-    </VueFlow>
-    <Panel />
+        <template #node-custom="customNodeProps">
+          <customNode v-bind="customNodeProps" />
+        </template>
+        <template #node-custom-loop-start="customLoopStartNodeProps">
+          <customLoopStartNode v-bind="customLoopStartNodeProps" />
+        </template>
+        <template #node-custom-simple="customSimpleNodeProps">
+          <customSimpleNode v-bind="customSimpleNodeProps" />
+        </template>
+        <template #edge-custom="customEdgeProps">
+          <customEdge v-bind="customEdgeProps"></customEdge>
+        </template>
+        <Background :size="1" pattern-color="#fff" :gap="8"></Background>
+        <Operator />
+
+        <div
+          className='pointer-events-none absolute left-0 top-0 z-10 flex w-12 items-center justify-center p-1 pl-2'
+          :style="{ height: controlHeight }"
+        >
+          <Controller />
+        </div>
+        <el-button class="absolute right-2 top-1 z-[9999]" @click="debugPrint" type="primary">print</el-button>
+        <!-- <VueFlowControls /> -->
+      </VueFlow>
+      <Panel />
+    </div>
+    <Aime></Aime>
   </div>
 </template>
 
@@ -90,12 +94,12 @@ import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
 import { ControlMode } from '@/types';
+import Aime from './aime/index.vue'
 
 const workflowContainerRef = ref<HTMLDivElement>();
 
 const { instanceId,  instance: workflowStore } = useWorkflowInstance()
 const store = useVueFlow(instanceId)
-const { panOnDrag } = store
 
 const props = withDefaults(defineProps<WorkflowProps>(), {
   nodes: () => [],
@@ -187,6 +191,13 @@ onMounted(() => {
     }
   })
 })
+
+const debugPrint = () => {
+  console.log('nodes', store.nodes.value)
+  console.log('edges', store.edges.value)
+  console.log('userSelectionRect', store.userSelectionRect.value)
+  console.log('workflowStore', workflowStore)
+}
 </script>
 
 <style>
