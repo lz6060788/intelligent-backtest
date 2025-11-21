@@ -15,6 +15,7 @@ export type CallExternalCapabilitiesPayload = {
 };
 
 export type CallExternalCapabilitiesTool = {
+  type: 'function';
   function: {
     name: string;
     description: string;

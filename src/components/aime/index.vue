@@ -1,5 +1,5 @@
 <template>
-  <iframe src="https://www.ainvest.com/aime/chat/?comefrom=WebainvestNavirobot" ref="aimeIframeRef" style="width: 100%; height: 100%; " id="aime_container" frameborder="0"></iframe>
+  <iframe src="https://www.ainvest.com/aime/chat/?comefrom=PC_Pre_Release" ref="aimeIframeRef" style="width: 100%; height: 100%; " id="aime_container" frameborder="0"></iframe>
 </template>
 
 <script setup lang="ts">

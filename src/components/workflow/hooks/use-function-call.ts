@@ -22,6 +22,7 @@ export const useFunctionCall = () => {
   const callExternalCapabilitiesTools = [
     // 数据查询
     {
+      type: 'function',
       function: {
         name: FunctionCallName.GetWorkflowInfo,
         description: '获取当前工作流数据，包含节点数据、边数据',
@@ -31,10 +32,11 @@ export const useFunctionCall = () => {
           required: [],
         },
       },
-      tool_id: FunctionCallName.GetWorkflowInfo
+      tool_id: '456'
     },
     // 节点添加
     {
+      type: 'function',
       function: {
         name: FunctionCallName.AddNode,
         description: '添加节点',
@@ -66,10 +68,11 @@ export const useFunctionCall = () => {
           required: ['nodeType'],
         },
       },
-      tool_id: FunctionCallName.AddNode
+      tool_id: '456'
     },
     // 节点删除
     {
+      type: 'function',
       function: {
         name: FunctionCallName.DeleteNode,
         description: '删除节点',
@@ -84,9 +87,10 @@ export const useFunctionCall = () => {
           required: ['nodeId'],
         },
       },
-      tool_id: FunctionCallName.DeleteNode
+      tool_id: '456'
     },
     {
+      type: 'function',
       function: {
         name: FunctionCallName.Add,
         description: '计算两个数的和',
@@ -105,7 +109,7 @@ export const useFunctionCall = () => {
           required: ['a', 'b'],
         },
       },
-      tool_id: FunctionCallName.Add
+      tool_id: '456'
     },
   ] as const satisfies CallExternalCapabilitiesTool[]
 

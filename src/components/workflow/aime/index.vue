@@ -17,12 +17,12 @@ const { callExternalCapabilitiesTools, functionCallMap } = useFunctionCall()
 const handleCallExternalCapabilities = (data: { functionCallAction: FunctionCallAction[] }) => {
   for (const action of data.functionCallAction) {
     try {
-      const result = functionCallMap[action.function.tool_id as keyof typeof functionCallMap](action.function.arguments as any)
-      aimeRef.value?.respFunctionCall(action.function.tool_id, true, {
+      const result = functionCallMap[action.function.name as keyof typeof functionCallMap](action.function.arguments as any)
+      aimeRef.value?.respFunctionCall(action.uuid, true, {
         data: JSON.stringify(result)
       })
     } catch (error) {
-      aimeRef.value?.respFunctionCall(action.function.tool_id, false, (error as Error).message)
+      aimeRef.value?.respFunctionCall(action.uuid, false, (error as Error).message)
     }
   }
 }
