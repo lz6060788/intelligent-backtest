@@ -4,16 +4,6 @@
     <div class="h-full w-full" :class="className">
       <editor-content :editor="editor" />
     </div>
-
-    <div v-if="editor" class="flex items-center justify-between mt-4">
-
-      <button
-        @click="getContent"
-        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-      >
-        获取内容
-      </button>
-    </div>
   </div>
 </template>
 

@@ -7,7 +7,7 @@
             <slot name="title" />
           </template>
           <template v-else>{{ title }}</template>
-          <span v-if="required" class="text-text-destructive">*</span>
+          <span v-if="required" class="text-red-500 font-bold ml-1 text-lg">*</span>
         </div>
         <el-tooltip v-if="slots.tooltip || tooltip" :content="tooltip" placement="top">
           <template v-if="slots.tooltip">

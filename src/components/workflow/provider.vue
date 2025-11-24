@@ -72,7 +72,7 @@
       </VueFlow>
       <Panel />
     </div>
-    <Aime></Aime>
+    <!-- <Aime></Aime> -->
   </div>
 </template>
 

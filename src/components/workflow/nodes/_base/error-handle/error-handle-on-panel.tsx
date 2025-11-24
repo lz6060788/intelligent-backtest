@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import Collapse from '../collapse'
+import Collapse from '../collapse/index.vue'
 import { ErrorHandleTypeEnum } from './types'
 import ErrorHandleTypeSelector from './error-handle-type-selector'
 import FailBranchCard from './fail-branch-card'

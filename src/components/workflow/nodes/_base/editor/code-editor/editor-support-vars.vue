@@ -29,18 +29,20 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import type { NodeOutPutVar, Variable } from '@/types';
-import Editor from '.';
-import type { Props as EditorProps } from '.'
+import Editor from './index.vue';
+import type { Props as EditorProps } from './index.vue';
 import { useI18n } from 'vue-i18n';
 import VarReferenceVars from '@/components/workflow/nodes/_base/variable/var-reference-vars/index.vue';
 
 type EditorType = typeof Editor;
 
-const props = defineProps<{
+type Props = {
   availableVars: NodeOutPutVar[];
   varList: Variable[];
   onAddVar?: (payload: Variable) => void;
-} & EditorProps>();
+} & EditorProps;
+
+const props = defineProps<Props>();
 
 const { t } = useI18n();
 

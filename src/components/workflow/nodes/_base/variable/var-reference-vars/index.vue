@@ -113,7 +113,6 @@ const emit = defineEmits<{
 }>()
 
 const handleChange = (value: ValueSelector, item: Var) => {
-  console.log('handleChange', value, item)
   emit('change', value, item)
 }
 const props = withDefaults(defineProps<Props>(), {

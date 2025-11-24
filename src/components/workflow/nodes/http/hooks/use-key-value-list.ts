@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useBoolean } from 'ahooks'
 import { uniqueId } from 'lodash-es'
 import type { KeyValue } from '../types'
+import { computed, ref, watch } from 'vue'
 
 const UNIQUE_ID_PREFIX = 'key-value-'
 const strToKeyValueList = (value: string) => {
@@ -9,43 +8,49 @@ const strToKeyValueList = (value: string) => {
     const [key, ...others] = item.split(':')
     return {
       id: uniqueId(UNIQUE_ID_PREFIX),
-      key: key.trim(),
+      key: key!.trim(),
       value: others.join(':').trim(),
     }
   })
 }
 
 const useKeyValueList = (value: string, onChange: (value: string) => void, noFilter?: boolean) => {
-  const [list, doSetList] = useState<KeyValue[]>(() => value ? strToKeyValueList(value) : [])
+  const list = ref<KeyValue[]>(value ? strToKeyValueList(value) : [])
   const setList = (l: KeyValue[]) => {
-    doSetList(l.map((item) => {
+    console.log('setList', l)
+    list.value = l.map((item) => {
       return {
         ...item,
         id: item.id || uniqueId(UNIQUE_ID_PREFIX),
       }
-    }))
+    })
   }
-  useEffect(() => {
+  watch(list, () => {
     if (noFilter)
       return
-    const newValue = list.filter(item => item.key && item.value).map(item => `${item.key}:${item.value}`).join('\n')
+    const newValue = list.value.filter(item => item.key && item.value).map(item => `${item.key}:${item.value}`).join('\n')
     if (newValue !== value)
       onChange(newValue)
-  }, [list, noFilter])
-  const addItem = useCallback(() => {
-    setList([...list, {
+  })
+  const addItem = () => {
+    setList([...list.value, {
       id: uniqueId(UNIQUE_ID_PREFIX),
       key: '',
       value: '',
     }])
-  }, [list])
+  }
 
-  const [isKeyValueEdit, {
-    toggle: toggleIsKeyValueEdit,
-  }] = useBoolean(true)
+  const isKeyValueEdit = ref(true)
+  const toggleIsKeyValueEdit = () => {
+    isKeyValueEdit.value = !isKeyValueEdit.value
+  }
+
+  const displayedList = computed(() => {
+    return list.value.length === 0 ? [{ id: uniqueId(UNIQUE_ID_PREFIX), key: '', value: '' }] : list.value
+  })
 
   return {
-    list: list.length === 0 ? [{ id: uniqueId(UNIQUE_ID_PREFIX), key: '', value: '' }] : list, // no item can not add new item
+    list: displayedList,
     setList,
     addItem,
     isKeyValueEdit,

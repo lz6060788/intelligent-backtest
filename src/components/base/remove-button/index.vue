@@ -14,5 +14,7 @@ interface Props {
 
 const emit = defineEmits(['click'])
 
-const clickHandle = (() => emit('click'))
+const clickHandle = (e: MouseEvent) => {
+  emit('click', e)
+}
 </script>

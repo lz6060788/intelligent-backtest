@@ -33,6 +33,7 @@
     "axios": "^1.13.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
+    "copy-to-clipboard": "^3.3.3",
     "element-plus": "^2.11.7",
     "elkjs": "0.9.3",
     "hotkeys-js": "^3.13.15",

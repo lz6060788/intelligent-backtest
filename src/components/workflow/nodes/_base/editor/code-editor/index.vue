@@ -74,7 +74,7 @@ import Base from '../base.vue';
 
 const CODE_EDITOR_LINE_HEIGHT = 18;
 
-interface Props {
+export interface Props {
   nodeId?: string;
   value?: string | object;
   placeholder?: string;

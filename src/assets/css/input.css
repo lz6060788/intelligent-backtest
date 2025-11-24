@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+
+.border-components-input-border-active {
+    @apply border-blue-500 border-solid border;
+}
+.border-components-input-border-hover {
+    @apply border-blue-500 border-solid border;
+}
+.border-components-input-border-normal {
+    @apply border-gray-600 border-solid border;
+}
+.bg-components-input-bg-normal {
+    @apply transparent;
+}
+.bg-components-input-bg-hover {
+    @apply bg-gray-600;
+}
+.border-divider-regular {
+    @apply border-gray-600 border-solid;
+}

@@ -9,4 +9,5 @@
   --node-border-color__hover: rgba(var(--dark-white));
   --workflow-link-line__handle: #296dff;
   --workflow-link-line__normal: #d0d5dc;
+  --divider-regular: rgba(107 114 128);
 }
