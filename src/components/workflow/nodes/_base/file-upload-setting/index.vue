@@ -111,7 +111,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import useSWRV from 'swrv' // Vue版SWR
 import { produce } from 'immer'
 import OptionCard from '../option-card.vue' // 假设组件后缀为.vue
 import FileTypeItem from './file-type-item.vue'

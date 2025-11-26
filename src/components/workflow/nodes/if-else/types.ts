@@ -1,10 +1,10 @@
 import type {
-  VarType as NumberVarType,
   CommonNodeType,
   ValueSelector,
   Var,
   VarType,
 } from '@/types'
+import type { VarType as NumberVarType } from '../tool/types'
 
 export enum LogicalOperator {
   and = 'and',

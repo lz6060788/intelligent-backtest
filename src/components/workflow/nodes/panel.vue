@@ -9,7 +9,7 @@ import { computed } from 'vue'
 import StartPanel from './start/panel.vue';
 import CodePanel from './code/panel.vue';
 // import EndNode from './end/index.vue';
-// import IfElseNode from './if-else/index.vue';
+import IfElseNode from './if-else/panel.vue';
 // import CodeNode from './code/index.vue';
 import HttpNode from './http/panel.vue';
 // import LoopNode from './loop/index.vue';
@@ -22,7 +22,7 @@ import BasePanel from './_base/workflow-panel/index.vue'
 const NodeComponentMap = {
   [BlockEnum.Start]: StartPanel,
   [BlockEnum.End]: StartPanel,
-  [BlockEnum.IfElse]: StartPanel,
+  [BlockEnum.IfElse]: IfElseNode,
   [BlockEnum.Code]: CodePanel,
   [BlockEnum.HttpRequest]: HttpNode,
   [BlockEnum.Loop]: StartPanel,

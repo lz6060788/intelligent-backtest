@@ -101,3 +101,12 @@ button {
 .text-text-tertiary {
   @apply text-gray-4;
 }
+
+.text-text-primary {
+  @apply text-blue-500;
+}
+
+.popper-custom {
+  @apply border border-gray-500 border-solid bg-gray-800  rounded-lg;
+}
+

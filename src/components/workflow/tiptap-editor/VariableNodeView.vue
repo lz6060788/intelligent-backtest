@@ -1,28 +1,25 @@
 <template>
   <node-view-wrapper class="variable-node" as="span">
-    <span class="variable-type" :class="node.attrs.varType.toLowerCase()">
-      {{ node.attrs.varType }}
-    </span>
-    <span class="variable-name">
-        {{ node.attrs.label }}
-    </span>
+    <VariableTag :value-selector="node.attrs?.label?.split('.') ?? []" :var-type="VarType.string" :available-nodes="availableNodes" :is-short="true" />
   </node-view-wrapper>
 </template>
 
 <script setup lang="ts">
+import VariableTag from '@/components/workflow/nodes/_base/variable-tag/index.vue'
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/vue-3'
+import { VarType } from '@/types'
+import { inject } from 'vue';
 
-defineProps<NodeViewProps>()
+const props = defineProps<NodeViewProps>()
+
+const availableNodes = inject('availableNodes', [])
+
 </script>
 
 <style scoped>
 .variable-node {
   display: inline-flex;
   align-items: center;
-  background-color: #f0f2f5;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  padding: 2px 6px;
   margin: 0 2px;
   font-family: monospace;
   line-height: 1.2;

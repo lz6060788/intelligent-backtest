@@ -6,23 +6,13 @@
     >
       <div
         :class="cn(
-          'group relative rounded-[10px] bg-components-panel-bg',
-          willDeleteCaseId === item.case_id && 'bg-state-destructive-hover',
+          'group relative rounded-[10px] bg-gray-800',
+          willDeleteCaseId === item.case_id && 'bg-[#4b1515]',
           !isSubVariable && 'min-h-[40px] px-3 py-1 ',
           isSubVariable && 'px-1 py-2',
         )"
       >
         <template v-if="!isSubVariable">
-          <i
-            :class="cn(
-              'handle absolute left-1 top-2 h-3 w-3 cursor-pointer text-text-quaternary',
-              casesLength > 1 && 'group-hover:block',
-              casesLength === 1 && 'hidden',
-            )"
-            :data-sortable-handle="true"
-          >
-            <i class="i-ri-drag-move-line" />
-          </i>
           <div
             :class="cn(
               'absolute left-4 text-[13px] font-semibold leading-4 text-text-secondary',
@@ -46,19 +36,19 @@
               :case-item="item"
               :case-id="isSubVariable ? caseId! : item.case_id"
               :condition-id="conditionId"
-              :on-update-condition="handleUpdateCondition"
-              :on-remove-condition="handleRemoveCondition"
-              :on-toggle-condition-logical-operator="handleToggleConditionLogicalOperator"
+              @update-condition="(caseId: string, conditionId: string, condition: Condition) => emit('updateCondition', caseId, conditionId, condition)"
+              @remove-condition="(caseId: string, conditionId: string) => emit('removeCondition', caseId, conditionId)"
+              @toggle-condition-logical-operator="(caseId: string) => emit('toggleConditionLogicalOperator', caseId)"
               :node-id="id"
               :nodes-output-vars="nodesOutputVars"
               :available-nodes="availableNodes"
               :filter-var="filterVar"
               :number-variables="getAvailableVars(id, '', filterNumberVar)"
               :vars-is-var-file-attribute="varsIsVarFileAttribute"
-              :on-add-sub-variable-condition="handleAddSubVariableCondition"
-              :on-remove-sub-variable-condition="handleRemoveSubVariableCondition"
-              :on-update-sub-variable-condition="handleUpdateSubVariableCondition"
-              :on-toggle-sub-variable-condition-logical-operator="handleToggleSubVariableConditionLogicalOperator"
+              @add-sub-variable-condition="(caseId: string, conditionId: string, key?: string) => emit('addSubVariableCondition', caseId, conditionId, key)"
+              @remove-sub-variable-condition="(caseId: string, conditionId: string, subConditionId: string) => emit('removeSubVariableCondition', caseId, conditionId, subConditionId)"
+              @update-sub-variable-condition="(caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition) => emit('updateSubVariableCondition', caseId, conditionId, subConditionId, newSubCondition)"
+              @toggle-sub-variable-condition-logical-operator="(caseId: string, conditionId: string) => emit('toggleSubVariableConditionLogicalOperator', caseId, conditionId)"
               :is-sub-variable="isSubVariable"
             />
           </div>
@@ -73,45 +63,44 @@
           )"
         >
           <template v-if="isSubVariable">
-            <Select
-              popup-inner-class-name="w-[165px] max-h-none"
-              :on-select="(value: any) => handleAddSubVariableCondition?.(caseId!, conditionId!, value.value as string)"
+            <PartialSelect
+              popupInnerClassName='w-[165px] max-h-none'
+              @select="value => emit('addSubVariableCondition', caseId!, conditionId!, value.value as string)"
               :items="subVarOptions"
               value=""
             >
               <template #trigger>
-                <Button
+                <el-button
                   size="small"
                   :disabled="readOnly"
                 >
-                  <i class="i-ri-add-line mr-1 h-3.5 w-3.5" />
+                  <RiAddLine class="mr-1 h-3.5 w-3.5" />
                   {{ t('workflow.nodes.ifElse.addSubVariable') }}
-                </Button>
+                </el-button>
               </template>
-            </Select>
+            </PartialSelect>
           </template>
           <template v-else>
             <ConditionAdd
               :disabled="readOnly"
               :case-id="item.case_id"
               :variables="getAvailableVars(id, '', filterVar)"
-              :on-select-variable="handleAddCondition!"
+              @select-variable="(caseId: string, valueSelector: ValueSelector, varItem: Var) => emit('addCondition', caseId, valueSelector, varItem)"
             />
           </template>
 
           <template v-if="(index === 0 && casesLength > 1) || (index > 0)">
-            <Button
-              class="hover:bg-components-button-destructive-ghost-bg-hover hover:text-components-button-destructive-ghost-text"
+            <el-button
               size="small"
-              variant="ghost"
+              type="danger"
               :disabled="readOnly"
-              @click="handleRemoveCase?.(item.case_id)"
+              @click="emit('removeCase', item.case_id)"
               @mouseenter="willDeleteCaseId = item.case_id"
               @mouseleave="willDeleteCaseId = ''"
             >
-              <i class="i-ri-delete-bin-line mr-1 h-3.5 w-3.5" />
+              <RiDeleteBinLine class='mr-1 h-3.5 w-3.5' />
               {{ t('common.operation.remove') }}
-            </Button>
+            </el-button>
           </template>
         </div>
       </div>
@@ -121,14 +110,14 @@
       />
     </div>
     <template v-if="cases.length === 0">
-      <Button
+      <el-button
         size="small"
         :disabled="readOnly"
-        @click="handleAddSubVariableCondition?.(caseId!, conditionId!)"
+        @click="emit('addSubVariableCondition', caseId!, conditionId!)"
       >
-        <i class="i-ri-add-line mr-1 h-3.5 w-3.5" />
+        <RiAddLine class='mr-1 h-3.5 w-3.5' />
         {{ t('workflow.nodes.ifElse.addSubVariable') }}
-      </Button>
+      </el-button>
     </template>
   </div>
 </template>
@@ -136,16 +125,21 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { CaseItem, HandleAddCondition, HandleAddSubVariableCondition, HandleRemoveCondition, HandleToggleConditionLogicalOperator, HandleToggleSubVariableConditionLogicalOperator, HandleUpdateCondition, HandleUpdateSubVariableCondition, handleRemoveSubVariableCondition } from '../types'
-import type { Node, NodeOutPutVar, Var } from '@/types'
+import {
+  RiAddLine,
+  RiDeleteBinLine,
+  RiDraggable,
+} from '@remixicon/vue'
+import type { CaseItem, Condition } from '../types'
+import type { Node, NodeOutPutVar, ValueSelector, Var } from '@/types'
 import { VarType } from '@/types'
 import { useGetAvailableVars } from '../../variable-assigner/hooks'
 import { SUB_VARIABLES } from '@/components/workflow/constant'
 import ConditionList from './condition-list/index.vue'
 import ConditionAdd from './condition-add.vue'
-import Button from '@/components/base/button.vue'
-import { PortalSelect as Select } from '@/components/base/select.vue'
 import { noop } from 'lodash-es'
+import cn from '@/utils/classnames'
+import PartialSelect from '@/components/base/select/partal-select/index.vue'
 
 /**
  * 条件包装组件的属性定义
@@ -163,24 +157,6 @@ interface Props {
   readOnly: boolean
   /** 排序案例的回调 */
   handleSortCase?: (sortedCases: (CaseItem & { id: string })[]) => void
-  /** 删除案例的回调 */
-  handleRemoveCase?: (caseId: string) => void
-  /** 添加条件的回调 */
-  handleAddCondition?: HandleAddCondition
-  /** 删除条件的回调 */
-  handleRemoveCondition?: HandleRemoveCondition
-  /** 更新条件的回调 */
-  handleUpdateCondition?: HandleUpdateCondition
-  /** 切换条件逻辑操作符的回调 */
-  handleToggleConditionLogicalOperator?: HandleToggleConditionLogicalOperator
-  /** 添加子变量条件的回调 */
-  handleAddSubVariableCondition?: HandleAddSubVariableCondition
-  /** 删除子变量条件的回调 */
-  handleRemoveSubVariableCondition?: handleRemoveSubVariableCondition
-  /** 更新子变量条件的回调 */
-  handleUpdateSubVariableCondition?: HandleUpdateSubVariableCondition
-  /** 切换子变量条件逻辑操作符的回调 */
-  handleToggleSubVariableConditionLogicalOperator?: HandleToggleSubVariableConditionLogicalOperator
   /** 节点ID */
   nodeId: string
   /** 节点输出变量列表 */
@@ -192,6 +168,18 @@ interface Props {
   /** 过滤变量的函数 */
   filterVar: (varPayload: Var) => boolean
 }
+
+const emit = defineEmits<{
+  (e: 'removeCase', caseId: string): void
+  (e: 'addCondition', caseId: string, valueSelector: ValueSelector, varItem: Var): void
+  (e: 'removeCondition', caseId: string, conditionId: string): void
+  (e: 'updateCondition', caseId: string, conditionId: string, condition: Condition): void
+  (e: 'toggleConditionLogicalOperator', caseId: string): void
+  (e: 'addSubVariableCondition', caseId: string, conditionId: string, key?: string): void
+  (e: 'removeSubVariableCondition', caseId: string, conditionId: string, subConditionId: string): void
+  (e: 'updateSubVariableCondition', caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition): void
+  (e: 'toggleSubVariableConditionLogicalOperator', caseId: string, conditionId: string): void
+}>()
 
 const props = withDefaults(defineProps<Props>(), {
   handleSortCase: noop,
@@ -222,8 +210,5 @@ const handleSortCase = (newList: (CaseItem & { id: string })[]) => {
 }
 
 const id = computed(() => props.nodeId || '')
-
-// 注意：如果需要拖拽排序功能，需要安装 sortablejs 和 @vueuse/integrations
-// 目前暂时使用静态列表，拖拽功能需要在父组件中实现
 </script>
 

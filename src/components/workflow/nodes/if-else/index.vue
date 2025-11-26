@@ -1,5 +1,5 @@
 <template>
-  <div class="px-3 w-60">
+  <div class="w-60">
     <template v-for="(caseItem, index) in cases" :key="caseItem.case_id">
       <div>
         <div class="relative flex h-6 items-center px-1">
@@ -14,7 +14,7 @@
           <NodeSourceHandle
             v-bind="props"
             :handleId="caseItem.case_id"
-            handleClassName="!top-1/2 !left-auto !-right-[32px] !-translate-y-1/2 z-9999"
+            handleClassName="!top-1/2 !left-auto !-right-[20px] !-translate-y-1/2 z-9999"
           />
         </div>
         <div class="space-y-0.5">
@@ -59,7 +59,7 @@
       <NodeSourceHandle
         v-bind="props"
         handleId="false"
-        handleClassName="!top-1/2 !left-auto !-right-[32px] !-translate-y-1/2"
+        handleClassName="!top-1/2 !left-auto !-right-[20px] !-translate-y-1/2"
       />
     </div>
   </div>

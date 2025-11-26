@@ -32,6 +32,7 @@
       instanceId='http-api-url'
       @focus="isFocus = true"
       @blur="isFocus = false"
+      :available-nodes="availableNodesWithParent"
     />
     </div>
   </div>

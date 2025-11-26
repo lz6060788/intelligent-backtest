@@ -790,7 +790,6 @@ export const toNodeOutputVars = (
     // sort nodes by x position
     return (b.position?.x || 0) - (a.position?.x || 0)
   })
-  console.log('sortedNodes', sortedNodes)
 
   const res = [
     ...sortedNodes.filter(node =>

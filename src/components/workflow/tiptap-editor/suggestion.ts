@@ -2,7 +2,7 @@ import { computePosition, flip, shift } from '@floating-ui/dom'
 import { posToDOMRect, VueRenderer } from '@tiptap/vue-3'
 
 import MentionList from './mention-list.vue'
-import type { NodeOutPutVar } from '@/types'
+import type { GraphNode, NodeOutPutVar } from '@/types'
 import { genNodeAttrs } from './utils'
 
 const updatePosition = (editor: any, element: any) => {
@@ -25,7 +25,8 @@ const updatePosition = (editor: any, element: any) => {
 
 export default function suggestion(options: {
   vars: NodeOutPutVar[],
-  triggerChar?: string
+  triggerChar?: string,
+  availableNodes?: Node[]
 }) {
   return {
     char: options.triggerChar || '/',

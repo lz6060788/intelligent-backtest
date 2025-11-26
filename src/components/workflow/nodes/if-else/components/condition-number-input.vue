@@ -1,89 +1,85 @@
 <template>
   <div class="flex cursor-pointer items-center">
-    <PortalToFollowElem
-      :open="numberVarTypeVisible"
-      @update:open="setNumberVarTypeVisible"
+    <el-popover
+      v-model:visible="numberVarTypeVisible"
       placement="bottom-start"
-      :offset="{ mainAxis: 2, crossAxis: 0 }"
+      :offset="2"
+      trigger="click"
+      teleported
+      :persistent="false"
+      :show-arrow="false"
+      popper-class="custom-popover"
     >
-      <PortalToFollowElemTrigger @click="setNumberVarTypeVisible(!numberVarTypeVisible)">
-        <Button
+      <template #reference>
+        <el-button
           class="shrink-0"
-          variant="ghost"
           size="small"
+          link
         >
           {{ capitalize(numberVarType) }}
-          <i class="i-ri-arrow-down-s-line ml-[1px] h-3.5 w-3.5" />
-        </Button>
-      </PortalToFollowElemTrigger>
-      <PortalToFollowElemContent class="z-[1000]">
-        <div class="w-[112px] rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur p-1 shadow-lg">
-          <div
-            v-for="option in options"
-            :key="option"
-            :class="cn(
-              'flex h-7 cursor-pointer items-center rounded-md px-3 hover:bg-state-base-hover',
-              'text-[13px] font-medium text-text-secondary',
-              numberVarType === option && 'bg-state-base-hover',
-            )"
-            @click="() => {
-              onNumberVarTypeChange(option)
-              setNumberVarTypeVisible(false)
-            }"
-          >
-            {{ capitalize(option) }}
-          </div>
+          <RiArrowDownSLine class='ml-[1px] h-3.5 w-3.5' />
+        </el-button>
+      </template>
+      <div class="z-[1000] w-[112px] rounded-xl border-[0.5px] popper-custom p-1 shadow-dark shadow-sm">
+        <div
+          v-for="option in options"
+          :key="option"
+          :class="cn(
+            'flex h-7 cursor-pointer items-center rounded-md px-3 hover:bg-gray-600',
+            'text-[13px] font-medium text-text-secondary mb-px',
+            numberVarType === option && 'bg-gray-600',
+          )"
+          @click="() => {
+            emit('numberVarTypeChange', option)
+            setNumberVarTypeVisible(false)
+          }"
+        >
+          {{ capitalize(option) }}
         </div>
-      </PortalToFollowElemContent>
-    </PortalToFollowElem>
+      </div>
+    </el-popover>
     <div class="mx-1 h-4 w-[1px] bg-divider-regular" />
     <div class="ml-0.5 w-0 grow">
       <template v-if="numberVarType === NumberVarType.variable">
-        <PortalToFollowElem
-          :open="variableSelectorVisible"
-          @update:open="setVariableSelectorVisible"
+        <el-popover
+          v-model:visible="variableSelectorVisible"
           placement="bottom-start"
-          :offset="{ mainAxis: 2, crossAxis: 0 }"
+          :offset="2"
+          trigger="click"
+          teleported
+          :persistent="false"
+          :show-arrow="false"
+          popper-class="custom-popover"
         >
-          <PortalToFollowElemTrigger
-            class="w-full"
-            @click="setVariableSelectorVisible(!variableSelectorVisible)"
-          >
+          <template #reference>
             <VariableTag
               v-if="value"
               :value-selector="variableTransformer(value) as string[]"
               :var-type="VarType.number"
               :is-short="isShort"
             />
-            <div
-              v-else
-              class="flex h-6 items-center p-1 text-[13px] text-components-input-text-placeholder"
-            >
-              <i class="i-ri-variable-line mr-1 h-4 w-4 shrink-0" />
-              <div class="w-0 grow truncate">{{ t('workflow.nodes.ifElse.selectVariable') }}</div>
-            </div>
-          </PortalToFollowElemTrigger>
-          <PortalToFollowElemContent class="z-[1000]">
+          </template>
+          <div class="z-[1000] w-[296px] rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-bg-blur pt-1 shadow-lg">
             <div :class="cn('w-[296px] rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-bg-blur pt-1 shadow-lg', isShort && 'w-[200px]')">
               <VarReferenceVars
                 :vars="variables"
                 @change="handleSelectVariable"
               />
             </div>
-          </PortalToFollowElemContent>
-        </PortalToFollowElem>
+          </div>
+        </el-popover>
       </template>
       <template v-if="numberVarType === NumberVarType.constant">
         <div class="relative">
-          <input
-            :class="cn('block w-full appearance-none bg-transparent px-2 text-[13px] text-components-input-text-filled outline-none placeholder:text-components-input-text-placeholder', unit && 'pr-6')"
-            type="number"
-            :value="value"
-            @input="(e) => onValueChange((e.target as HTMLInputElement).value)"
+          <el-input-number
+            :model-value="+value"
+            size="small"
+            style="width: 100%; text-align: left;"
+            @change="(value: string) => emit('valueChange', value)"
             :placeholder="t('workflow.nodes.ifElse.enterValue') || ''"
             @focus="isFocus = true"
             @blur="isFocus = false"
-          >
+          />
           <div
             v-if="!isFocus && unit"
             class="system-sm-regular absolute right-2 top-[50%] translate-y-[-50%] text-text-tertiary"
@@ -100,22 +96,17 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { capitalize } from 'lodash-es'
-import { ValueType as NumberVarType } from '@/types'
-import VariableTag from '@/app/components/workflow/nodes/_base/components/variable-tag'
-import {
-  PortalToFollowElem,
-  PortalToFollowElemContent,
-  PortalToFollowElemTrigger,
-} from '@/app/components/base/portal-to-follow-elem'
-import Button from '@/app/components/base/button'
+import { VarType as NumberVarType } from '../../tool/types'
+import { VarType } from '@/types'
+import VariableTag from '@/components/workflow/nodes/_base/variable-tag/index.vue'
 import cn from '@/utils/classnames'
-import VarReferenceVars from '@/app/components/workflow/nodes/_base/components/variable/var-reference-vars'
+import VarReferenceVars from '@/components/workflow/nodes/_base/variable/var-reference-vars/index.vue'
 import type {
   NodeOutPutVar,
   ValueSelector,
 } from '@/types'
-import { VarType } from '@/types'
 import { variableTransformer } from '@/components/workflow/utils'
+import { RiArrowDownSLine } from '@remixicon/vue'
 
 const options = [
   NumberVarType.variable,
@@ -128,12 +119,8 @@ const options = [
 interface ConditionNumberInputProps {
   /** 数字变量类型 */
   numberVarType?: NumberVarType
-  /** 数字变量类型变化回调 */
-  onNumberVarTypeChange: (v: NumberVarType) => void
   /** 值 */
   value: string
-  /** 值变化回调 */
-  onValueChange: (v: string) => void
   /** 变量列表 */
   variables: NodeOutPutVar[]
   /** 是否短样式 */
@@ -141,6 +128,11 @@ interface ConditionNumberInputProps {
   /** 单位 */
   unit?: string
 }
+
+const emit = defineEmits<{
+  (e: 'numberVarTypeChange', value: NumberVarType): void
+  (e: 'valueChange', value: string): void
+}>()
 
 const props = withDefaults(defineProps<ConditionNumberInputProps>(), {
   numberVarType: NumberVarType.constant,
@@ -160,7 +152,7 @@ const setVariableSelectorVisible = (value: boolean) => {
 }
 
 const handleSelectVariable = (valueSelector: ValueSelector) => {
-  props.onValueChange(variableTransformer(valueSelector) as string)
+  emit('valueChange', variableTransformer(valueSelector) as string)
   setVariableSelectorVisible(false)
 }
 </script>

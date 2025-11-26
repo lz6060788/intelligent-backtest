@@ -74,6 +74,7 @@
               :editable="!readOnly"
               :is-support-file-var="isSupportFileVar"
               :vars="nodesOutputVars"
+              :available-nodes="availableNodes"
             ></tiptap>
             <div v-if="readOnly" class="absolute inset-0 z-10"></div>
           </div>

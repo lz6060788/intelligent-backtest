@@ -1,6 +1,6 @@
 <template>
   <div
-    class="space-y-1 rounded-lg border border-gray-500 border-solid bg-gray-800 p-1 shadow-lg"
+    class="space-y-1 rounded-lg border border-gray-500 bg-gray-800 border-solid p-1 shadow-lg"
     :style="{ width: `${itemWidth || 228}px` }"
   >
     <template v-if="(!vars || vars.length === 0) && popupFor">

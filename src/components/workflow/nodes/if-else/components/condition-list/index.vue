@@ -8,16 +8,16 @@
           isSubVariable && logical_operator === LogicalOperator.or && 'left-[-18px]',
         )"
       >
-        <div class="absolute bottom-4 left-[46px] top-4 w-2.5 rounded-l-[8px] border border-r-0 border-divider-deep" />
-        <div class="absolute right-0 top-1/2 h-[29px] w-4 -translate-y-1/2 bg-components-panel-bg" />
+        <div class="absolute bottom-4 left-[46px] top-4 w-2.5 rounded-l-[8px] border border-r-0 border-gray-500 border-solid" />
+        <div class="absolute right-0 top-1/2 h-[29px] w-4 -translate-y-1/2 bg-gray-800" />
         <div
           :class="cn(
-            'absolute right-1 top-1/2 flex h-[21px] -translate-y-1/2 cursor-pointer select-none items-center rounded-md border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-1 text-[10px] font-semibold text-text-accent-secondary shadow-xs'
+            'absolute right-1 top-1/2 flex h-[21px] -translate-y-1/2 cursor-pointer select-none items-center rounded-md border-[0.5px] border-gray-500 bg-gray-600 px-1 text-[10px] font-semibold text-text-accent-secondary shadow-dark shadow-sm'
           )"
           @click="doToggleConditionLogicalOperator"
         >
           {{ logical_operator.toUpperCase() }}
-          <i class="i-ri-loop-left-line ml-0.5 h-3 w-3" />
+          <RiLoopLeftLine class='ml-0.5 h-3 w-3 text-white' />
         </div>
       </div>
     </template>
@@ -30,18 +30,18 @@
       :condition-id="isSubVariable ? conditionId! : condition.id"
       :condition="condition"
       :is-value-field-short="isValueFieldShort"
-      :on-update-condition="onUpdateCondition"
-      :on-remove-condition="onRemoveCondition"
-      :on-add-sub-variable-condition="onAddSubVariableCondition"
-      :on-remove-sub-variable-condition="onRemoveSubVariableCondition"
-      :on-update-sub-variable-condition="onUpdateSubVariableCondition"
-      :on-toggle-sub-variable-condition-logical-operator="onToggleSubVariableConditionLogicalOperator"
+      @update-condition="(caseId: string, conditionId: string, condition: Condition) => emit('updateCondition', caseId, conditionId, condition)"
+      @remove-condition="(caseId: string, conditionId: string) => emit('removeCondition', caseId, conditionId)"
+      @add-sub-variable-condition="(caseId: string, conditionId: string, key?: string) => emit('addSubVariableCondition', caseId, conditionId, key)"
+      @remove-sub-variable-condition="(caseId: string, conditionId: string, subConditionId: string) => emit('removeSubVariableCondition', caseId, conditionId, subConditionId)"
+      @update-sub-variable-condition="(caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition) => emit('updateSubVariableCondition', caseId, conditionId, subConditionId, newSubCondition)"
+      @toggle-sub-variable-condition-logical-operator="(caseId: string, conditionId: string) => emit('toggleSubVariableConditionLogicalOperator', caseId, conditionId)"
       :node-id="nodeId"
       :nodes-output-vars="nodesOutputVars"
       :available-nodes="availableNodes"
       :filter-var="filterVar"
       :number-variables="numberVariables"
-      :file="varsIsVarFileAttribute[condition.id] ? { key: (condition.variable_selector || []).slice(-1)[0] } : undefined"
+      :file="varsIsVarFileAttribute[condition.id] ? { key: (condition.variable_selector || []).slice(-1)[0]! } : undefined"
       :is-sub-variable-key="isSubVariable"
     />
   </div>
@@ -51,22 +51,17 @@
 import { computed } from 'vue'
 import {
   type CaseItem,
-  type HandleAddSubVariableCondition,
-  type HandleRemoveCondition,
-  type HandleToggleConditionLogicalOperator,
-  type HandleToggleSubVariableConditionLogicalOperator,
-  type HandleUpdateCondition,
-  type HandleUpdateSubVariableCondition,
+  type Condition,
   LogicalOperator,
-  type handleRemoveSubVariableCondition,
 } from '../../types'
 import ConditionItem from './condition-item.vue'
 import type {
   Node,
   NodeOutPutVar,
   Var,
-} from '@/app/components/workflow/types'
+} from '@/types'
 import cn from '@/utils/classnames'
+import { RiLoopLeftLine } from '@remixicon/vue'
 
 /**
  * 条件列表组件的属性定义
@@ -82,12 +77,6 @@ interface ConditionListProps {
   conditionId?: string
   /** 案例项 */
   caseItem: CaseItem
-  /** 删除条件的回调 */
-  onRemoveCondition?: HandleRemoveCondition
-  /** 更新条件的回调 */
-  onUpdateCondition?: HandleUpdateCondition
-  /** 切换条件逻辑操作符的回调 */
-  onToggleConditionLogicalOperator?: HandleToggleConditionLogicalOperator
   /** 节点ID */
   nodeId: string
   /** 节点输出变量列表 */
@@ -100,15 +89,17 @@ interface ConditionListProps {
   filterVar: (varPayload: Var) => boolean
   /** 变量是否为文件属性的映射 */
   varsIsVarFileAttribute: Record<string, boolean>
-  /** 添加子变量条件的回调 */
-  onAddSubVariableCondition?: HandleAddSubVariableCondition
-  /** 删除子变量条件的回调 */
-  onRemoveSubVariableCondition?: handleRemoveSubVariableCondition
-  /** 更新子变量条件的回调 */
-  onUpdateSubVariableCondition?: HandleUpdateSubVariableCondition
-  /** 切换子变量条件逻辑操作符的回调 */
-  onToggleSubVariableConditionLogicalOperator?: HandleToggleSubVariableConditionLogicalOperator
 }
+
+const emit = defineEmits<{
+  (e: 'removeCondition', caseId: string, conditionId: string): void
+  (e: 'updateCondition', caseId: string, conditionId: string, condition: Condition): void
+  (e: 'toggleConditionLogicalOperator', caseId: string): void
+  (e: 'addSubVariableCondition', caseId: string, conditionId: string, key?: string): void
+  (e: 'removeSubVariableCondition', caseId: string, conditionId: string, subConditionId: string): void
+  (e: 'updateSubVariableCondition', caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition): void
+  (e: 'toggleSubVariableConditionLogicalOperator', caseId: string, conditionId: string): void
+}>()
 
 const props = defineProps<ConditionListProps>()
 
@@ -116,9 +107,9 @@ const { conditions, logical_operator } = props.caseItem
 
 const doToggleConditionLogicalOperator = () => {
   if (props.isSubVariable)
-    props.onToggleSubVariableConditionLogicalOperator?.(props.caseId!, props.conditionId!)
+    emit('toggleSubVariableConditionLogicalOperator', props.caseId!, props.conditionId!)
   else
-    props.onToggleConditionLogicalOperator?.(props.caseId)
+    emit('toggleConditionLogicalOperator', props.caseId)
 }
 
 const isValueFieldShort = computed(() => {

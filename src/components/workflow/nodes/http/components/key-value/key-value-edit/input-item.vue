@@ -33,6 +33,7 @@
           @change="handleChange"
           @focus="handleFocus"
           @blur="handleBlur"
+          :available-nodes="availableNodesWithParent"
         />
       </div>
     </template>

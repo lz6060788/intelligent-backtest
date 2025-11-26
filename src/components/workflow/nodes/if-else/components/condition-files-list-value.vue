@@ -3,7 +3,7 @@
     <div class="flex h-6 items-center px-1">
       <VariableLabelInNode
         class="w-0 grow"
-        :variables="variableSelector"
+        :variables="variableSelector!"
         :not-show-full-path="true"
       />
       <div
@@ -13,18 +13,18 @@
         {{ operatorName }}
       </div>
     </div>
-    <div class="ml-[10px] border-l border-divider-regular pl-[10px]">
+    <div class="ml-[10px] border-0 border-l border-solid border-gray-600 pl-[10px]">
       <template
         v-for="(c, index) in sub_variable_condition?.conditions"
         :key="c.id"
       >
         <div class="relative flex h-6 items-center space-x-1">
-          <div class="system-xs-medium text-text-accent">{{ c.key }}</div>
-          <div class="system-xs-medium text-text-primary">
+          <div class="text-xs text-text-accent">{{ c.key }}</div>
+          <div class="text-xs text-text-primary">
             {{ isComparisonOperatorNeedTranslate(c.comparison_operator) ? t(`workflow.nodes.ifElse.comparisonOperator.${c.comparison_operator}`) : c.comparison_operator }}
           </div>
           <template v-if="c.comparison_operator && !isEmptyRelatedOperator(c.comparison_operator)">
-            <div class="system-xs-regular text-text-secondary">
+            <div class="text-xs text-text-secondary">
               {{ isSelect(c) ? selectName(c) : formatValue(c) }}
             </div>
           </template>
@@ -54,6 +54,7 @@ import { isSystemVar } from '@/components/workflow/nodes/_base/variable/utils'
 import {
   VariableLabelInNode,
 } from '@/components/workflow/nodes/_base/variable/variable-label'
+import { computed } from 'vue'
 
 const i18nPrefix = 'workflow.nodes.ifElse'
 
@@ -69,24 +70,22 @@ const props = defineProps<ConditionValueProps>()
 
 const { t } = useI18n()
 
-const {
-  variable_selector,
-  comparison_operator: operator,
-  sub_variable_condition,
-} = props.condition
+const variableSelector = computed(() => props.condition.variable_selector)
 
-const variableSelector = variable_selector as ValueSelector
+const operator = computed(() => props.condition.comparison_operator)
 
-const operatorName = isComparisonOperatorNeedTranslate(operator) 
-  ? t(`workflow.nodes.ifElse.comparisonOperator.${operator}`) 
-  : operator
+const sub_variable_condition = computed(() => props.condition.sub_variable_condition)
 
-const formatValue = (c: Condition) => {
+const operatorName = computed(() => isComparisonOperatorNeedTranslate(operator.value)
+  ? t(`workflow.nodes.ifElse.comparisonOperator.${operator.value}`)
+  : operator.value)
+
+const formatValue = computed(() => (c: Condition) => {
   const notHasValue = comparisonOperatorNotRequireValue(c.comparison_operator)
   if (notHasValue)
     return ''
 
-  const value = c.value as string
+  const value = c.value + '' as string
   return value.replace(/{{#([^#]*)#}}/g, (a, b) => {
     const arr: string[] = b.split('.')
     if (isSystemVar(arr))
@@ -94,7 +93,7 @@ const formatValue = (c: Condition) => {
 
     return `{{${arr.slice(1).join('.')}}}`
   })
-}
+})
 
 const isSelect = (c: Condition) => {
   return c.comparison_operator === ComparisonOperator.in || c.comparison_operator === ComparisonOperator.notIn

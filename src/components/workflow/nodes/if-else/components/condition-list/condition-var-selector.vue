@@ -1,14 +1,15 @@
 <template>
-  <PortalToFollowElem
-    :open="props.open"
-    @update:open="props.onOpenChange"
+  <el-popover
+    v-model:visible="isOpen"
     placement="bottom-start"
-    :offset="{
-      mainAxis: 4,
-      crossAxis: 0,
-    }"
+    :offset="4"
+    trigger="click"
+    teleported
+    :persistent="false"
+    :show-arrow="false"
+    popper-class="custom-popover"
   >
-    <PortalToFollowElemTrigger as-child @click="props.onOpenChange(!props.open)">
+    <template #reference>
       <div class="w-full cursor-pointer">
         <VariableTag
           :value-selector="props.valueSelector"
@@ -17,24 +18,22 @@
           :is-short="true"
         />
       </div>
-    </PortalToFollowElemTrigger>
-    <PortalToFollowElemContent class="z-[1000]">
-      <div class="w-[296px] rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-bg-blur shadow-lg">
-        <VarReferenceVars
-          :vars="props.nodesOutputVars"
-          :is-support-file-var="true"
-          @change="props.onChange"
-        />
-      </div>
-    </PortalToFollowElemContent>
-  </PortalToFollowElem>
+    </template>
+    <div class="z-[1000] popper-custom w-60 p-1">
+      <VarReferenceVars
+        :vars="props.nodesOutputVars"
+        :is-support-file-var="true"
+        @change="(valueSelector: ValueSelector, varItem: Var) => emit('change', valueSelector, varItem)"
+      />
+    </div>
+  </el-popover>
 </template>
 
 <script setup lang="ts">
-import { PortalToFollowElem, PortalToFollowElemContent, PortalToFollowElemTrigger } from '@/components/base/portal-to-follow-elem'
-import VariableTag from '@/components/workflow/nodes/_base/variable/variable-tag'
-import VarReferenceVars from '@/components/workflow/nodes/_base/variable/var-reference-vars'
+import VariableTag from '@/components/workflow/nodes/_base/variable-tag/index.vue'
+import VarReferenceVars from '@/components/workflow/nodes/_base/variable/var-reference-vars/index.vue'
 import type { Node, NodeOutPutVar, ValueSelector, Var, VarType } from '@/types'
+import { computed } from 'vue'
 
 /**
  * 条件变量选择器组件的属性定义
@@ -42,8 +41,6 @@ import type { Node, NodeOutPutVar, ValueSelector, Var, VarType } from '@/types'
 interface ConditionVarSelectorProps {
   /** 是否打开 */
   open: boolean
-  /** 打开状态变化回调 */
-  onOpenChange: (open: boolean) => void
   /** 值选择器 */
   valueSelector: ValueSelector
   /** 变量类型 */
@@ -52,9 +49,17 @@ interface ConditionVarSelectorProps {
   availableNodes: Node[]
   /** 节点输出变量列表 */
   nodesOutputVars: NodeOutPutVar[]
-  /** 变化回调 */
-  onChange: (valueSelector: ValueSelector, varItem: Var) => void
 }
+
+const emit = defineEmits<{
+  (e: 'change', valueSelector: ValueSelector, varItem: Var): void
+  (e: 'update:open', open: boolean): void
+}>()
+
+const isOpen = computed({
+  get: () => props.open,
+  set: (value) => emit('update:open', value),
+})
 
 const props = defineProps<ConditionVarSelectorProps>()
 </script>

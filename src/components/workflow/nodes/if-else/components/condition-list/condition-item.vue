@@ -2,14 +2,34 @@
   <div :class="cn('mb-1 flex last-of-type:mb-0', className)">
     <div
       :class="cn(
-        'grow rounded-lg bg-components-input-bg-normal',
-        isHovered && 'bg-state-destructive-hover',
+        'grow rounded-lg bg-gray-700',
+        isHovered && 'bg-[#4b1515]',
       )"
     >
       <div class="flex items-center p-1">
         <div class="w-0 grow">
           <template v-if="isSubVarSelect">
-            <Select
+            <el-select
+              :model-value="condition.key"
+              @change="(value: string) => handleSubVarKeyChange(value)"
+              :placeholder="t('common.placeholder.select')"
+              class="pl-0 text-xs"
+              size="small"
+              :popper-class="cn('popper-custom', 'w-[165px]')"
+              :teleported="false"
+              :persistent="false"
+              :show-arrow="false"
+              :offset="4"
+              :popper-style="{ zIndex: 1000 }"
+            >
+              <el-option
+                v-for="item in subVarOptions"
+                :key="item.value"
+                :label="item.name"
+                :value="item.value"
+              />
+            </el-select>
+            <!-- <Select
               wrapper-class-name="h-6"
               class="pl-0 text-xs"
               option-wrap-class-name="w-[165px] max-h-none"
@@ -20,7 +40,7 @@
             >
               <template #trigger="{ item }">
                 <div
-                  v-if="item"
+                  v-if="condition.key"
                   class="flex cursor-pointer justify-start"
                 >
                   <div class="inline-flex h-6 max-w-full items-center rounded-md border-[0.5px] border-components-panel-border-subtle bg-components-badge-white-to-dark px-1.5 text-text-accent shadow-xs">
@@ -35,7 +55,7 @@
                   {{ t('common.placeholder.select') }}
                 </div>
               </template>
-            </Select>
+            </Select> -->
           </template>
           <template v-else>
             <ConditionVarSelector
@@ -54,16 +74,16 @@
           :disabled="!canChooseOperator"
           :var-type="condition.varType"
           :value="condition.comparison_operator"
-          :on-select="handleUpdateConditionOperator"
+          @select="handleUpdateConditionOperator"
           :file="fileAttr"
         />
       </div>
       <template v-if="!comparisonOperatorNotRequireValue(condition.comparison_operator) && !isNotInput && condition.varType !== VarType.number && !showBooleanInput">
-        <div class="max-h-[100px] overflow-y-auto border-t border-t-divider-subtle px-2 py-1">
+        <div class="max-h-[100px] overflow-y-auto border-0 border-t border-gray-600 border-solid px-2 py-1">
           <ConditionInput
             :disabled="disabled"
             :value="condition.value as string"
-            :on-change="handleUpdateConditionValue"
+            @change="handleUpdateConditionValue"
             :nodes-output-vars="nodesOutputVars"
             :available-nodes="availableNodes"
           />
@@ -71,19 +91,19 @@
       </template>
       <template v-if="!comparisonOperatorNotRequireValue(condition.comparison_operator) && !isNotInput && showBooleanInput">
         <div class="p-1">
-          <BoolValue
-            :value="condition.value as boolean"
-            :on-change="handleUpdateConditionValue"
+          <el-switch
+            :model-value="condition.value as boolean"
+            @change="(value: boolean) => handleUpdateConditionValue(value)"
           />
         </div>
       </template>
       <template v-if="!comparisonOperatorNotRequireValue(condition.comparison_operator) && !isNotInput && condition.varType === VarType.number">
-        <div class="border-t border-t-divider-subtle px-2 py-1 pt-[3px]">
+        <div class="border-0 border-t border-solid border-gray-600 px-2 p-1 pt-[3px]">
           <ConditionNumberInput
             :number-var-type="condition.numberVarType!"
-            :on-number-var-type-change="handleUpdateConditionNumberVarType"
+            @number-var-type-change="handleUpdateConditionNumberVarType"
             :value="condition.value as string"
-            :on-value-change="handleUpdateConditionValue"
+            @value-change="handleUpdateConditionValue"
             :variables="numberVariables"
             :is-short="isValueFieldShort"
             :unit="fileAttr?.key === 'size' ? 'Byte' : undefined"
@@ -91,16 +111,23 @@
         </div>
       </template>
       <template v-if="!comparisonOperatorNotRequireValue(condition.comparison_operator) && isSelect">
-        <div class="border-t border-t-divider-subtle">
-          <Select
-            wrapper-class-name="h-8"
-            class="rounded-t-none px-2 text-xs"
-            :default-value="isArrayValue ? (condition.value as string[])?.[0] : (condition.value as string)"
-            :items="selectOptions"
-            :on-select="(item: any) => handleUpdateConditionValue(item.value as string)"
-            hide-checked
-            not-clearable
-          />
+        <div class="border-0 border-t border-solid border-gray-600 p-1">
+          <el-select
+            :model-value="isArrayValue ? (condition.value as string[])?.[0] : (condition.value as string)"
+            @change="(value: string) => handleUpdateConditionValue(value)"
+            size="small"
+            :popper-class="cn('popper-custom', 'w-[165px]')"
+            :teleported="false"
+            :persistent="false"
+            :show-arrow="false"
+          >
+            <el-option
+              v-for="item in selectOptions"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+            />
+          </el-select>
         </div>
       </template>
       <template v-if="!comparisonOperatorNotRequireValue(condition.comparison_operator) && isSubVariable">
@@ -111,10 +138,10 @@
             :condition-id="conditionId"
             :read-only="!!disabled"
             :cases="condition.sub_variable_condition ? [condition.sub_variable_condition] : []"
-            :handle-add-sub-variable-condition="onAddSubVariableCondition"
-            :handle-remove-sub-variable-condition="onRemoveSubVariableCondition"
-            :handle-update-sub-variable-condition="onUpdateSubVariableCondition"
-            :handle-toggle-sub-variable-condition-logical-operator="onToggleSubVariableConditionLogicalOperator"
+            @add-sub-variable-condition="(caseId: string, conditionId: string, key?: string) => emit('addSubVariableCondition', caseId, conditionId, key)"
+            @remove-sub-variable-condition="(caseId: string, conditionId: string, subConditionId: string) => emit('removeSubVariableCondition', caseId, conditionId, subConditionId)"
+            @update-sub-variable-condition="(caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition) => emit('updateSubVariableCondition', caseId, conditionId, subConditionId, newSubCondition)"
+            @toggle-sub-variable-condition-logical-operator="(caseId: string, conditionId: string) => emit('toggleSubVariableConditionLogicalOperator', caseId, conditionId)"
             :node-id="nodeId"
             :nodes-output-vars="nodesOutputVars"
             :available-nodes="availableNodes"
@@ -124,12 +151,12 @@
       </template>
     </div>
     <div
-      class="ml-1 mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-text-tertiary hover:bg-state-destructive-hover hover:text-text-destructive"
+      class="ml-1 mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-text-tertiary hover:bg-red-500 hover:text-white"
       @mouseenter="isHovered = true"
       @mouseleave="isHovered = false"
       @click="doRemoveCondition"
     >
-      <i class="i-ri-delete-bin-line h-4 w-4" />
+      <RiDeleteBinLine class="h-4 w-4" />
     </div>
   </div>
 </template>
@@ -138,22 +165,16 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { produce } from 'immer'
-import { ValueType as NumberVarType } from '@/types'
+import type { VarType as NumberVarType } from '@/components/workflow/nodes/tool/types'
 import type {
   Condition,
-  HandleAddSubVariableCondition,
-  HandleRemoveCondition,
-  HandleToggleSubVariableConditionLogicalOperator,
-  HandleUpdateCondition,
-  HandleUpdateSubVariableCondition,
-  handleRemoveSubVariableCondition,
 } from '../../types'
 import {
   ComparisonOperator,
 } from '../../types'
 import { comparisonOperatorNotRequireValue, getOperators } from '../../utils'
 import ConditionNumberInput from '../condition-number-input.vue'
-import { FILE_TYPE_OPTIONS, SUB_VARIABLES, TRANSFER_METHOD } from '../../../constants'
+import { FILE_TYPE_OPTIONS, SUB_VARIABLES, TRANSFER_METHOD } from '@/components/workflow/constant/nodes'
 import ConditionWrap from '../condition-wrap.vue'
 import ConditionOperator from './condition-operator.vue'
 import ConditionInput from './condition-input.vue'
@@ -167,17 +188,17 @@ import type {
 } from '@/types'
 import { VarType } from '@/types'
 import cn from '@/utils/classnames'
-import { SimpleSelect as Select } from '@/components/base/select'
-import BoolValue from '@/components/workflow/panel/chat-variable-panel/components/bool-value'
+import { RiDeleteBinLine } from '@remixicon/vue'
+// import BoolValue from '@/components/workflow/panel/chat-variable-panel/components/bool-value'
 import { getVarType } from '@/components/workflow/nodes/_base/variable/utils'
-import { useIsChatMode } from '@/components/workflow/hooks/use-workflow'
-import useMatchSchemaType from '../../../_base/components/variable/use-match-schema-type'
-import {
-  useAllBuiltInTools,
-  useAllCustomTools,
-  useAllMCPTools,
-  useAllWorkflowTools,
-} from '@/service/use-tools'
+// import { useIsChatMode } from '@/components/workflow/hooks/use-workflow'
+// import useMatchSchemaType from '../../../_base/components/variable/use-match-schema-type'
+// import {
+//   useAllBuiltInTools,
+//   useAllCustomTools,
+//   useAllMCPTools,
+//   useAllWorkflowTools,
+// } from '@/service/use-tools'
 
 const optionNameI18NPrefix = 'workflow.nodes.ifElse.optionName'
 
@@ -201,18 +222,6 @@ interface ConditionItemProps {
   isSubVariableKey?: boolean
   /** 值字段是否短 */
   isValueFieldShort?: boolean
-  /** 删除条件的回调 */
-  onRemoveCondition?: HandleRemoveCondition
-  /** 更新条件的回调 */
-  onUpdateCondition?: HandleUpdateCondition
-  /** 添加子变量条件的回调 */
-  onAddSubVariableCondition?: HandleAddSubVariableCondition
-  /** 删除子变量条件的回调 */
-  onRemoveSubVariableCondition?: handleRemoveSubVariableCondition
-  /** 更新子变量条件的回调 */
-  onUpdateSubVariableCondition?: HandleUpdateSubVariableCondition
-  /** 切换子变量条件逻辑操作符的回调 */
-  onToggleSubVariableConditionLogicalOperator?: HandleToggleSubVariableConditionLogicalOperator
   /** 节点ID */
   nodeId: string
   /** 节点输出变量列表 */
@@ -225,25 +234,39 @@ interface ConditionItemProps {
   filterVar: (varPayload: Var) => boolean
 }
 
+const emit = defineEmits<{
+  (e: 'removeCondition', caseId: string, conditionId: string): void
+  (e: 'updateCondition', caseId: string, conditionId: string, condition: Condition): void
+  (e: 'addSubVariableCondition', caseId: string, conditionId: string, key?: string): void
+  (e: 'removeSubVariableCondition', caseId: string, conditionId: string, subConditionId: string): void
+  (e: 'updateSubVariableCondition', caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition): void
+  (e: 'toggleSubVariableConditionLogicalOperator', caseId: string, conditionId: string): void
+}>()
+
 const props = defineProps<ConditionItemProps>()
 
 const { t } = useI18n()
-const isChatMode = useIsChatMode()
+const isChatMode = ref(false)
 const isHovered = ref(false)
 const open = ref(false)
 
-const { data: buildInTools } = useAllBuiltInTools()
-const { data: customTools } = useAllCustomTools()
-const { data: workflowTools } = useAllWorkflowTools()
-const { data: mcpTools } = useAllMCPTools()
+// const { data: buildInTools } = useAllBuiltInTools()
+// const { data: customTools } = useAllCustomTools()
+// const { data: workflowTools } = useAllWorkflowTools()
+// const { data: mcpTools } = useAllMCPTools()
+
+const buildInTools = ref([])
+const customTools = ref([])
+const workflowTools = ref([])
+const mcpTools = ref([])
 
 const workflowStore = useWorkflowStore()
 
 const doUpdateCondition = (newCondition: Condition) => {
   if (props.isSubVariableKey)
-    props.onUpdateSubVariableCondition?.(props.caseId, props.conditionId, props.condition.id, newCondition)
+    emit('updateSubVariableCondition', props.caseId, props.conditionId, props.condition.id, newCondition)
   else
-    props.onUpdateCondition?.(props.caseId, props.condition.id, newCondition)
+    emit('updateCondition', props.caseId, props.condition.id, newCondition)
 }
 
 const canChooseOperator = computed(() => {
@@ -267,9 +290,9 @@ const handleUpdateConditionOperator = (value: ComparisonOperator) => {
 const handleUpdateConditionNumberVarType = (numberVarType: NumberVarType) => {
   const newCondition = {
     ...props.condition,
-    numberVarType,
+    numberVarType: numberVarType,
     value: '',
-  }
+  } as Condition
   doUpdateCondition(newCondition)
 }
 
@@ -348,22 +371,22 @@ const handleSubVarKeyChange = (key: string) => {
     draft.comparison_operator = getOperators(undefined, { key })[0]
   })
 
-  props.onUpdateSubVariableCondition?.(props.caseId, props.conditionId, props.condition.id, newCondition)
+  emit('updateSubVariableCondition', props.caseId, props.conditionId, props.condition.id, newCondition)
 }
 
 const doRemoveCondition = () => {
   if (props.isSubVariableKey)
-    props.onRemoveSubVariableCondition?.(props.caseId, props.conditionId, props.condition.id)
+    emit('removeSubVariableCondition', props.caseId, props.conditionId, props.condition.id)
   else
-    props.onRemoveCondition?.(props.caseId, props.condition.id)
+    emit('removeCondition', props.caseId, props.condition.id)
 }
 
-const { schemaTypeDefinitions } = useMatchSchemaType()
+// const { schemaTypeDefinitions } = useMatchSchemaType()
 
 const handleVarChange = (valueSelector: ValueSelector, _varItem: Var) => {
   const resolvedVarType = getVarType({
     valueSelector,
-    conversationVariables: workflowStore.conversationVariables,
+    conversationVariables: [],
     availableNodes: props.availableNodes,
     isChatMode: isChatMode.value,
     allPluginInfoList: {
@@ -371,9 +394,9 @@ const handleVarChange = (valueSelector: ValueSelector, _varItem: Var) => {
       customTools: customTools.value || [],
       mcpTools: mcpTools.value || [],
       workflowTools: workflowTools.value || [],
-      dataSourceList: workflowStore.dataSourceList || [],
+      dataSourceList: [],
     },
-    schemaTypeDefinitions: schemaTypeDefinitions.value,
+    // schemaTypeDefinitions: schemaTypeDefinitions.value,
   })
 
   const newCondition = produce(props.condition, (draft) => {
@@ -384,7 +407,7 @@ const handleVarChange = (valueSelector: ValueSelector, _varItem: Var) => {
     delete draft.key
     delete draft.sub_variable_condition
     delete draft.numberVarType
-    setTimeout(() => workflowStore.setControlPromptEditorRerenderKey?.(Date.now()))
+    // setTimeout(() => workflowStore.setControlPromptEditorRerenderKey?.(Date.now()))
   })
   doUpdateCondition(newCondition)
   open.value = false
@@ -394,7 +417,7 @@ const showBooleanInput = computed(() => {
   if (props.condition.varType === VarType.boolean)
     return true
 
-  if (props.condition.varType === VarType.arrayBoolean && 
+  if (props.condition.varType === VarType.arrayBoolean &&
       [ComparisonOperator.contains, ComparisonOperator.notContains].includes(props.condition.comparison_operator!))
     return true
   return false

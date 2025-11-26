@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, provide, watch } from 'vue'
 import { useEditor, EditorContent, Editor } from '@tiptap/vue-3'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -19,6 +19,7 @@ import CharacterCount from '@tiptap/extension-character-count'
 import suggestion from './suggestion.js'
 import VariableNode from './VariableNode.js'
 import type { NodeOutPutVar } from '@/types/var.js'
+import { type Node } from '@/types'
 
 type Props = {
   limit?: number;
@@ -31,6 +32,7 @@ type Props = {
   placeholderClassName?: string
   value?: string
   editable?: boolean
+  availableNodes?: Node[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -39,6 +41,8 @@ const props = withDefaults(defineProps<Props>(), {
   value: '',
   editable: true,
 })
+
+provide('availableNodes', props.availableNodes ?? [])
 
 const emit = defineEmits<{
   (e: 'focus'): void

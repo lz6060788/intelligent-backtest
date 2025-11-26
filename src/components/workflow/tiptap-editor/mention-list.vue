@@ -1,5 +1,5 @@
 <template>
-  <VarReferenceVars :vars="vars" @change="handleSelectWorkflowVariable" />
+  <VarReferenceVars :vars="vars" @change="handleSelectWorkflowVariable" class="popper-custom p-1" />
 </template>
 
 <script setup lang="ts">

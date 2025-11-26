@@ -1,25 +1,29 @@
 <template>
-  <PromptEditor
-    :key="controlPromptEditorRerenderKey"
-    compact
+  <tiptap
     :value="value"
+    @change="({ text }) => emit('change', text)"
     :placeholder="t('workflow.nodes.ifElse.enterValue') || ''"
     :workflow-variable-block="workflowVariableBlock"
-    @change="onChange"
     :editable="!disabled"
-  />
+    :vars="nodesOutputVars"
+    :class-name="cn('text-xs')"
+    :available-nodes="availableNodes"
+  >
+  </tiptap>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWorkflowStore } from '@/components/workflow/store'
-import PromptEditor from '@/components/base/prompt-editor'
+import { useWorkflowInstance } from '@/components/workflow/hooks'
 import { BlockEnum } from '@/types'
 import type {
   Node,
   NodeOutPutVar,
 } from '@/types'
+import tiptap from '@/components/workflow/tiptap-editor/tiptap.vue'
+import cn from '@/utils/classnames'
 
 /**
  * 条件输入组件的属性定义
@@ -29,21 +33,23 @@ interface ConditionInputProps {
   disabled?: boolean
   /** 值 */
   value: string
-  /** 变化回调 */
-  onChange: (value: string) => void
   /** 节点输出变量列表 */
   nodesOutputVars: NodeOutPutVar[]
   /** 可用节点列表 */
   availableNodes: Node[]
 }
 
+const emit = defineEmits<{
+  (e: 'change', value: string): void
+}>()
+
 const props = defineProps<ConditionInputProps>()
 
 const { t } = useI18n()
 const workflowStore = useWorkflowStore()
+const { instance: workflowInstance } = useWorkflowInstance()
 
-const controlPromptEditorRerenderKey = computed(() => workflowStore.controlPromptEditorRerenderKey)
-const pipelineId = computed(() => workflowStore.pipelineId)
+// const controlPromptEditorRerenderKey = computed(() => workflowInstance.controlPromptEditorRerenderKey)
 
 const workflowVariableBlock = computed(() => ({
   show: true,
@@ -64,7 +70,7 @@ const workflowVariableBlock = computed(() => ({
     }
     return acc
   }, {} as any),
-  showManageInputField: !!pipelineId.value,
+  showManageInputField: false,
   onManageInputField: () => workflowStore.setShowInputFieldPanel?.(true),
 }))
 </script>
