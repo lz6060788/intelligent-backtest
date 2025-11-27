@@ -39,8 +39,11 @@ type EditorType = typeof Editor;
 type Props = {
   availableVars: NodeOutPutVar[];
   varList: Variable[];
-  onAddVar?: (payload: Variable) => void;
 } & EditorProps;
+
+const emit = defineEmits<{
+  (e: 'addVar', payload: Variable): void;
+}>();
 
 const props = defineProps<Props>();
 
@@ -136,7 +139,7 @@ const handleSelectVar = (varValue: string[]) => {
       value_selector: varValue
     };
 
-    props.onAddVar?.(newVar);
+    emit('addVar', newVar);
   }
   const editor = editorRef.value;
   const monaco = monacoRef.value;

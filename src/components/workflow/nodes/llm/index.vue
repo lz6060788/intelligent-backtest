@@ -1,11 +1,11 @@
 <template>
   <div v-if="hasSetModel" class="mb-1 py-1 relative">
-    <ModelSelector
+    <!-- <ModelSelector
       :default-model="{ provider, model: modelId }"
       :model-list="modelList"
       trigger-class-name="!rounded-md"
       :readonly="true"
-    />
+    /> -->
   </div>
 </template>
 
@@ -15,9 +15,9 @@ import type { LLMNodeType } from './types'
 import {
   useModelStore
 } from '@/store/useModelStore'
-import ModelSelector from '@/components/base/modal-provider/model-selector/index.vue'
+// import ModelSelector from '@/components/base/modal-provider/model-selector/index.vue'
 import type { NodeProps } from '@/types'
-import { storeToRefs } from 'pinia'
+// import { storeToRefs } from 'pinia'
 
 // 定义组件接收的props
 const props = defineProps<{
@@ -29,7 +29,7 @@ const { provider, name: modelId } = props.data.model || {}
 
 // 调用自定义hook
 const modelStore = useModelStore()
-const { textGenerationModelList: modelList } = storeToRefs(modelStore)
+// const { textGenerationModelList: modelList } = storeToRefs(modelStore)
 
 // 计算是否已设置模型
 const hasSetModel = computed(() => !!provider && !!modelId)

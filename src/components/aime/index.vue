@@ -44,7 +44,6 @@ const handleMessage = (event: MessageEvent) => {
         },
       }
       postMessageToAime(config);
-      console.log('aime config', config);
       emit('pageLoaded');
       isAimeReady.value = true;
     },
@@ -67,11 +66,6 @@ const handleMessage = (event: MessageEvent) => {
 window.addEventListener('message', handleMessage);
 
 const respFunctionCall = (toolId: string, isSuccess: boolean, data: any) => {
-  console.log('respFunctionCall', {
-    toolCallId: toolId,
-    status: isSuccess,
-    data: isSuccess ? (data || {}) : { reason: data || 'unknown error' },
-  });
   postMessageToAime({
     type: 'externalCapabilityResults',
     content: {

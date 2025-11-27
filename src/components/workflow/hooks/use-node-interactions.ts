@@ -1,4 +1,4 @@
-import { getOutgoers, type Connection, type GraphEdge, type NodeDragEvent, type NodeMouseEvent, type OnConnectStartParams } from '@vue-flow/core';
+import { getOutgoers, type Connection, type GraphEdge, type NodeDragEvent, type NodeMouseEvent, type OnConnectStartParams, type XYPosition } from '@vue-flow/core';
 import { reactive, unref } from 'vue';
 import { useVueFlow, getConnectedEdges } from '@vue-flow/core'
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
@@ -388,6 +388,7 @@ export const useNodesInteractions = () => {
       const currentNodeIndex = nodes.value.findIndex(node => node.id === nodeId)
       const currentNode = nodes.value[currentNodeIndex]
 
+      console.log('currentNode', currentNode, nodes.value, nodeId)
       if (!currentNode) return
 
       if (
@@ -1024,6 +1025,41 @@ export const useNodesInteractions = () => {
       saveStateToHistory(WorkflowHistoryEvent.NodeAdd, { nodeId: newNode.id })
   }
 
+  const handleIsolatedNodeAdd = (nodeType: BlockEnum, position: XYPosition) => {
+    if (getNodesReadOnly()) return
+
+    const { nodes, setNodes, edges, setEdges } = store
+    const nodesWithSameType = nodes.value.filter(
+      node => node.data.type === nodeType,
+    )
+    const { defaultValue } = nodesMetaDataMap![nodeType]
+    const { newNode, newIterationStartNode, newLoopStartNode }
+      = generateNewNode({
+        type: getNodeCustomTypeByNodeDataType(nodeType),
+        data: {
+          ...(defaultValue as any),
+          title:
+            nodesWithSameType.length > 0
+              ? `${defaultValue.title} ${nodesWithSameType.length + 1}`
+              : defaultValue.title,
+          selected: false,
+          // _showAddVariablePopup:
+          //   (nodeType === BlockEnum.VariableAssigner
+          //     || nodeType === BlockEnum.VariableAggregator)
+          //   && !!prevNodeId,
+          _holdAddVariablePopup: false,
+        },
+        position: {
+          x: position.x,
+          y: position.y,
+        },
+      })
+    const newNodes = [...nodes.value, newNode]
+    if (newIterationStartNode) newNodes.push(newIterationStartNode)
+    if (newLoopStartNode) newNodes.push(newLoopStartNode)
+    setNodes(newNodes)
+  }
+
   const handleNodesCopy = (nodeId?: string) => {
     if (getNodesReadOnly()) return
     const { setClipboardElements } = workflowStore;
@@ -1035,7 +1071,7 @@ export const useNodesInteractions = () => {
           node.id === nodeId
           && node.data.type !== BlockEnum.Start
           // && node.type !== CUSTOM_ITERATION_START_NODE
-          // && node.type !== CUSTOM_LOOP_START_NODE
+          && node.type !== CUSTOM_LOOP_START_NODE
           && node.data.type !== BlockEnum.LoopEnd
           // && node.data.type !== BlockEnum.KnowledgeBase
           // && node.data.type !== BlockEnum.DataSourceEmpty,
@@ -1074,16 +1110,17 @@ export const useNodesInteractions = () => {
     const nodesToPaste: Node[] = []
     const edgesToPaste: Edge[] = []
 
-    if (clipboardElements.length) {
-      const { x, y } = getTopLeftNodePosition(clipboardElements)
+    console.log('clipboardElements', clipboardElements.value)
+    if (clipboardElements.value.length) {
+      const { x, y } = getTopLeftNodePosition(clipboardElements.value)
       const currentPosition = project({
-        x: mousePosition.pageX,
-        y: mousePosition.pageY,
+        x: mousePosition.value.pageX,
+        y: mousePosition.value.pageY,
       })
       const offsetX = currentPosition.x - x
       const offsetY = currentPosition.y - y
       let idMapping: Record<string, string> = {}
-      clipboardElements.forEach((nodeToPaste, index) => {
+      clipboardElements.value.forEach((nodeToPaste, index) => {
         const nodeType = nodeToPaste.data!.type
 
         const { newNode, newIterationStartNode, newLoopStartNode }
@@ -1332,6 +1369,7 @@ export const useNodesInteractions = () => {
     handleNodeConnectEnd,
     handleNodeDelete,
     handleNodeAdd,
+    handleIsolatedNodeAdd,
     handleNodesCopy,
     handleNodesPaste,
     handleNodesDuplicate,

@@ -6,7 +6,7 @@ import { produce } from 'immer'
 import { ReactSortable } from 'react-sortablejs'
 import { v4 as uuid4 } from 'uuid'
 import type { ModelConfig, PromptItem, ValueSelector, Var, Variable } from '../../../types'
-import { EditionType, PromptRole } from '../../../types'
+import { EditionType, PromptRole } from '@/types'
 import useAvailableVarList from '../../_base/hooks/use-available-var-list'
 import { useWorkflowStore } from '../../../store'
 import ConfigPromptItem from './config-prompt-item'
@@ -22,7 +22,6 @@ type Props = {
   nodeId: string
   filterVar: (payload: Var, selector: ValueSelector) => boolean
   isChatModel: boolean
-  isChatApp: boolean
   payload: PromptItem | PromptItem[]
   onChange: (payload: PromptItem | PromptItem[]) => void
   isShowContext: boolean
@@ -41,7 +40,6 @@ const ConfigPrompt: FC<Props> = ({
   nodeId,
   filterVar,
   isChatModel,
-  isChatApp,
   payload,
   onChange,
   isShowContext,
@@ -78,7 +76,7 @@ const ConfigPrompt: FC<Props> = ({
   const handleChatModePromptChange = useCallback((index: number) => {
     return (prompt: string) => {
       const newPrompt = produce(payload as PromptItem[], (draft) => {
-        draft[index][draft[index].edition_type === EditionType.jinja2 ? 'jinja2_text' : 'text'] = prompt
+        draft[index]['text'] = prompt
       })
       onChange(newPrompt)
     }
@@ -192,7 +190,6 @@ const ConfigPrompt: FC<Props> = ({
                           nodeId={nodeId}
                           handleChatModeMessageRoleChange={handleChatModeMessageRoleChange(index)}
                           isChatModel={isChatModel}
-                          isChatApp={isChatApp}
                           payload={item}
                           onPromptChange={handleChatModePromptChange(index)}
                           onEditionTypeChange={handleChatModeEditionTypeChange(index)}
@@ -227,7 +224,6 @@ const ConfigPrompt: FC<Props> = ({
               onChange={handleCompletionPromptChange}
               readOnly={readOnly}
               isChatModel={isChatModel}
-              isChatApp={isChatApp}
               isShowContext={isShowContext}
               hasSetBlockStatus={hasSetBlockStatus}
               nodesOutputVars={availableVars}

@@ -13,7 +13,7 @@ import IfElseNode from './if-else/panel.vue';
 // import CodeNode from './code/index.vue';
 import HttpNode from './http/panel.vue';
 // import LoopNode from './loop/index.vue';
-// import LLMNode from './llm/index.vue';
+import LLMPanel from './llm/panel.vue';
 import VariableAssignerNode from './variable-assigner/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BasePanel from './_base/workflow-panel/index.vue'
@@ -26,7 +26,7 @@ const NodeComponentMap = {
   [BlockEnum.Code]: CodePanel,
   [BlockEnum.HttpRequest]: HttpNode,
   [BlockEnum.Loop]: StartPanel,
-  [BlockEnum.LLM]: StartPanel,
+  [BlockEnum.LLM]: LLMPanel,
   [BlockEnum.VariableAggregator]: VariableAssignerNode,
 } as const
 

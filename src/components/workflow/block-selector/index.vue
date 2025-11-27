@@ -29,6 +29,9 @@ const blocks = computed(() => {
     if (block.metaData.type === BlockEnum.Start)
       return false
 
+    if (block.metaData.type === BlockEnum.End)
+      return false
+
     if (block.metaData.type === BlockEnum.DataSource)
       return false
 

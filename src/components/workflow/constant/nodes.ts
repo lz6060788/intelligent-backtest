@@ -7,6 +7,7 @@ import loopDefault from '@/components/workflow/nodes/loop/default';
 import loopEndDefault from '@/components/workflow/nodes/loop-end/default';
 import llmDefault from '@/components/workflow/nodes/llm/default';
 import variableAssignerDefault from '@/components/workflow/nodes/variable-assigner/default';
+import endDefault from '@/components/workflow/nodes/end/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -22,6 +23,7 @@ export const WORKFLOW_COMMON_NODES = [
   loopEndDefault,
   llmDefault,
   variableAssignerDefault,
+  endDefault,
 ] as NodeDefault[]
 
 

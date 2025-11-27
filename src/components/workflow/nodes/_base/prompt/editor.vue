@@ -22,10 +22,16 @@
       >
         <div :class="cn('flex items-center justify-between pl-3 pr-2 pt-1', headerClassName)">
           <div class="flex gap-2">
-            <div :class="cn('text-xs font-semibold uppercase leading-4 text-text-secondary', titleClassName)">
+            <div v-if="!$slots.title" :class="cn('text-xs font-semibold uppercase leading-4 text-text-secondary', titleClassName)">
               {{ title }}
               <span v-if="required" class="text-red-500">*</span>
             </div>
+            <slot v-else name="title">
+              <div :class="cn('text-xs font-semibold uppercase leading-4 text-text-secondary', titleClassName)">
+                {{ title }}
+                <span v-if="required" class="text-red-500">*</span>
+              </div>
+            </slot>
             <el-tooltip v-if="titleTooltip" :content="titleTooltip" />
           </div>
           <div class="flex items-center">
@@ -33,10 +39,10 @@
               {{ value?.length || 0 }}
             </div>
 
-            <div class="ml-2 mr-2 h-3 w-px bg-divider-regular"></div>
+            <div class="ml-2 mr-2 h-3 w-px bg-gray-600"></div>
             <!-- Operations -->
             <div class="flex items-center space-x-[2px]">
-              <ActionButton v-if="showRemove" @click="onRemove">
+              <ActionButton v-if="showRemove" @click="emit('remove')">
                 <RiDeleteBinLine class="h-4 w-4" />
               </ActionButton>
               <ActionButton v-if="!isCopied" @click="handleCopy">
@@ -66,7 +72,7 @@
               :placeholder-class-name="placeholderClassName"
               :instance-id="instanceId"
               compact
-              :class="cn('min-h-[56px]', inputClassName)"
+              :class="cn('min-h-[56px] text-sm', inputClassName)"
               :style="isExpand ? { height: editorExpandHeight - 5 } : {}"
               @change="({ text }) => emit('change', text)"
               @blur="setBlur"
@@ -89,7 +95,7 @@
             <CodeEditor
               :available-vars="nodesOutputVars || []"
               :var-list="varList"
-              @add-var="handleAddVariable"
+              @add-var="emit('addVariable', $event)"
               is-in-node
               :read-only="readOnly"
               :language="CodeLanguage.python3"
@@ -127,13 +133,8 @@ import {
   Copy,
   CopyCheck,
 } from '@/components/base/icons/src/vender/line/files'
-import { Variable02 } from '@/components/base/icons/src/vender/solid/development'
 import ActionButton from '@/components/base/action-button/index.vue'
 import CodeEditor from '@/components/workflow/nodes/_base/editor/code-editor/editor-support-vars.vue'
-import { Jinja } from '@/app/components/base/icons/src/vender/workflow'
-import { useWorkflowStore } from '@/components/workflow/store'
-import { useWorkflowVariableType } from '@/components/workflow/hooks'
-import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 /**
  * 组件属性定义
@@ -144,7 +145,7 @@ interface Props {
   instanceId?: string
   nodeId?: string
   editorId?: string
-  title: string
+  title?: string
   value: string
   readOnly?: boolean
   showRemove?: boolean
@@ -166,7 +167,6 @@ interface Props {
   isSupportJinja?: boolean
   editionType?: EditionType
   varList?: Variable[]
-  handleAddVariable?: (payload: any) => void
   containerBackgroundClassName?: string
   gradientBorder?: boolean
   titleTooltip?: string

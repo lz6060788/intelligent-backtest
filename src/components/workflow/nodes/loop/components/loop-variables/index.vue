@@ -22,10 +22,10 @@ import type {
 /**
  * 循环变量组件属性定义
  */
-interface LoopVariableProps {
+interface LoopVariableProps extends LoopVariablesComponentShape {
   /** 变量列表 */
   variables?: LoopVariable[]
-} & LoopVariablesComponentShape
+}
 
 const props = withDefaults(defineProps<LoopVariableProps>(), {
   variables: () => [],

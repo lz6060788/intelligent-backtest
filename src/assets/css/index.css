@@ -102,6 +102,10 @@ button {
   @apply text-gray-4;
 }
 
+.text-text-tertiary-hover {
+  @apply hover:text-gray-3;
+}
+
 .text-text-primary {
   @apply text-blue-500;
 }

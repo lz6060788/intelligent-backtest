@@ -27,8 +27,8 @@ const handleCollapse = (val: boolean) => {
     >
       <!-- 将 title 传入 trigger 插槽 -->
       <template #trigger>
-        <div class="system-sm-semibold-uppercase flex h-6 cursor-pointer items-center text-text-secondary">
-          {{ title }}{{ collapsed }}
+        <div class="text-sm text-bold flex h-6 cursor-pointer items-center text-gray-200">
+          {{ title }}
         </div>
       </template>
 

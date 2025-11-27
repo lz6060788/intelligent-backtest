@@ -22,7 +22,6 @@ type Props = {
   nodeId: string
   canRemove: boolean
   isChatModel: boolean
-  isChatApp: boolean
   payload: PromptItem
   handleChatModeMessageRoleChange: (role: PromptRole) => void
   onPromptChange: (p: string) => void
@@ -69,7 +68,6 @@ const ConfigPromptItem: FC<Props> = ({
   canRemove,
   handleChatModeMessageRoleChange,
   isChatModel,
-  isChatApp,
   payload,
   onPromptChange,
   onEditionTypeChange,
@@ -124,13 +122,12 @@ const ConfigPromptItem: FC<Props> = ({
           />
         </div>
       }
-      value={payload.edition_type === EditionType.jinja2 ? (payload.jinja2_text || '') : payload.text}
+      value={payload.text}
       onChange={onPromptChange}
       readOnly={readOnly}
       showRemove={canRemove}
       onRemove={onRemove}
       isChatModel={isChatModel}
-      isChatApp={isChatApp}
       isShowContext={isShowContext}
       hasSetBlockStatus={hasSetBlockStatus}
       nodesOutputVars={availableVars}

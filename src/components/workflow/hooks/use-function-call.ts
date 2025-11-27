@@ -9,7 +9,6 @@ export const enum FunctionCallName {
   GetWorkflowInfo = 'getWorkflowInfo',
   AddNode = 'addNode',
   DeleteNode = 'deleteNode',
-  Add = 'add',
 }
 
 export const useFunctionCall = () => {
@@ -89,28 +88,6 @@ export const useFunctionCall = () => {
       },
       tool_id: '456'
     },
-    {
-      type: 'function',
-      function: {
-        name: FunctionCallName.Add,
-        description: '计算两个数的和',
-        parameters: {
-          type: 'object',
-          properties: {
-            a: {
-              type: 'number',
-              description: '第一个数',
-            },
-            b: {
-              type: 'number',
-              description: '第二个数',
-            },
-          },
-          required: ['a', 'b'],
-        },
-      },
-      tool_id: '456'
-    },
   ] as const satisfies CallExternalCapabilitiesTool[]
 
   const callGetWorkflowInfo = () => {
@@ -136,11 +113,6 @@ export const useFunctionCall = () => {
     }
   }
 
-  const callAdd = (data: {a: number, b: number}) => {
-    const { a, b } = data
-    return a + b
-  }
-
   const callAddNode = (data: {nodeType: BlockEnum, prevNodeId?: string, prevNodeSourceHandle?: string, nextNodeId?: string, nextNodeTargetHandle?: string}) => {
     const { nodeType, prevNodeId, prevNodeSourceHandle, nextNodeId, nextNodeTargetHandle } = data
     return handleNodeAdd(
@@ -156,13 +128,12 @@ export const useFunctionCall = () => {
     )
   }
 
-  const callDeleteNode = (nodeId: string) => {
+  const callDeleteNode = ({ nodeId }: { nodeId: string }) => {
     return handleNodeDelete(nodeId)
   }
 
   const functionCallMap = {
     [FunctionCallName.GetWorkflowInfo]: callGetWorkflowInfo,
-    [FunctionCallName.Add]: callAdd,
     [FunctionCallName.AddNode]: callAddNode,
     [FunctionCallName.DeleteNode]: callDeleteNode,
   } as const satisfies Record<FunctionCallName, (...args: any[]) => any>
@@ -170,7 +141,6 @@ export const useFunctionCall = () => {
   return {
     callExternalCapabilitiesTools,
     callGetWorkflowInfo,
-    callAdd,
     functionCallMap,
   }
 }

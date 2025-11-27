@@ -3,21 +3,21 @@ import type { CommonNodeType, Memory, ModelConfig, PromptItem, ValueSelector, Va
 export type LLMNodeType = CommonNodeType & {
   model: ModelConfig
   prompt_template: PromptItem[] | PromptItem
-  prompt_config?: {
-    jinja2_variables?: Variable[]
-  }
-  memory?: Memory
+  // prompt_config?: {
+  //   jinja2_variables?: Variable[]
+  // }
+  // memory?: Memory
   context: {
     enabled: boolean
     variable_selector: ValueSelector
   }
-  vision: {
-    enabled: boolean
-    configs?: VisionSetting
-  }
-  structured_output_enabled?: boolean
-  structured_output?: StructuredOutput
-  reasoning_format?: 'tagged' | 'separated'
+  // vision: {
+  //   enabled: boolean
+  //   configs?: VisionSetting
+  // }
+  // structured_output_enabled?: boolean
+  // structured_output?: StructuredOutput
+  // reasoning_format?: 'tagged' | 'separated'
 }
 
 export enum Type {

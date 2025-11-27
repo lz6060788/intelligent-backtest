@@ -25,12 +25,12 @@ const props = defineProps<{
     <div class="py-1">
       <div class="flex">
         <div class="flex items-center leading-[18px]">
-          <div class="code-sm-semibold text-text-secondary">{{ name }}</div>
-          <div class="system-xs-regular ml-2 text-text-tertiary text-sm">{{ type }}</div>
+          <div class="code-sm-semibold text-gray-200 text-sm">{{ name }}</div>
+          <div class="text-xs ml-2 text-text-tertiary text-sm">{{ type }}</div>
         </div>
       </div>
 
-      <div class="system-xs-regular mt-0.5 text-text-tertiary text-sm">
+      <div class="text-xs mt-0.5 text-text-tertiary text-sm">
         {{ description }}
 
         <!-- 递归渲染子项 -->

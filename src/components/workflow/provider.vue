@@ -72,7 +72,7 @@
       </VueFlow>
       <Panel />
     </div>
-    <!-- <Aime></Aime> -->
+    <Aime></Aime>
   </div>
 </template>
 
@@ -93,7 +93,7 @@ import type { WorkflowProps } from '@/types/workflow'
 import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
-import { ControlMode } from '@/types';
+import { BlockEnum, ControlMode } from '@/types';
 import Aime from './aime/index.vue'
 
 const workflowContainerRef = ref<HTMLDivElement>();
@@ -125,6 +125,7 @@ const {
   handleNodesCopy,
   handleNodesPaste,
   handleNodesDelete,
+  handleIsolatedNodeAdd
 } = useNodesInteractions();
 
 const {
@@ -142,15 +143,12 @@ const {
 } = useSelectionInteractions();
 
 
-
 hotkeys('ctrl+c', function(event, handler){
-  // Prevent the default refresh event under WINDOWS system
   event.preventDefault()
   handleNodesCopy();
 });
 
 hotkeys('ctrl+v', function(event, handler){
-  // Prevent the default refresh event under WINDOWS system
   event.preventDefault()
   handleNodesPaste();
 });
@@ -190,6 +188,14 @@ onMounted(() => {
       })
     }
   })
+
+  // TODO 临时代码
+  setTimeout(() => {
+    handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })
+    setTimeout(() => {
+      handleIsolatedNodeAdd(BlockEnum.End, { x: 2000, y: 800 })
+    }, 500)
+  }, 500)
 })
 
 const debugPrint = () => {

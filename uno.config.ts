@@ -28,7 +28,7 @@ export default defineConfig({
   },
   preflights: [
     {
-      getCSS: ({ theme }) => `
+      getCSS: () => `
         :root {
           /* 映射尺寸变量 */
           --height-header: 40px;

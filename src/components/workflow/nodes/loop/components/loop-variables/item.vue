@@ -55,10 +55,10 @@ import { ValueType, VarType } from '@/types'
 /**
  * 项组件的属性定义
  */
-interface ItemProps {
+interface ItemProps extends LoopVariablesComponentShape {
   /** 循环变量项 */
   item: LoopVariable
-} & LoopVariablesComponentShape
+}
 
 const props = defineProps<ItemProps>()
 
