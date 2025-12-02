@@ -667,7 +667,7 @@ const translation = {
       aggregationGroupTip: '开启该功能后，变量聚合器内可以同时聚合多组变量',
       addGroup: '添加分组',
       outputVars: {
-        varDescribe: '{{groupName}}的输出变量',
+        varDescribe: '{groupName}的输出变量',
       },
       setAssignVariable: '设置赋值变量',
     },

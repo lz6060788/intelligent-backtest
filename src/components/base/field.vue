@@ -2,7 +2,7 @@
   <div :class="[className, inline && 'flex w-full items-center justify-between']">
     <div @click="supportFold && toggleFold" :class="['flex items-center justify-between', supportFold && 'cursor-pointer']">
       <div class="flex h-6 items-center">
-        <div :class="[isSubTitle? 'system-xs-medium-uppercase text-text-tertiary' :'system-sm-semibold-uppercase text-text-secondary']">
+        <div :class="[isSubTitle? 'text-xs uppercase text-text-tertiary' :'text-sm font-semibold uppercase text-text-secondary']">
           <template v-if="slots.title">
             <slot name="title" />
           </template>
@@ -10,10 +10,10 @@
           <span v-if="required" class="text-red-500 font-bold ml-1 text-lg">*</span>
         </div>
         <el-tooltip v-if="slots.tooltip || tooltip" :content="tooltip" placement="top">
-          <template v-if="slots.tooltip">
+          <template v-if="slots.tooltip" #content>
             <slot name="tooltip" />
           </template>
-          <template v-else>{{ tooltip }}</template>
+          <RiInformationLine class="h-4 w-4 ml-1 shrink-0 text-text-secondary" />
         </el-tooltip>
       </div>
       <div class="flex">
@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { defineProps, ref, useSlots, type Component } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
+import { RiInformationLine } from '@remixicon/vue'
 
 type Props = {
   className?: string

@@ -1,7 +1,7 @@
 <template>
   <div
     :class="cn(
-      'relative rounded-lg border-[1.5px] border-transparent px-1.5 pb-1.5 pt-1',
+      'relative rounded-lg border-[1.5px] border-transparent px-1.5 pb-1.5 pt-1 border-solid border-0',
       showSelectionBorder && '!border-dashed !border-blue-500 bg-blue-300',
       showSelectedBorder && '!border-blue-600 !bg-blue-400',
     )"
@@ -119,7 +119,7 @@ const outputType = computed(() => {
   return group?.output_type || ''
 })
 
-const availableVars = computed(() => getAvailableVars(props.item.variableAssignerNodeId, props.item.targetHandleId, filterVar(outputType.value as VarType), true))
+const availableVars = computed(() => getAvailableVars(props.item.variableAssignerNodeId, props.item.targetHandleId, filterVar(outputType.value as VarType), false))
 
 const showSelectionBorder = computed(() => {
   if (groupEnabled.value && enteringNodePayload.value?.nodeId === props.item.variableAssignerNodeId) {

@@ -664,7 +664,7 @@ const translation = {
       aggregationGroupTip: 'Enabling this feature allows the variable aggregator to aggregate multiple sets of variables.',
       addGroup: 'Add Group',
       outputVars: {
-        varDescribe: '{{groupName}} output',
+        varDescribe: '{groupName} output',
       },
       setAssignVariable: 'Set assign variable',
     },

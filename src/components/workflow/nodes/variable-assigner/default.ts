@@ -15,10 +15,7 @@ const nodeDefault: NodeDefault<VariableAssignerNodeType> = {
   metaData,
   defaultValue: {
     output_type: VarType.any,
-    variables: [
-      ['sys', 'output', 'value', '23424'],
-      ['env', 'output', 'value', '123'],
-    ],
+    variables: [],
   },
   checkValid(payload: VariableAssignerNodeType, t: any) {
     let errorMessages = ''

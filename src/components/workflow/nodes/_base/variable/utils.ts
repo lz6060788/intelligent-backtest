@@ -413,10 +413,6 @@ const formatItem = (
 
       break
     }
-    // case BlockEnum.KnowledgeRetrieval: {
-    //   res.vars = KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT
-    //   break
-    // }
 
     case BlockEnum.Code: {
       const { outputs } = data as CodeNodeType
@@ -430,16 +426,6 @@ const formatItem = (
         : []
       break
     }
-
-    // case BlockEnum.TemplateTransform: {
-    //   res.vars = TEMPLATE_TRANSFORM_OUTPUT_STRUCT
-    //   break
-    // }
-
-    // case BlockEnum.QuestionClassifier: {
-    //   res.vars = QUESTION_CLASSIFIER_OUTPUT_STRUCT
-    //   break
-    // }
 
     case BlockEnum.HttpRequest: {
       res.vars = HTTP_REQUEST_OUTPUT_STRUCT

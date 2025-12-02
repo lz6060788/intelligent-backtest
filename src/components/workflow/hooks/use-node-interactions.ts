@@ -96,8 +96,7 @@ export const useNodesInteractions = () => {
       const connectingNode: Node = nodes.value.find(
         n => n.id === connectingNodePayload.value?.nodeId,
       )!
-      console.log(connectingNodePayload.value, connectingNode)
-      const sameLevel = connectingNode.parentNode === node.parentNode
+      const sameLevel = connectingNode?.parentNode === node?.parentNode
 
       if (sameLevel) {
         setEnteringNodePayload({
@@ -105,30 +104,26 @@ export const useNodesInteractions = () => {
           nodeData: node.data,
         })
         // 特殊节点 - 可能无需使用
-        // const fromType = connectingNodePayload.handleType
+        const fromType = connectingNodePayload.value?.handleType
 
-        // nodes.map((n) => {
-        //   if (
-        //     n.id === node.id
-        //     && fromType === 'source'
-        //     && (node.data.type === BlockEnum.VariableAssigner
-        //       || node.data.type === BlockEnum.VariableAggregator)
-        //   ) {
-        //     if (!node.data.advanced_settings?.group_enabled)
-        //       n.data._isEntering = true
-        //   }
-        //   if (
-        //     n.id === node.id
-        //     && fromType === 'target'
-        //     && (connectingNode.data?.type === BlockEnum.VariableAssigner
-        //       || connectingNode.data?.type === BlockEnum.VariableAggregator)
-        //     && node.data.type !== BlockEnum.IfElse
-        //     && node.data.type !== BlockEnum.QuestionClassifier
-        //   )
-        //     n.data._isEntering = true;
-        //   return n
-        // })
-        // setNodes(nodes)
+        nodes.value.map((n) => {
+          if (
+            n.id === node.id
+            && fromType === 'source'
+            && (node.data.type === BlockEnum.VariableAggregator)
+          ) {
+            if (!node.data.advanced_settings?.group_enabled)
+              n.data._isEntering = true
+          }
+          if (
+            n.id === node.id
+            && fromType === 'target'
+            && (connectingNode.data?.type === BlockEnum.VariableAggregator)
+            && node.data.type !== BlockEnum.IfElse
+          )
+            n.data._isEntering = true;
+          return n
+        })
       }
     }
     const connectedEdges = getConnectedEdges([node], edges.value)

@@ -3,6 +3,7 @@
     <el-popover
       v-model:visible="open"
       :placement="props.isAddBtnTrigger ? 'bottom-end' : 'bottom-start'"
+      :width="props.isAddBtnTrigger ? 260 : (props.minWidth || triggerWidth)"
       :offset="4"
       trigger="click"
       teleported
@@ -18,7 +19,7 @@
         >
           <template v-if="props.isAddBtnTrigger">
             <div>
-              <AddButton @click="noop" />
+              <AddButton />
             </div>
           </template>
           <template v-else>
@@ -74,7 +75,7 @@
                       <div
                         :class="cn(
                           'h-full items-center rounded-[5px] px-1.5 max-w-full',
-                          hasValue ? 'inline-flex bg-components-badge-white-to-dark' : 'flex'
+                          hasValue ? 'inline-flex bg-gray-600' : 'flex'
                         )"
                       >
                         <template v-if="hasValue">
@@ -162,7 +163,7 @@
 
               <template v-if="hasValue && !props.readonly && !props.isInTable">
                 <div
-                  class="group invisible absolute right-1 top-[50%] h-5 translate-y-[-50%] cursor-pointer rounded-md px-1 hover:bg-red-500 group-hover/wrap:visible"
+                  class="group invisible absolute right-1 top-[50%] h-5 translate-y-[-50%] cursor-pointer rounded-md px-0.5 hover:bg-gray-600 group-hover/wrap:visible"
                   @click.stop="handleClearVar"
                 >
                   <RiCloseLine class="h-4 w-4 text-text-tertiary group-hover:text-text-secondary" />
@@ -251,14 +252,13 @@ import BlockIcon from '@/components/workflow/block-icon.vue'
 import { Line3 } from '@/components/base/icons/src/public/common'
 import { Variable02 } from '@/components/base/icons/src/vender/solid/development'
 import { useWorkflowVariables } from '@/components/workflow/hooks'
-import { VarKindType } from '@/types'
+import { VarType as VarKindType } from '../../tool/types'
 // import TypeSelector from '@/components/workflow/nodes/_base/selector'
 import AddButton from '@/components/base/add-button/index.vue'
 import Badge from '@/components/base/badge/index.vue'
 import { isExceptionVariable } from '@/components/workflow/utils'
 // VarFullPathPanel 组件需要根据实际实现调整
 // import VarFullPathPanel from './var-full-path-panel'
-import { noop } from 'lodash-es'
 import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 import { VariableIconWithColor } from '@/components/workflow/nodes/_base/variable/variable-label'
 
@@ -318,7 +318,7 @@ interface Props {
 }
 
 const emit = defineEmits<{
-  (e: 'change', value: ValueSelector | string | number, varKindType: VarKindType, varInfo?: Var): void;
+  (e: 'change', value: ValueSelector | string, varKindType: VarKindType, varInfo?: Var): void;
   (e: 'open', value: boolean): void;
   (e: 'remove'): () => void;
 }>()
@@ -382,7 +382,6 @@ const varKindType = ref<VarKindType>(props.defaultVarKindType)
 const isConstant = computed(() => props.isSupportConstantValue && varKindType.value === VarKindType.constant)
 
 const outputVars = computed(() => {
-  console.log(props.availableVars, 'availableVars', availableVars)
   const results = props.availableVars || availableVars
   return props.isFilterFileVar ? removeFileVars(results) : results
 })
@@ -418,7 +417,6 @@ const outputVarNode = computed(() => {
 
   if (isLoopVar.value) return loopNode.value?.data
 
-  console.log('isSystemVar', Array.isArray(props.value) && isSystemVar(props.value as ValueSelector))
   if (Array.isArray(props.value) && isSystemVar(props.value as ValueSelector))
     return startNode?.data
 
@@ -516,7 +514,6 @@ const handleVariableJump = (nodeId: string | undefined) => {
   }
 }
 
-// TODO: 需要根据实际实现获取 isChatMode，可以参考其他 Vue 组件的实现
 const isChatMode = computed(() => false)
 
 const type = computed(() =>
@@ -590,12 +587,12 @@ const variableCategory = computed(() => {
 })
 
 const handleWrapClick = (e: MouseEvent) => {
-  if (props.readonly) return
-  e.stopPropagation()
-  if (!isConstant.value)
-    open.value = !open.value
-  else
-    controlFocus.value = Date.now()
+  // if (props.readonly) return
+  // e.stopPropagation()
+  // if (!isConstant.value)
+  //   open.value = !open.value
+  // else
+  //   controlFocus.value = Date.now()
 }
 
 const handleTypeSelectorClick = () => {
@@ -620,7 +617,7 @@ const handleNodeNameClick = (e: MouseEvent) => {
 }
 
 const handleConstantChange = (value: string | number) => {
-  emit('change', value, VarKindType.constant)
+  emit('change', value.toString(), VarKindType.constant)
 }
 </script>
 

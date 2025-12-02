@@ -102,6 +102,10 @@ button {
   @apply text-gray-4;
 }
 
+.text-text-secondary {
+  @apply text-gray-3;
+}
+
 .text-text-tertiary-hover {
   @apply hover:text-gray-3;
 }
@@ -113,4 +117,3 @@ button {
 .popper-custom {
   @apply border border-gray-500 border-solid bg-gray-800  rounded-lg;
 }
-

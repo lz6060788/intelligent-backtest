@@ -131,3 +131,7 @@ export const replaceSpaceWithUnderscoreInVarNameInput = (input: HTMLInputElement
   if (start !== null && end !== null)
     input.setSelectionRange(start, end)
 }
+
+export const replaceSpaceWithUnderscoreForValue = (value: string) => {
+  return value.replaceAll(' ', '_')
+}

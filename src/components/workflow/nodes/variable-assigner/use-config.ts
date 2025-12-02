@@ -1,50 +1,48 @@
-import { useCallback, useRef, useState } from 'react'
 import { produce } from 'immer'
-import { useBoolean, useDebounceFn } from 'ahooks'
+import { debounce } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid'
-import type { ValueSelector, Var } from '../../types'
-import { VarType } from '../../types'
+import type { ValueSelector, Var } from '@/types'
+import { VarType } from '@/types'
 import type { VarGroupItem, VariableAssignerNodeType } from './types'
 import { useGetAvailableVars } from './hooks'
-import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
+import useNodeCrud from '@/components/workflow/nodes/_base/hooks/use-node-crud'
 
 import {
   useNodesReadOnly,
   useWorkflow,
-} from '@/app/components/workflow/hooks'
-import useInspectVarsCrud from '../../hooks/use-inspect-vars-crud'
+} from '@/components/workflow/hooks'
+import { computed, ref, type Ref } from 'vue';
+// import useInspectVarsCrud from '@/components/workflow/hooks/use-inspect-vars-crud'
 
-const useConfig = (id: string, payload: VariableAssignerNodeType) => {
-  const {
-    deleteNodeInspectorVars,
-    renameInspectVarName,
-  } = useInspectVarsCrud()
+const useConfig = (id: string, payload: Ref<VariableAssignerNodeType>) => {
+  // const {
+  //   deleteNodeInspectorVars,
+  //   renameInspectVarName,
+  // } = useInspectVarsCrud()
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
   const { handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()
 
-  const { inputs, setInputs } = useNodeCrud<VariableAssignerNodeType>(id, payload)
-  const isEnableGroup = !!inputs.advanced_settings?.group_enabled
+  const { setInputs } = useNodeCrud<VariableAssignerNodeType>(id)
+  const isEnableGroup = computed(() => !!payload.value.advanced_settings?.group_enabled)
 
   // Not Enable Group
-  const handleListOrTypeChange = useCallback((payload: VarGroupItem) => {
+  const handleListOrTypeChange = (_payload: VarGroupItem) => {
     setInputs({
-      ...inputs,
-      ...payload,
+      ...payload.value,
+      ..._payload,
     })
-  }, [inputs, setInputs])
+  }
 
-  const handleListOrTypeChangeInGroup = useCallback((groupId: string) => {
-    return (payload: VarGroupItem) => {
-      const index = inputs.advanced_settings.groups.findIndex(item => item.groupId === groupId)
-      const newInputs = produce(inputs, (draft) => {
-        draft.advanced_settings.groups[index] = {
-          ...draft.advanced_settings.groups[index],
-          ...payload,
-        }
-      })
-      setInputs(newInputs)
-    }
-  }, [inputs, setInputs])
+  const handleListOrTypeChangeInGroup = (groupId: string, _payload: VarGroupItem) => {
+    const index = payload.value.advanced_settings.groups.findIndex(item => item.groupId === groupId)
+    const newInputs = produce(payload.value, (draft) => {
+      draft.advanced_settings.groups[index] = {
+        ...draft.advanced_settings.groups[index],
+        ..._payload,
+      }
+    })
+    setInputs(newInputs)
+  }
 
   const getAvailableVars = useGetAvailableVars()
   const filterVar = (varType: VarType) => {
@@ -57,37 +55,37 @@ const useConfig = (id: string, payload: VariableAssignerNodeType) => {
     }
   }
 
-  const [isShowRemoveVarConfirm, {
-    setTrue: showRemoveVarConfirm,
-    setFalse: hideRemoveVarConfirm,
-  }] = useBoolean(false)
+  const isShowRemoveVarConfirm = ref(false)
 
-  const [removedVars, setRemovedVars] = useState<ValueSelector[]>([])
-  const [removeType, setRemoveType] = useState<'group' | 'enableChanged'>('group')
-  const [removedGroupIndex, setRemovedGroupIndex] = useState<number>(-1)
-  const handleGroupRemoved = useCallback((groupId: string) => {
-    return () => {
-      const index = inputs.advanced_settings.groups.findIndex(item => item.groupId === groupId)
-      if (isVarUsedInNodes([id, inputs.advanced_settings.groups[index].group_name, 'output'])) {
-        showRemoveVarConfirm()
-        setRemovedVars([[id, inputs.advanced_settings.groups[index].group_name, 'output']])
-        setRemoveType('group')
-        setRemovedGroupIndex(index)
-        return
-      }
-      const newInputs = produce(inputs, (draft) => {
-        draft.advanced_settings.groups.splice(index, 1)
-      })
-      setInputs(newInputs)
+  const removedVars = ref<ValueSelector[]>([])
+  const removeType = ref<'group' | 'enableChanged'>('group')
+  const removedGroupIndex = ref<number>(-1)
+  const handleGroupRemoved = (groupId: string) => {
+    const index = payload.value.advanced_settings.groups.findIndex(item => item.groupId === groupId)
+    if (isVarUsedInNodes([id, payload.value.advanced_settings.groups[index]!.group_name, 'output'])) {
+      isShowRemoveVarConfirm.value = true
+      removedVars.value = [[id, payload.value.advanced_settings.groups[index]!.group_name, 'output']]
+      removeType.value = 'group'
+      removedGroupIndex.value = index
+      return
     }
-  }, [id, inputs, isVarUsedInNodes, setInputs, showRemoveVarConfirm])
+    const newInputs = produce(payload.value, (draft) => {
+      draft.advanced_settings.groups.splice(index, 1)
+    })
+    setInputs(newInputs)
+  }
 
-  const handleGroupEnabledChange = useCallback((enabled: boolean) => {
-    const newInputs = produce(inputs, (draft) => {
+  const handleGroupEnabledChange = (enabled: boolean) => {
+    console.log('handleGroupEnabledChange', enabled)
+    const newInputs = produce(payload.value, (draft) => {
+      console.log('draft', draft)
       if (!draft.advanced_settings)
         draft.advanced_settings = { group_enabled: false, groups: [] }
+      console.log('draft.advanced_settings', draft.advanced_settings)
       if (enabled) {
+        console.log('draft.advanced_settings.groups.length', draft.advanced_settings.groups.length)
         if (draft.advanced_settings.groups.length === 0) {
+          console.log('draft.advanced_settings.groups.length === 0')
           const DEFAULT_GROUP_NAME = 'Group1'
           draft.advanced_settings.groups = [{
             output_type: draft.output_type,
@@ -104,34 +102,35 @@ const useConfig = (id: string, payload: VariableAssignerNodeType) => {
           if (draft.advanced_settings.groups.length > 1) {
             const useVars = draft.advanced_settings.groups.filter((item, index) => index > 0 && isVarUsedInNodes([id, item.group_name, 'output']))
             if (useVars.length > 0) {
-              showRemoveVarConfirm()
-              setRemovedVars(useVars.map(item => [id, item.group_name, 'output']))
-              setRemoveType('enableChanged')
+              isShowRemoveVarConfirm.value = true
+              removedVars.value = useVars.map(item => [id, item.group_name, 'output'])
+              removeType.value = 'enableChanged'
               return
             }
           }
-          draft.output_type = draft.advanced_settings.groups[0].output_type
-          draft.variables = draft.advanced_settings.groups[0].variables
-          handleOutVarRenameChange(id, [id, draft.advanced_settings.groups[0].group_name, 'output'], [id, 'output'])
+          draft.output_type = draft.advanced_settings.groups[0]!.output_type
+          draft.variables = draft.advanced_settings.groups[0]!.variables
+          handleOutVarRenameChange(id, [id, draft.advanced_settings.groups[0]!.group_name, 'output'], [id, 'output'])
         }
       }
       draft.advanced_settings.group_enabled = enabled
     })
+    console.log('newInputs', newInputs)
     setInputs(newInputs)
-    deleteNodeInspectorVars(id)
-  }, [deleteNodeInspectorVars, handleOutVarRenameChange, id, inputs, isVarUsedInNodes, setInputs, showRemoveVarConfirm])
+    // deleteNodeInspectorVars(id)
+  }
 
-  const handleAddGroup = useCallback(() => {
+  const handleAddGroup = () => {
     let maxInGroupName = 1
-    inputs.advanced_settings.groups.forEach((item) => {
+    payload.value.advanced_settings.groups.forEach((item) => {
       const match = /(\d+)$/.exec(item.group_name)
       if (match) {
-        const num = Number.parseInt(match[1], 10)
+        const num = Number.parseInt(match[1]!, 10)
         if (num > maxInGroupName)
           maxInGroupName = num
       }
     })
-    const newInputs = produce(inputs, (draft) => {
+    const newInputs = produce(payload.value, (draft) => {
       draft.advanced_settings.groups.push({
         output_type: VarType.any,
         variables: [],
@@ -140,62 +139,65 @@ const useConfig = (id: string, payload: VariableAssignerNodeType) => {
       })
     })
     setInputs(newInputs)
-    deleteNodeInspectorVars(id)
-  }, [deleteNodeInspectorVars, id, inputs, setInputs])
+    // deleteNodeInspectorVars(id)
+  }
 
   // record the first old name value
-  const oldNameRecord = useRef<Record<string, string>>({})
+  const oldNameRecord = ref<Record<string, string>>({})
 
-  const {
-    run: renameInspectNameWithDebounce,
-  } = useDebounceFn(
-    (id: string, newName: string) => {
-      const oldName = oldNameRecord.current[id]
-      renameInspectVarName(id, oldName, newName)
-      delete oldNameRecord.current[id]
-    },
-    { wait: 500 },
-  )
+  // const {
+  //   run: renameInspectNameWithDebounce,
+  // } = useDebounceFn(
+  //   (id: string, newName: string) => {
+  //     const oldName = oldNameRecord.current[id]
+  //     renameInspectVarName(id, oldName, newName)
+  //     delete oldNameRecord.current[id]
+  //   },
+  //   { wait: 500 },
+  // )
+  const renameInspectNameWithDebounce = debounce((id: string, newName: string) => {
+    // const oldName = oldNameRecord.value[id]
+    // renameInspectVarName(id, oldName, newName)
+    delete oldNameRecord.value[id]
+  }, 500)
 
-  const handleVarGroupNameChange = useCallback((groupId: string) => {
-    return (name: string) => {
-      const index = inputs.advanced_settings.groups.findIndex(item => item.groupId === groupId)
-      const newInputs = produce(inputs, (draft) => {
-        draft.advanced_settings.groups[index].group_name = name
-      })
-      handleOutVarRenameChange(id, [id, inputs.advanced_settings.groups[index].group_name, 'output'], [id, name, 'output'])
-      setInputs(newInputs)
-      if(!(id in oldNameRecord.current))
-        oldNameRecord.current[id] = inputs.advanced_settings.groups[index].group_name
-      renameInspectNameWithDebounce(id, name)
-    }
-  }, [handleOutVarRenameChange, id, inputs, renameInspectNameWithDebounce, setInputs])
+  const handleVarGroupNameChange = (groupId: string, name: string) => {
+    console.log(groupId, name)
+    const index = payload.value.advanced_settings.groups.findIndex(item => item.groupId === groupId)
+    const newInputs = produce(payload.value, (draft) => {
+      draft.advanced_settings.groups[index]!.group_name = name
+    })
+    handleOutVarRenameChange(id, [id, payload.value.advanced_settings.groups[index]!.group_name, 'output'], [id, name, 'output'])
+    setInputs(newInputs)
+    if(!(id in oldNameRecord.value))
+      oldNameRecord.value[id] = payload.value.advanced_settings.groups[index]!.group_name
+    renameInspectNameWithDebounce(id, name)
+}
 
-  const onRemoveVarConfirm = useCallback(() => {
-    removedVars.forEach((v) => {
+  const onRemoveVarConfirm = () => {
+    removedVars.value.forEach((v) => {
       removeUsedVarInNodes(v)
     })
-    hideRemoveVarConfirm()
-    if (removeType === 'group') {
-      const newInputs = produce(inputs, (draft) => {
-        draft.advanced_settings.groups.splice(removedGroupIndex, 1)
+    isShowRemoveVarConfirm.value = false
+    if (removeType.value === 'group') {
+      const newInputs = produce(payload.value, (draft) => {
+        draft.advanced_settings.groups.splice(removedGroupIndex.value, 1)
       })
       setInputs(newInputs)
     }
     else {
       // removeType === 'enableChanged' to enabled
-      const newInputs = produce(inputs, (draft) => {
+      const newInputs = produce(payload.value, (draft) => {
         draft.advanced_settings.group_enabled = false
-        draft.output_type = draft.advanced_settings.groups[0].output_type
-        draft.variables = draft.advanced_settings.groups[0].variables
+        draft.output_type = draft.advanced_settings.groups[0]!.output_type
+        draft.variables = draft.advanced_settings.groups[0]!.variables
       })
       setInputs(newInputs)
     }
-  }, [removedVars, hideRemoveVarConfirm, removeType, removeUsedVarInNodes, inputs, setInputs, removedGroupIndex])
+  }
 
   return {
     readOnly,
-    inputs,
     handleListOrTypeChange,
     isEnableGroup,
     handleGroupEnabledChange,
@@ -204,7 +206,6 @@ const useConfig = (id: string, payload: VariableAssignerNodeType) => {
     handleGroupRemoved,
     handleVarGroupNameChange,
     isShowRemoveVarConfirm,
-    hideRemoveVarConfirm,
     onRemoveVarConfirm,
     getAvailableVars,
     filterVar,

@@ -9,28 +9,25 @@
             <Folder class="mr-0.5 h-3.5 w-3.5" />
             <template v-if="!isEditGroupName">
               <div
-                class="system-sm-semibold flex h-6 cursor-text items-center rounded-lg px-1 text-text-secondary hover:bg-gray-100"
+                class="system-sm-semibold flex h-6 cursor-text items-center rounded-lg px-1 text-text-secondary hover:bg-gray-600"
                 @click="setEditGroupName"
               >
                 {{ payload.group_name }}
               </div>
             </template>
             <template v-else>
-              <input
+              <el-input
                 ref="inputRef"
-                type="text"
-                class="h-6 rounded-lg border border-gray-300 bg-white px-1 focus:outline-none"
-                :size="payload.group_name?.length"
-                :value="payload.group_name"
-                @input="handleGroupNameChange"
+                :model-value="payload.group_name"
+                @input="(val: string) => handleGroupNameChange(val)"
                 @blur="setNotEditGroupName"
-                maxlength="30"
+                size="small"
               />
             </template>
           </div>
           <div
             v-if="canRemove"
-            class="ml-0.5 hidden cursor-pointer rounded-md p-1 text-text-tertiary hover:bg-state-destructive-hover hover:text-text-destructive group-hover:block"
+            class="ml-0.5 h-6 hidden cursor-pointer rounded-md p-1 text-text-tertiary hover:bg-red-500 hover:text-white group-hover:block"
             @click="onRemove"
           >
             <RiDeleteBinLine class="h-4 w-4" />
@@ -45,7 +42,7 @@
       <div class="flex h-6 items-center space-x-2">
         <div
           v-if="payload.variables.length > 0"
-          class="system-2xs-medium-uppercase flex h-[18px] items-center rounded-[5px] border border-divider-deep px-1 text-text-tertiary"
+          class="text-xs flex h-[18px] items-center rounded-[5px] border-[0.5px] border-solid border-gray-600 px-2 text-text-tertiary uppercase"
         >
           {{ payload.output_type }}
         </div>
@@ -56,8 +53,8 @@
           :node-id="nodeId"
           :is-show-node-name="true"
           :value="[]"
-          :on-change="handleAddVariable"
-          :default-var-kind-type="VarKindType.variable"
+          @change="handleAddVariable"
+          :default-var-kind-type="VarKindType.variable!"
           :filter-var="filterVar"
           :available-vars="availableVars"
         />
@@ -67,7 +64,7 @@
       :readonly="readOnly"
       :node-id="nodeId"
       :list="payload.variables"
-      :on-change="handleListChange"
+      @change="handleListChange"
       :filter-var="filterVar"
     />
   </Field>
@@ -79,15 +76,15 @@ import { useI18n } from 'vue-i18n'
 import { produce } from 'immer'
 import { RiDeleteBinLine } from '@remixicon/vue'
 import type { VarGroupItem as VarGroupItemType } from '../types'
-import VarReferencePicker from '../../_base/components/variable/var-reference-picker.vue'
+import VarReferencePicker from '@/components/workflow/nodes/_base/variable/var-reference-picker.vue'
 import VarList from './var-list/index.vue'
-import Field from '../_base/components/field.vue'
+import Field from '@/components/base/field.vue'
 import { VarType } from '@/types'
 import type { NodeOutPutVar, ValueSelector, Var } from '@/types'
-import { VarType as VarKindType } from '../tool/types'
+import { VarType as VarKindType } from '../../tool/types'
 import { Folder } from '@/components/base/icons/src/vender/line/files'
-import { checkKeys, replaceSpaceWithUnderscoreInVarNameInput } from '@/utils/var'
-import Toast from '@/components/base/toast'
+import { checkKeys, replaceSpaceWithUnderscoreForValue } from '@/utils/var'
+import { ElNotification } from 'element-plus'
 
 const i18nPrefix = 'workflow.nodes.variableAssigner'
 
@@ -99,13 +96,16 @@ interface Props {
   readOnly: boolean
   nodeId: string
   payload: Payload
-  onChange: (newPayload: Payload) => void
   groupEnabled: boolean
-  onGroupNameChange?: (value: string) => void
   canRemove?: boolean
-  onRemove?: () => void
   availableVars: NodeOutPutVar[]
 }
+
+const emit = defineEmits<{
+  (e: 'change', newPayload: Payload): void
+  (e: 'groupNameChange', value: string): void
+  (e: 'remove'): void
+}>()
 
 const props = defineProps<Props>()
 
@@ -115,6 +115,11 @@ const isEditGroupName = ref(false)
 
 const setEditGroupName = () => {
   isEditGroupName.value = true
+  nextTick(() => {
+    if (inputRef.value) {
+      inputRef.value.focus()
+    }
+  })
 }
 
 const setNotEditGroupName = () => {
@@ -131,7 +136,7 @@ const handleAddVariable = (value: ValueSelector | string, _varKindType: VarKindT
     if (varInfo && varInfo.type !== VarType.any)
       draft.output_type = varInfo.type
   })
-  props.onChange(newPayload)
+  emit('change', newPayload)
 }
 
 const handleListChange = (newList: ValueSelector[], changedItem?: ValueSelector) => {
@@ -146,7 +151,7 @@ const handleListChange = (newList: ValueSelector[], changedItem?: ValueSelector)
     if (newList.length === 0)
       draft.output_type = VarType.any
   })
-  props.onChange(newPayload)
+  emit('change', newPayload)
 }
 
 const filterVar = (varPayload: Var) => {
@@ -155,19 +160,16 @@ const filterVar = (varPayload: Var) => {
   return varPayload.type === props.payload.output_type
 }
 
-const handleGroupNameChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  replaceSpaceWithUnderscoreInVarNameInput(target)
-  const value = target.value
+const handleGroupNameChange = (_value: string) => {
+  console.log(_value)
+  const value = replaceSpaceWithUnderscoreForValue(_value)
   const { isValid, errorKey, errorMessageKey } = checkKeys([value], false)
   if (!isValid) {
-    Toast.notify({
-      type: 'error',
-      message: t(`appDebug.varKeyError.${errorMessageKey}`, { key: errorKey }),
-    })
+    ElNotification.error(t(`appDebug.varKeyError.${errorMessageKey}`, { key: errorKey }))
     return
   }
-  props.onGroupNameChange?.(value)
+  console.log(_value)
+  emit('groupNameChange', value)
 }
 
 // Auto-focus input when editing starts

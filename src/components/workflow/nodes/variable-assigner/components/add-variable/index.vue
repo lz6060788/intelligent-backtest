@@ -15,22 +15,22 @@
           :class="cn(
             'group/addvariable flex items-center justify-center',
             'h-4 w-4 cursor-pointer',
-            'hover:rounded-full hover:bg-primary-600',
-            open && '!rounded-full !bg-primary-600',
+            'hover:rounded-full hover:bg-blue-600',
+            open && '!rounded-full !bg-blue-600',
           )"
         >
           <Plus02
             :class="cn(
-              'h-2.5 w-2.5 text-text-tertiary',
-              'group-hover/addvariable:text-text-primary',
-              open && '!text-text-primary',
+              'h-2.5 w-2.5 text-gray-4',
+              'group-hover/addvariable:text-white',
+              open && '!text-white',
             )"
           />
         </div>
       </template>
-      <div class="z-[1000]">
+      <div class="z-[1000] popper-custom w-60">
         <AddVariablePopup
-          :on-select="handleSelectVariable"
+          @select="handleSelectVariable"
           :available-vars="availableVars"
         />
       </div>
@@ -72,10 +72,6 @@ const handleSelectVariable = (v: ValueSelector, varDetail: Var) => {
     props.handleId,
   )
   open.value = false
-}
-
-const handleOpenChange = (visible: boolean) => {
-  open.value = visible
 }
 </script>
 

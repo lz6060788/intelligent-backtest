@@ -9,12 +9,12 @@ import { computed } from 'vue'
 import StartPanel from './start/panel.vue';
 import CodePanel from './code/panel.vue';
 // import EndNode from './end/index.vue';
-import IfElseNode from './if-else/panel.vue';
+import IfElsePanel from './if-else/panel.vue';
 // import CodeNode from './code/index.vue';
-import HttpNode from './http/panel.vue';
+import HttpPanel from './http/panel.vue';
 // import LoopNode from './loop/index.vue';
 import LLMPanel from './llm/panel.vue';
-import VariableAssignerNode from './variable-assigner/index.vue';
+import VariableAssignerPanel from './variable-assigner/panel.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BasePanel from './_base/workflow-panel/index.vue'
 
@@ -22,12 +22,12 @@ import BasePanel from './_base/workflow-panel/index.vue'
 const NodeComponentMap = {
   [BlockEnum.Start]: StartPanel,
   [BlockEnum.End]: StartPanel,
-  [BlockEnum.IfElse]: IfElseNode,
+  [BlockEnum.IfElse]: IfElsePanel,
   [BlockEnum.Code]: CodePanel,
-  [BlockEnum.HttpRequest]: HttpNode,
+  [BlockEnum.HttpRequest]: HttpPanel,
   [BlockEnum.Loop]: StartPanel,
   [BlockEnum.LLM]: LLMPanel,
-  [BlockEnum.VariableAggregator]: VariableAssignerNode,
+  [BlockEnum.VariableAggregator]: VariableAssignerPanel,
 } as const
 
 // 声明组件接收的 props

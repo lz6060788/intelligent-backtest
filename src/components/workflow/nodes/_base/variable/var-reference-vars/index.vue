@@ -13,6 +13,7 @@
           @clear="handleClear"
           @blur="onBlur"
           :autofocus="autoFocus"
+          size="small"
           clearable
         >
           <template #prefix>
