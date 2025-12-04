@@ -1,5 +1,5 @@
 <template>
-  <div class="system-xs-regular flex h-10 items-center justify-center rounded-[10px] bg-background-section text-text-tertiary">
+  <div class="text-xs flex h-10 items-center justify-center rounded-[10px] bg-background-section text-text-tertiary">
     {{ t('workflow.nodes.loop.setLoopVariables') }}
   </div>
 </template>

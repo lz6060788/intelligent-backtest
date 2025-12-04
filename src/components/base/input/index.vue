@@ -17,6 +17,7 @@
       @focus="$emit('focus', $event)"
       @blur="$emit('blur', $event)"
     />
+    {{ modelValue }}
     <button
       v-if="showClearIcon && modelValue"
       type="button"

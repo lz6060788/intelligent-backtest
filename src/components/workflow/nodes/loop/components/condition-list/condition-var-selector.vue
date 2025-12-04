@@ -8,9 +8,10 @@
     :persistent="false"
     :show-arrow="false"
     popper-class="custom-popover"
+    width="320px"
   >
     <template #reference>
-      <div class="cursor-pointer" @click="open = !open">
+      <div class="cursor-pointer">
         <VariableTag
           :value-selector="valueSelector"
           :var-type="varType"
@@ -19,30 +20,26 @@
         />
       </div>
     </template>
-    <div class="z-[1000] w-[296px] rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-bg-blur shadow-lg">
+    <div class="z-[1000] w-[296px] rounded-lg border-[0.5px] shadow-lg">
       <VarReferenceVars
         :vars="nodesOutputVars"
         :is-support-file-var="true"
-        @change="onChange"
+        @change="handleChange"
       />
     </div>
   </el-popover>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Node, NodeOutPutVar, ValueSelector, Var, VarType } from '@/types/node'
-import VariableTag from '@/components/workflow/nodes/_base/variable/variable-tag'
-import VarReferenceVars from '@/components/workflow/nodes/_base/variable/var-reference-vars'
+import { computed, ref } from 'vue'
+import type { Node, NodeOutPutVar, ValueSelector, Var, VarType } from '@/types'
+import VariableTag from '@/components/workflow/nodes/_base/variable-tag/index.vue'
+import VarReferenceVars from '@/components/workflow/nodes/_base/variable/var-reference-vars/index.vue'
 
 /**
  * 条件变量选择器组件的属性定义
  */
 interface ConditionVarSelectorProps {
-  /** 是否打开 */
-  open: boolean
-  /** 打开状态变化回调 */
-  onOpenChange: (open: boolean) => void
   /** 值选择器 */
   valueSelector: ValueSelector
   /** 变量类型 */
@@ -51,15 +48,19 @@ interface ConditionVarSelectorProps {
   availableNodes: Node[]
   /** 节点输出变量列表 */
   nodesOutputVars: NodeOutPutVar[]
-  /** 变化回调 */
-  onChange: (valueSelector: ValueSelector, varItem: Var) => void
 }
+
+const open = ref(false)
+
+const emit = defineEmits<{
+  (e: 'change', valueSelector: ValueSelector, varItem: Var): void
+}>()
 
 const props = defineProps<ConditionVarSelectorProps>()
 
-const open = computed({
-  get: () => props.open,
-  set: (value) => props.onOpenChange(value),
-})
+const handleChange = (valueSelector: ValueSelector, varItem: Var) => {
+  emit('change', valueSelector, varItem)
+  open.value = false
+}
 </script>
 

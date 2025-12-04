@@ -103,7 +103,9 @@ export const RETRIEVAL_OUTPUT_STRUCT = `{
 }`
 
 export const SUPPORT_OUTPUT_VARS_NODE = [
-  BlockEnum.Start, BlockEnum.Loop,
+  BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code,
+  BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
+  BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [

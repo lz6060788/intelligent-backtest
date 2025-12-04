@@ -20,7 +20,7 @@
         <i class="i-ri-arrow-down-s-line ml-1 h-3.5 w-3.5" />
       </el-button>
     </template>
-    <div class="z-10 rounded-xl border-[0.5px] popper-custom p-1 shadow-dark shadow-sm">
+    <div class="z-10 rounded-xl border-[0.5px] popper-default p-1 shadow-dark shadow-sm">
       <div
         v-for="option in options"
         :key="option.value"

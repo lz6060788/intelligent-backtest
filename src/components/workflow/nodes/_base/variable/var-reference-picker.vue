@@ -212,7 +212,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, nextTick } from 'vue'
+import { computed, ref, watch, onMounted, nextTick, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVueFlow, type GraphNode } from '@vue-flow/core'
 import { produce } from 'immer'
@@ -340,13 +340,16 @@ const { instanceId } = useWorkflowInstance()
 const { nodes } = useVueFlow(instanceId)
 const { getCurrentVariableType } = useWorkflowVariables()
 
-const { availableVars, availableNodesWithParent: availableNodes } = useAvailableVarList(props.nodeId, {
+const availableData = computed(() => useAvailableVarList(props.nodeId, {
   onlyLeafNodeVar: props.onlyLeafNodeVar,
   passedInAvailableNodes: props.availableNodes,
   filterVar: props.filterVar,
-})
+}))
 
-const startNode = availableNodes.find((node: Node) => node.data!.type === BlockEnum.Start)
+const availableVars = computed(() => availableData.value.availableVars)
+const availableNodes = computed(() => availableData.value.availableNodesWithParent)
+
+const startNode = availableNodes.value.find((node: Node) => node.data!.type === BlockEnum.Start)
 
 const node = computed(() => nodes.value.find(n => n.id === props.nodeId))
 const isInIteration = computed(() => !!(node.value?.data as any)?.isInIteration)
@@ -382,7 +385,7 @@ const varKindType = ref<VarKindType>(props.defaultVarKindType)
 const isConstant = computed(() => props.isSupportConstantValue && varKindType.value === VarKindType.constant)
 
 const outputVars = computed(() => {
-  const results = props.availableVars || availableVars
+  const results = props.availableVars || availableVars.value
   return props.isFilterFileVar ? removeFileVars(results) : results
 })
 
@@ -420,7 +423,7 @@ const outputVarNode = computed(() => {
   if (Array.isArray(props.value) && isSystemVar(props.value as ValueSelector))
     return startNode?.data
 
-  const node = getNodeInfoById(availableNodes, outputVarNodeId.value)?.data
+  const node = getNodeInfoById(availableNodes.value, outputVarNodeId.value)?.data
   if (node) {
     return {
       ...node,
@@ -496,8 +499,8 @@ const handleClearVar = () => {
 
 const handleVariableJump = (nodeId: string | undefined) => {
   if (!nodeId) return
-  const currentNodeIndex = availableNodes.findIndex(node => node.id === nodeId)
-  const currentNode = availableNodes[currentNodeIndex] as GraphNode
+  const currentNodeIndex = availableNodes.value.findIndex(node => node.id === nodeId)
+  const currentNode = availableNodes.value[currentNodeIndex] as GraphNode
 
   const workflowContainer = document.getElementById('workflow-container')
   if (!workflowContainer || !currentNode) return
@@ -520,7 +523,7 @@ const type = computed(() =>
   getCurrentVariableType({
     parentNode: (isInIteration.value ? iterationNode.value : loopNode.value) as any,
     valueSelector: props.value as ValueSelector,
-    availableNodes: availableNodes,
+    availableNodes: availableNodes.value,
     isChatMode: isChatMode.value,
     isConstant: !!isConstant.value,
     preferSchemaType: props.preferSchemaType,

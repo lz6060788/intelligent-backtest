@@ -1,4 +1,4 @@
-import type { VarKindType as NumberVarType } from '@/types'
+import type { VarType as NumberVarType } from '../tool/types'
 import type {
   BlockEnum,
   CommonNodeType,
@@ -89,6 +89,4 @@ export type HandleRemoveLoopVariable = (id: string) => void
 
 export type LoopVariablesComponentShape = {
   nodeId: string
-  handleRemoveLoopVariable: HandleRemoveLoopVariable
-  handleUpdateLoopVariable: HandleUpdateLoopVariable
 }

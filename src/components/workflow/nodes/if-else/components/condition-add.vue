@@ -19,7 +19,7 @@
         {{ t('workflow.nodes.ifElse.addCondition') }}
       </el-button>
     </template>
-    <div class="z-[1000] w-[296px] rounded-lg border-[0.5px] popper-custom p-1 shadow-lg">
+    <div class="z-[1000] w-[296px] rounded-lg border-[0.5px] popper-default p-1 shadow-lg">
       <VarReferenceVars
         :vars="variables"
         :is-support-file-var="true"

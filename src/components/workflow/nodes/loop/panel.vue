@@ -15,10 +15,10 @@
         </template>
         <div class="px-4">
           <LoopVariable
-            :variables="inputs.loop_variables"
+            :variables="payload.loop_variables"
             :node-id="id"
-            :handle-remove-loop-variable="handleRemoveLoopVariable"
-            :handle-update-loop-variable="handleUpdateLoopVariable"
+            @remove-loop-variable="handleRemoveLoopVariable"
+            @update-loop-variable="handleUpdateLoopVariable"
           />
         </div>
       </Field>
@@ -33,18 +33,18 @@
         <ConditionWrap
           :node-id="id"
           :read-only="readOnly"
-          :handle-add-condition="handleAddCondition"
-          :handle-remove-condition="handleRemoveCondition"
-          :handle-update-condition="handleUpdateCondition"
-          :handle-toggle-condition-logical-operator="handleToggleConditionLogicalOperator"
-          :handle-add-sub-variable-condition="handleAddSubVariableCondition"
-          :handle-remove-sub-variable-condition="handleRemoveSubVariableCondition"
-          :handle-update-sub-variable-condition="handleUpdateSubVariableCondition"
-          :handle-toggle-sub-variable-condition-logical-operator="handleToggleSubVariableConditionLogicalOperator"
+          @add-condition="handleAddCondition"
+          @remove-condition="handleRemoveCondition"
+          @update-condition="handleUpdateCondition"
+          @toggle-condition-logical-operator="handleToggleConditionLogicalOperator"
+          @add-sub-variable-condition="handleAddSubVariableCondition"
+          @remove-sub-variable-condition="handleRemoveSubVariableCondition"
+          @update-sub-variable-condition="handleUpdateSubVariableCondition"
+          @toggle-sub-variable-condition-logical-operator="handleToggleSubVariableConditionLogicalOperator"
           :available-nodes="loopChildrenNodes"
           :available-vars="childrenNodeVars"
-          :conditions="inputs.break_conditions || []"
-          :logical-operator="inputs.logical_operator!"
+          :conditions="payload.break_conditions || []"
+          :logical-operator="payload.logical_operator!"
         />
       </Field>
       <Split class="mt-2" />
@@ -54,7 +54,7 @@
             <div class="pl-3">{{ t(`${i18nPrefix}.loopMaxCount`) }}</div>
           </template>
           <div class="px-3 py-2">
-            <InputNumberWithSlider
+            <!-- <InputNumberWithSlider
               :min="1"
               :max="LOOP_NODE_MAX_COUNT"
               :value="inputs.loop_count"
@@ -62,7 +62,7 @@
                 const roundedVal = Math.round(val)
                 handleUpdateLoopCount(Number.isNaN(roundedVal) ? 1 : roundedVal)
               }"
-            />
+            /> -->
           </div>
         </Field>
       </div>
@@ -73,27 +73,29 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { RiAddLine } from '@remixicon/vue'
-import Split from '../_base/components/split.vue'
-import InputNumberWithSlider from '../_base/components/input-number-with-slider.vue'
+import Split from '@/components/base/split.vue'
+// import InputNumberWithSlider from '@/components/base/input-number-with-slider.vue'
 import type { LoopNodeType } from './type'
 import useConfig from './use-config'
 import ConditionWrap from './components/condition-wrap.vue'
 import LoopVariable from './components/loop-variables/index.vue'
-import type { NodePanelProps } from '@/types/node'
-import Field from '@/components/workflow/nodes/_base/components/field.vue'
+import type { NodePanelProps } from '@/types'
+import Field from '@/components/base/field.vue'
 
 import { LOOP_NODE_MAX_COUNT } from '@/config'
+import { computed } from 'vue'
 
 const i18nPrefix = 'workflow.nodes.loop'
 
 const props = defineProps<NodePanelProps<LoopNodeType>>()
+
+const payload = computed(() => props.data)
 
 const { id, data } = props
 const { t } = useI18n()
 
 const {
   readOnly,
-  inputs,
   childrenNodeVars,
   loopChildrenNodes,
   handleAddCondition,
@@ -108,6 +110,6 @@ const {
   handleAddLoopVariable,
   handleRemoveLoopVariable,
   handleUpdateLoopVariable,
-} = useConfig(id, data)
+} = useConfig(id, payload)
 </script>
 

@@ -1,18 +1,16 @@
 <template>
-  <PureSelect
+  <el-select
+    :model-value="value"
+    @change="emit('change', $event)"
     :options="options"
-    :value="value"
-    @change="onChange"
-    :popup-props="{
-      title: t('workflow.nodes.loop.inputMode'),
-      className: 'w-[132px]',
-    }"
+    class="w-full"
+    :offset="0"
+    :show-arrow="false"
   />
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import PureSelect from '@/components/base/select/pure.vue'
 
 /**
  * 输入模式选择组件的属性定义
@@ -20,9 +18,11 @@ import PureSelect from '@/components/base/select/pure.vue'
 interface InputModeSelectProps {
   /** 值 */
   value?: string
-  /** 变化回调 */
-  onChange: (value: string) => void
 }
+
+const emit = defineEmits<{
+  (e: 'change', value: string): void
+}>()
 
 const props = defineProps<InputModeSelectProps>()
 

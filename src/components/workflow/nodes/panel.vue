@@ -10,9 +10,8 @@ import StartPanel from './start/panel.vue';
 import CodePanel from './code/panel.vue';
 // import EndNode from './end/index.vue';
 import IfElsePanel from './if-else/panel.vue';
-// import CodeNode from './code/index.vue';
 import HttpPanel from './http/panel.vue';
-// import LoopNode from './loop/index.vue';
+import LoopPanel from './loop/panel.vue';
 import LLMPanel from './llm/panel.vue';
 import VariableAssignerPanel from './variable-assigner/panel.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
@@ -25,7 +24,7 @@ const NodeComponentMap = {
   [BlockEnum.IfElse]: IfElsePanel,
   [BlockEnum.Code]: CodePanel,
   [BlockEnum.HttpRequest]: HttpPanel,
-  [BlockEnum.Loop]: StartPanel,
+  [BlockEnum.Loop]: LoopPanel,
   [BlockEnum.LLM]: LLMPanel,
   [BlockEnum.VariableAggregator]: VariableAssignerPanel,
 } as const

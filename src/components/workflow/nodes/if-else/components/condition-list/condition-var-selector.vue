@@ -19,7 +19,7 @@
         />
       </div>
     </template>
-    <div class="z-[1000] popper-custom w-60 p-1">
+    <div class="z-[1000] popper-default w-60 p-1">
       <VarReferenceVars
         :vars="props.nodesOutputVars"
         :is-support-file-var="true"

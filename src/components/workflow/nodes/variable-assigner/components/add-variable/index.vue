@@ -28,7 +28,7 @@
           />
         </div>
       </template>
-      <div class="z-[1000] popper-custom w-60">
+      <div class="z-[1000] popper-default w-60">
         <AddVariablePopup
           @select="handleSelectVariable"
           :available-vars="availableVars"

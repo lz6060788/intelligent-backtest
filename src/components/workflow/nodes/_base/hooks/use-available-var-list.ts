@@ -43,7 +43,6 @@ const useAvailableVarList = (nodeId: string, {
     hideEnv,
     hideChatVar,
   }), ...dataSourceRagVars]
-  console.log(availableNodes, parentNode, availableVars)
 
   return {
     availableVars,

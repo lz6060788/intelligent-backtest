@@ -67,7 +67,10 @@ const editor = useEditor({
 
       suggestion: suggestion({ vars: props.vars, triggerChar: '{' }),
     }),
-    Mention.configure({
+    Mention
+    .extend({
+      name: 'slashCommand', // 👈 关键：给它起个新名字，必须唯一
+    }).configure({
       deleteTriggerWithBackspace: true,
 
       suggestion: suggestion({ vars: props.vars, triggerChar: '/' }),

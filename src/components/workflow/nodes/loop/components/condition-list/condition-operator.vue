@@ -14,17 +14,16 @@
         :class="cn('shrink-0', !selectedOption && 'opacity-50', className)"
         size="small"
         :disabled="disabled"
-        @click="open = !open"
       >
         {{ selectedOption ? selectedOption.label : t(`${i18nPrefix}.select`) }}
         <RiArrowDownSLine class="ml-1 h-3.5 w-3.5" />
       </el-button>
     </template>
-    <div class="z-10 rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur p-1 shadow-lg">
+    <div class="z-10 rounded-xl popper-default p-1">
       <div
         v-for="option in options"
         :key="option.value"
-        class="flex h-7 cursor-pointer items-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-text-secondary hover:bg-state-base-hover"
+        class="flex h-7 cursor-pointer items-center rounded-lg px-1 text-[13px] font-medium text-text-secondary hover:bg-gray-600"
         @click="handleSelect(option.value)"
       >
         {{ option.label }}
@@ -39,7 +38,7 @@ import { useI18n } from 'vue-i18n'
 import { RiArrowDownSLine } from '@remixicon/vue'
 import { getOperators, isComparisonOperatorNeedTranslate } from '../../utils'
 import type { ComparisonOperator } from '../../type'
-import type { VarType } from '@/types/node'
+import type { VarType } from '@/types'
 import cn from '@/utils/classnames'
 
 const i18nPrefix = 'workflow.nodes.ifElse'
@@ -58,9 +57,11 @@ interface ConditionOperatorProps {
   file?: { key: string }
   /** 值 */
   value?: string
-  /** 选择回调 */
-  onSelect: (value: ComparisonOperator) => void
 }
+
+const emit = defineEmits<{
+  (e: 'select', value: ComparisonOperator): void
+}>()
 
 const props = defineProps<ConditionOperatorProps>()
 
@@ -81,7 +82,7 @@ const selectedOption = computed(() => {
 })
 
 const handleSelect = (value: ComparisonOperator) => {
-  props.onSelect(value)
+  emit('select', value)
   open.value = false
 }
 </script>

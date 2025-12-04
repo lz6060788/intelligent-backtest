@@ -1,16 +1,15 @@
 <template>
-  <PureSelect
+  <el-select
+    :model-value="value"
+    @change="emit('change', $event)"
     :options="options"
-    :value="value"
-    @change="onChange"
-    :popup-props="{
-      className: 'w-[132px]',
-    }"
+    class="w-full"
+    :offset="0"
+    :show-arrow="false"
   />
 </template>
 
 <script setup lang="ts">
-import PureSelect from '@/components/base/select/pure.vue'
 import { VarType } from '@/types'
 
 /**
@@ -19,9 +18,11 @@ import { VarType } from '@/types'
 interface VariableTypeSelectProps {
   /** 值 */
   value?: string
-  /** 变化回调 */
-  onChange: (value: string) => void
 }
+
+const emit = defineEmits<{
+  (e: 'change', value: string): void
+}>()
 
 const props = defineProps<VariableTypeSelectProps>()
 
@@ -54,10 +55,10 @@ const options = [
     label: 'Array[object]',
     value: VarType.arrayObject,
   },
-  {
-    label: 'Array[boolean]',
-    value: VarType.arrayBoolean,
-  },
+  // {
+  //   label: 'Array[boolean]',
+  //   value: VarType.arrayBoolean,
+  // },
 ]
 </script>
 

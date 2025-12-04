@@ -70,21 +70,26 @@ export default function suggestion(options: {
           if (props.event.key === 'Escape') {
             component.destroy()
             component.element.remove()
-  
+
             return true
           }
-          return true
+          if (props.event.key === 'Backspace') {
+            return false
+          }
+          return false
         },
-  
+
         onExit() {
-          component.destroy()
-          component.element.remove()
+          if (component) {
+            component.destroy()
+            component.element.remove()
+            component = null
+          }
         },
       }
     },
 
     command: ({ editor, range, props }: { editor: any, range: any, props: any }) => {
-      console.log('command', props)
       editor
         .chain()
         .focus()

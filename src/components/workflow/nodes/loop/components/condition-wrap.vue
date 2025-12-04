@@ -13,16 +13,16 @@
           :condition-id="conditionId"
           :conditions="conditions"
           :logical-operator="logicalOperator"
-          :on-update-condition="handleUpdateCondition"
-          :on-remove-condition="handleRemoveCondition"
-          :on-toggle-condition-logical-operator="handleToggleConditionLogicalOperator"
-          :node-id="id"
+          @update-condition="(conditionId: string, newCondition: Condition) => emit('update-condition', conditionId, newCondition)"
+          @remove-condition="(conditionId: string) => emit('remove-condition', conditionId)"
+          @toggle-condition-logical-operator="emit('toggle-condition-logical-operator')"
+          :node-id="nodeId"
           :available-nodes="availableNodes"
           :number-variables="numberVariables"
-          :on-add-sub-variable-condition="handleAddSubVariableCondition"
-          :on-remove-sub-variable-condition="handleRemoveSubVariableCondition"
-          :on-update-sub-variable-condition="handleUpdateSubVariableCondition"
-          :on-toggle-sub-variable-condition-logical-operator="handleToggleSubVariableConditionLogicalOperator"
+          @add-sub-variable-condition="(conditionId: string, key?: string) => emit('add-sub-variable-condition', conditionId, key)"
+          @remove-sub-variable-condition="(conditionId: string, subConditionId: string) => emit('remove-sub-variable-condition', conditionId, subConditionId)"
+          @update-sub-variable-condition="(conditionId: string, subConditionId: string, newSubCondition: Condition) => emit('update-sub-variable-condition', conditionId, subConditionId, newSubCondition)"
+          @toggle-sub-variable-condition-logical-operator="(conditionId: string) => emit('toggle-sub-variable-condition-logical-operator', conditionId)"
           :is-sub-variable="isSubVariable"
           :available-vars="availableVars"
         />
@@ -39,7 +39,7 @@
         <template v-if="isSubVariable">
           <Select
             popup-inner-class-name="w-[165px] max-h-none"
-            :on-select="(value: any) => handleAddSubVariableCondition?.(conditionId!, value.value as string)"
+            @select="(value: any) => emit('add-sub-variable-condition', conditionId!, value.value as string)"
             :items="subVarOptions"
             value=""
           >
@@ -58,7 +58,7 @@
           <ConditionAdd
             :disabled="readOnly"
             :variables="availableVars"
-            :on-select-variable="handleAddCondition!"
+            @select-variable="(valueSelector: ValueSelector, varItem: Var) => emit('add-condition', valueSelector, varItem)"
           />
         </template>
       </div>
@@ -72,24 +72,16 @@ import { useI18n } from 'vue-i18n'
 import { RiAddLine } from '@remixicon/vue'
 import type {
   Condition,
-  HandleAddCondition,
-  HandleAddSubVariableCondition,
-  HandleRemoveCondition,
-  HandleToggleConditionLogicalOperator,
-  HandleToggleSubVariableConditionLogicalOperator,
-  HandleUpdateCondition,
-  HandleUpdateSubVariableCondition,
   LogicalOperator,
-  handleRemoveSubVariableCondition,
 } from '../type'
-import type { Node, NodeOutPutVar, Var } from '@/types/node'
+import type { Node, NodeOutPutVar, ValueSelector, Var } from '@/types'
 import { VarType } from '@/types'
 import { useGetAvailableVars } from '../../variable-assigner/hooks'
 import ConditionList from './condition-list/index.vue'
 import ConditionAdd from './condition-add.vue'
 import { SUB_VARIABLES } from '../default'
 import cn from '@/utils/classnames'
-import { PortalSelect as Select } from '@/components/base/select.vue'
+import Select from '@/components/base/select/partal-select/index.vue'
 
 /**
  * 条件包装组件的属性定义
@@ -105,22 +97,6 @@ interface ConditionWrapProps {
   logicalOperator: LogicalOperator | undefined
   /** 是否只读 */
   readOnly: boolean
-  /** 添加条件回调 */
-  handleAddCondition?: HandleAddCondition
-  /** 删除条件回调 */
-  handleRemoveCondition?: HandleRemoveCondition
-  /** 更新条件回调 */
-  handleUpdateCondition?: HandleUpdateCondition
-  /** 切换条件逻辑操作符回调 */
-  handleToggleConditionLogicalOperator?: HandleToggleConditionLogicalOperator
-  /** 添加子变量条件回调 */
-  handleAddSubVariableCondition?: HandleAddSubVariableCondition
-  /** 删除子变量条件回调 */
-  handleRemoveSubVariableCondition?: handleRemoveSubVariableCondition
-  /** 更新子变量条件回调 */
-  handleUpdateSubVariableCondition?: HandleUpdateSubVariableCondition
-  /** 切换子变量条件逻辑操作符回调 */
-  handleToggleSubVariableConditionLogicalOperator?: HandleToggleSubVariableConditionLogicalOperator
   /** 节点ID */
   nodeId: string
   /** 可用节点列表 */
@@ -128,6 +104,17 @@ interface ConditionWrapProps {
   /** 可用变量列表 */
   availableVars: NodeOutPutVar[]
 }
+
+const emit = defineEmits<{
+  (e: 'add-condition', valueSelector: ValueSelector, varItem: Var): void
+  (e: 'remove-condition', conditionId: string): void
+  (e: 'update-condition', conditionId: string, newCondition: Condition): void
+  (e: 'toggle-condition-logical-operator'): void
+  (e: 'add-sub-variable-condition', conditionId: string, key?: string): void
+  (e: 'remove-sub-variable-condition', conditionId: string, subConditionId: string): void
+  (e: 'update-sub-variable-condition', conditionId: string, subConditionId: string, newSubCondition: Condition): void
+  (e: 'toggle-sub-variable-condition-logical-operator', conditionId: string): void
+}>()
 
 const props = withDefaults(defineProps<ConditionWrapProps>(), {
   nodeId: '',

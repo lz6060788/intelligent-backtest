@@ -736,6 +736,7 @@ export const toNodeOutputVars = (
   allPluginInfoList: Record<string, ToolWithProvider[]>,
   schemaTypeDefinitions?: SchemaTypeDefinition[],
 ): NodeOutPutVar[] => {
+  console.log('toNodeOutputVars nodes', nodes)
   // ENV_NODE data format
   const ENV_NODE = {
     id: 'env',

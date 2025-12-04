@@ -20,7 +20,7 @@
           <RiArrowDownSLine class='ml-[1px] h-3.5 w-3.5' />
         </el-button>
       </template>
-      <div class="z-[1000] w-[112px] rounded-xl border-[0.5px] popper-custom p-1 shadow-dark shadow-sm">
+      <div class="z-[1000] w-[112px] rounded-xl border-[0.5px] popper-default p-1 shadow-dark shadow-sm">
         <div
           v-for="option in options"
           :key="option"
