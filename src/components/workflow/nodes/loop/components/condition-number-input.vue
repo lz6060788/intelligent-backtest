@@ -35,7 +35,7 @@
       </div>
     </el-popover>
     <div class="mx-1 h-4 w-[1px] bg-divider-regular"></div>
-    <div class="ml-0.5 grow w-0">
+    <div class="ml-0.5 grow w-0 flex">
       <template v-if="numberVarType === NumberVarType.variable">
         <el-popover
           v-model:visible="variableSelectorVisible"
@@ -84,6 +84,7 @@
             controls-position="right"
             size="small"
             class="w-full"
+            align="left"
           >
             <template v-if="!isFocus && unit" #suffix>
               <span class="text-text-tertiary">

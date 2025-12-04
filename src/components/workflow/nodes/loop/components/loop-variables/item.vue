@@ -27,13 +27,9 @@
         />
       </div>
     </div>
-    <ActionButton
-      class="shrink-0"
-      size="l"
+    <RemoveButton
       @click="handleRemoveLoopVariable(item.id)"
-    >
-      <RiDeleteBinLine class="h-4 w-4 text-text-tertiary" />
-    </ActionButton>
+    ></RemoveButton>
   </div>
 </template>
 
@@ -44,6 +40,7 @@ import InputModeSelect from './input-mode-selec.vue'
 import VariableTypeSelect from './variable-type-select.vue'
 import FormItem from './form-item.vue'
 import ActionButton from '@/components/base/action-button/index.vue'
+import RemoveButton from '@/components/base/remove-button/index.vue'
 import type {
   LoopVariable,
   LoopVariablesComponentShape,

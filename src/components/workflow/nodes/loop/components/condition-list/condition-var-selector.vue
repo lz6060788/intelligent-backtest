@@ -20,7 +20,7 @@
         />
       </div>
     </template>
-    <div class="z-[1000] w-[296px] rounded-lg border-[0.5px] shadow-lg">
+    <div class="z-[1000] w-[296px] popper-default shadow-lg">
       <VarReferenceVars
         :vars="nodesOutputVars"
         :is-support-file-var="true"

@@ -19,9 +19,9 @@
             >
               <template #trigger="{ value }">
                 <div v-if="value" class="flex cursor-pointer justify-start">
-                  <div class="inline-flex h-6 max-w-full items-center rounded-md border-[0.5px] border-gray-500 px-1.5 text-text-accent shadow-xs">
+                  <div class="inline-flex h-6 max-w-full items-center rounded-md border-[0.5px] border-solid border-blue-500 px-1.5 text-text-accent shadow-xs">
                     <Variable02 class="h-3.5 w-3.5 shrink-0 text-text-accent" />
-                    <div class="system-xs-medium ml-0.5 truncate">{{ value?.name }}</div>
+                    <div class="text-xs ml-0.5 truncate">{{ value?.name }}</div>
                   </div>
                 </div>
                 <div v-else class="text-sm text-left text-components-input-text-placeholder">{{ t('common.placeholder.select') }}</div>
@@ -59,10 +59,6 @@
       </template>
       <template v-if="!comparisonOperatorNotRequireValue(condition.comparison_operator) && condition.varType === VarType.boolean">
         <div class="p-1">
-          <!-- <BoolValue
-            :value="condition.value as boolean"
-            :on-change="handleUpdateConditionValue"
-          /> -->
           <el-select :model-value="condition.value as boolean" @change="(value: boolean) => handleUpdateConditionValue(value)">
             <el-option label="True" value="true" />
             <el-option label="False" value="false" />
@@ -115,7 +111,7 @@
       </template>
     </div>
     <div
-      class="ml-1 mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-text-tertiary hover:bg-state-destructive-hover hover:text-text-destructive"
+      class="ml-1 mt-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-text-tertiary hover:bg-red-500 hover:text-white"
       @mouseenter="isHovered = true"
       @mouseleave="isHovered = false"
       @click="doRemoveCondition"

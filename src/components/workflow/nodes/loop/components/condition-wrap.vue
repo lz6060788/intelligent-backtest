@@ -4,7 +4,7 @@
       :class="cn(
         'group relative rounded-[10px] bg-components-panel-bg',
         !isSubVariable && 'min-h-[40px] px-3 py-1 ',
-        isSubVariable && 'px-1 py-2',
+        isSubVariable && 'px-1 py-2 bg-gray-800',
       )"
     >
       <div v-if="conditions && !!conditions.length" class="mb-2">

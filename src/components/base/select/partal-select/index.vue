@@ -3,12 +3,16 @@
     v-model:visible="open"
     placement="bottom-start"
     :offset="4"
-    :popper-class="popupClassName"
+    :popper-class="cn('custom-popover', popupClassName)"
     trigger="click"
+    teleported
+    :persistent="false"
+    :show-arrow="false"
+    :popper-style="{ zIndex: 1000 }"
   >
     <div
       :class="[
-        'max-h-60 overflow-auto rounded-md border-[0.5px] border-components-panel-border bg-components-panel-bg px-1 py-1 text-base shadow-lg focus:outline-none sm:text-sm',
+        'max-h-60 overflow-auto rounded-md popper-default p-1 text-base shadow-lg focus:outline-none sm:text-sm',
         popupInnerClassName
       ]"
     >
@@ -16,8 +20,8 @@
         v-for="item in items"
         :key="item.value"
         :class="[
-          'flex h-9 cursor-pointer items-center justify-between rounded-lg px-2.5 text-text-secondary hover:bg-state-base-hover',
-          item.value === value && 'bg-state-base-hover'
+          'flex py-1 cursor-pointer items-center justify-between rounded-lg px-2.5 text-text-secondary hover:bg-gray-600 mb-1 last:mb-0',
+          item.value === value && 'bg-gray-600'
         ]"
         :title="item.name"
         @click="handleItemSelect(item)"
@@ -40,9 +44,8 @@
 
     <template #reference>
       <div
-        class="w-full"
+        class="w-full p-1"
         :class="[triggerClassName, triggerClassNameFn?.(open)]"
-        @click="handleTriggerClick"
       >
         <template v-if="slots.trigger">
           <slot name="trigger" :value="selectedItem">
@@ -51,14 +54,14 @@
         <div
           v-else
           :class="[
-            'group flex h-9 items-center justify-between rounded-lg border-0 bg-components-input-bg-normal px-2.5 text-sm hover:bg-state-base-hover-alt',
+            'group flex py-1 items-center justify-between rounded-lg border-0 bg-gray-700 px-2.5 text-sm hover:bg-gray-600',
             readonly ? 'cursor-not-allowed' : 'cursor-pointer'
           ]"
           :title="selectedItem?.name"
         >
           <span
             :class="[
-              'grow truncate text-text-secondary',
+              'grow truncate text-text-secondary text-xs',
               !selectedItem?.name && 'text-components-input-text-placeholder'
             ]"
           >
@@ -83,6 +86,7 @@ import { useI18n } from 'vue-i18n'
 import { ElBadge, ElPopover } from 'element-plus'
 import { RiCheckLine } from '@remixicon/vue'
 import { RiArrowDownSLine } from '@remixicon/vue'
+import cn from '@/utils/classnames'
 
 // 定义类型
 interface Item {

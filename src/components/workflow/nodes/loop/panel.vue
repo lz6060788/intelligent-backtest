@@ -7,10 +7,10 @@
         </template>
         <template #operations>
           <div
-            class="mr-4 flex h-5 w-5 cursor-pointer items-center justify-center"
+            class="mr-4 flex h-5 w-5 cursor-pointer items-center justify-center text-text-tertiary hover:bg-blue-500 hover:text-white rounded-lg"
             @click="handleAddLoopVariable"
           >
-            <RiAddLine class="h-4 w-4 text-text-tertiary" />
+            <RiAddLine class="h-4 w-4" />
           </div>
         </template>
         <div class="px-4">
@@ -63,6 +63,25 @@
                 handleUpdateLoopCount(Number.isNaN(roundedVal) ? 1 : roundedVal)
               }"
             /> -->
+            <!-- <el-slider
+              :model-value="payload.loop_count"
+              :min="1"
+              :max="LOOP_NODE_MAX_COUNT"
+              :step="1"
+              :show-input="true"
+              input-controls-position="right"
+              @change="handleUpdateLoopCount"
+              size="small"
+            /> -->
+            <el-input-number
+              :model-value="payload.loop_count"
+              :min="1"
+              :max="LOOP_NODE_MAX_COUNT"
+              :step="1"
+              @change="handleUpdateLoopCount"
+              size="small"
+              class="w-full"
+            />
           </div>
         </Field>
       </div>

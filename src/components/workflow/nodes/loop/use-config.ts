@@ -1,4 +1,4 @@
-import { computed, ref, watch, type Ref } from 'vue'
+import { computed, ref, unref, watch, type Ref } from 'vue'
 import { produce } from 'immer'
 import { v4 as uuid4 } from 'uuid'
 import { useVueFlow } from '@vue-flow/core'
@@ -64,7 +64,6 @@ const useConfig = (id: string, payload: Ref<LoopNodeType>) => {
   }
 
   const handleAddCondition = (valueSelector: ValueSelector, varItem: Var) => {
-    console.log('handleAddCondition', valueSelector, varItem)
     const newInputs = produce(payload.value, (draft) => {
       if (!draft.break_conditions)
         draft.break_conditions = []
@@ -77,7 +76,6 @@ const useConfig = (id: string, payload: Ref<LoopNodeType>) => {
         value: varItem.type === VarType.boolean ? 'false' : '',
       })
     })
-    console.log('newInputs', newInputs)
     setInputs(newInputs)
   }
 
@@ -170,7 +168,7 @@ const useConfig = (id: string, payload: Ref<LoopNodeType>) => {
   }
 
   const handleUpdateLoopCount = (value: number) => {
-    const newInputs = produce(payload.value, (draft) => {
+    const newInputs = produce(unref(payload), (draft) => {
       draft.loop_count = value
     })
     setInputs(newInputs)
