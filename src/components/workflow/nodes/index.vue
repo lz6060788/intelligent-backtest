@@ -17,6 +17,7 @@ import HttpNode from './http/index.vue';
 import LoopNode from './loop/index.vue';
 import LLMNode from './llm/index.vue';
 import VariableAssignerNode from './variable-assigner/index.vue';
+import CalculatorNode from './calculator/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BaseNode from './_base/node/index.vue'
 
@@ -30,6 +31,7 @@ const NodeComponentMap = {
   [BlockEnum.Loop]: LoopNode,
   [BlockEnum.LLM]: LLMNode,
   [BlockEnum.VariableAggregator]: VariableAssignerNode,
+  [BlockEnum.Calculator]: CalculatorNode,
 } as const
 
 // 声明组件接收的 props

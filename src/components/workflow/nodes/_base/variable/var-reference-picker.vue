@@ -349,6 +349,8 @@ const availableData = computed(() => useAvailableVarList(props.nodeId, {
 const availableVars = computed(() => availableData.value.availableVars)
 const availableNodes = computed(() => availableData.value.availableNodesWithParent)
 
+console.log('availableData ===> ', availableData.value)
+
 const startNode = availableNodes.value.find((node: Node) => node.data!.type === BlockEnum.Start)
 
 const node = computed(() => nodes.value.find(n => n.id === props.nodeId))
@@ -476,7 +478,6 @@ watch(controlFocus, () => {
 })
 
 const handleVarReferenceChange = (value: ValueSelector, varInfo: Var) => {
-  console.log('handleVarReferenceChange2222', value, varInfo)
   const newValue = produce(value, (draft) => {
     if (draft[1] && typeof draft[1] === 'string' && draft[1].startsWith('sys.')) {
       draft.shift()

@@ -164,6 +164,8 @@ export enum VarType {
   arrayFile = 'array[file]',
   any = 'any',
   arrayAny = 'array[any]',
+  float = 'float',
+  group = 'group',
 }
 
 export enum ValueType {

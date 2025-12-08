@@ -1,26 +1,11 @@
 import { produce } from 'immer'
 import { isArray, uniq } from 'lodash-es'
-// import type { CodeNodeType } from '../../../code/types'
-// import type { EndNodeType } from '../../../end/types'
-// import type { AnswerNodeType } from '../../../answer/types'
 import {
   type LLMNodeType,
   type StructuredOutput,
   Type,
 } from '@/components/workflow/nodes/llm/types'
-// import type { KnowledgeRetrievalNodeType } from '../../../knowledge-retrieval/types'
 import type { IfElseNodeType } from '@/components/workflow/nodes/if-else/types'
-// import type { TemplateTransformNodeType } from '../../../template-transform/types'
-// import type { QuestionClassifierNodeType } from '../../../question-classifier/types'
-// import type { HttpNodeType } from '../../../http/types'
-// import { VarType as ToolVarType } from '../../../tool/types'
-// import type { ToolNodeType } from '../../../tool/types'
-// import type { ParameterExtractorNodeType } from '../../../parameter-extractor/types'
-// import type { IterationNodeType } from '../../../iteration/types'
-// import type { LoopNodeType } from '../../../loop/types'
-// import type { ListFilterNodeType } from '../../../list-operator/types'
-// import { OUTPUT_FILE_SUB_VARIABLES } from '../../../constants'
-// import type { DocExtractorNodeType } from '../../../document-extractor/types'
 
 export type SchemaTypeDefinition = {
   name: string
@@ -50,17 +35,11 @@ import type { Field as StructField } from '@/components/workflow/nodes/llm/types
 // import type { RAGPipelineVariable } from '@/models/pipeline'
 
 import {
-  AGENT_OUTPUT_STRUCT,
   FILE_STRUCT,
   HTTP_REQUEST_OUTPUT_STRUCT,
-  KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT,
   LLM_OUTPUT_STRUCT,
   OUTPUT_FILE_SUB_VARIABLES,
-  PARAMETER_EXTRACTOR_COMMON_STRUCT,
-  QUESTION_CLASSIFIER_OUTPUT_STRUCT,
   SUPPORT_OUTPUT_VARS_NODE,
-  TEMPLATE_TRANSFORM_OUTPUT_STRUCT,
-  TOOL_OUTPUT_STRUCT,
 } from '@/components/workflow/constant'
 import { VAR_REGEX } from '@/config'
 import type { CodeNodeType } from '../../code/types'
@@ -68,13 +47,8 @@ import type { ToolWithProvider } from '@/components/workflow/block-selector/type
 import type { LoopNodeType } from '../../loop/type'
 import type { VariableAssignerNodeType } from '../../variable-assigner/types'
 import type { HttpNodeType } from '../../http/types'
-// import ToolNodeDefault from '@/app/components/workflow/nodes/tool/default'
-// import DataSourceNodeDefault from '@/app/components/workflow/nodes/data-source/default'
-// import type { DataSourceNodeType } from '@/app/components/workflow/nodes/data-source/types'
-// import type { PromptItem } from '@/models/debug'
-// import { VAR_REGEX } from '@/config'
-// import type { AgentNodeType } from '@/components/workflow/nodes/agent/types'
-// import type { SchemaTypeDefinition } from '@/service/use-common'
+import { calculators } from '../../calculator/constant/calculators' 
+import type { CalculatorNodeType } from '../../calculator/types'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
@@ -377,10 +351,10 @@ const formatItem = (
         variable: 'sys.user_id',
         type: VarType.string,
       })
-      res.vars.push({
-        variable: 'sys.files',
-        type: VarType.arrayFile,
-      })
+      // res.vars.push({
+      //   variable: 'sys.files',
+      //   type: VarType.arrayFile,
+      // })
       res.vars.push({
         variable: 'sys.app_id',
         type: VarType.string,
@@ -432,35 +406,6 @@ const formatItem = (
       break
     }
 
-    // case BlockEnum.VariableAssigner: {
-    //   const { output_type, advanced_settings }
-    //     = data as VariableAssignerNodeType
-    //   const isGroup = !!advanced_settings?.group_enabled
-    //   if (!isGroup) {
-    //     res.vars = [
-    //       {
-    //         variable: 'output',
-    //         type: output_type,
-    //       },
-    //     ]
-    //   }
-    //   else {
-    //     res.vars = advanced_settings?.groups.map((group) => {
-    //       return {
-    //         variable: group.group_name,
-    //         type: VarType.object,
-    //         children: [
-    //           {
-    //             variable: 'output',
-    //             type: group.output_type,
-    //           },
-    //         ],
-    //       }
-    //     })
-    //   }
-    //   break
-    // }
-
     // eslint-disable-next-line sonarjs/no-duplicated-branches
     case BlockEnum.VariableAggregator: {
       const { output_type, advanced_settings }
@@ -503,7 +448,6 @@ const formatItem = (
     //   break
     // }
 
-
     case BlockEnum.Loop: {
       const { loop_variables } = data as LoopNodeType
       res.isLoop = true
@@ -519,38 +463,6 @@ const formatItem = (
 
       break
     }
-
-    // case BlockEnum.DocExtractor: {
-    //   res.vars = [
-    //     {
-    //       variable: 'text',
-    //       type: (data as DocExtractorNodeType).is_array_file
-    //         ? VarType.arrayString
-    //         : VarType.string,
-    //     },
-    //   ]
-    //   break
-    // }
-
-    // case BlockEnum.ListFilter: {
-    //   if (!(data as ListFilterNodeType).var_type) break
-
-    //   res.vars = [
-    //     {
-    //       variable: 'result',
-    //       type: (data as ListFilterNodeType).var_type,
-    //     },
-    //     {
-    //       variable: 'first_record',
-    //       type: (data as ListFilterNodeType).item_var_type,
-    //     },
-    //     {
-    //       variable: 'last_record',
-    //       type: (data as ListFilterNodeType).item_var_type,
-    //     },
-    //   ]
-    //   break
-    // }
 
     // case BlockEnum.Agent: {
     //   const payload = data as AgentNodeType
@@ -591,6 +503,18 @@ const formatItem = (
     //   res.vars = dataSourceVars
     //   break
     // }
+
+    case BlockEnum.Calculator: {
+      const template = calculators.find((calculator) => calculator.name === data.calculator)
+      if (!template || !data.calculator) res.vars = []
+      res.vars = [
+        {
+          variable: data.calculator!,
+          type: template!.output.type as unknown as VarType,
+        }
+      ]
+      break
+    }
 
     case 'env': {
       res.vars = data.envList.map((env: EnvironmentVariable) => {
@@ -736,7 +660,6 @@ export const toNodeOutputVars = (
   allPluginInfoList: Record<string, ToolWithProvider[]>,
   schemaTypeDefinitions?: SchemaTypeDefinition[],
 ): NodeOutPutVar[] => {
-  console.log('toNodeOutputVars nodes', nodes)
   // ENV_NODE data format
   const ENV_NODE = {
     id: 'env',
@@ -1234,8 +1157,6 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       if (isChatModel) {
         prompts
           = (payload.prompt_template as PromptItem[])?.map(p => p.text) || []
-        if (payload.memory?.query_prompt_template)
-          prompts.push(payload.memory.query_prompt_template)
       }
       else {
         prompts = [(payload.prompt_template as PromptItem).text]

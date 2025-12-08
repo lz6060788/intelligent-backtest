@@ -15,7 +15,7 @@ const nodeDefault: NodeDefault<HttpNodeType> = {
   defaultValue: {
     variables: [],
     method: Method.get,
-    url: 'www.10jqka.com.cn',
+    url: '',
     authorization: {
       type: AuthorizationType.none,
       config: null,

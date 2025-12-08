@@ -21,11 +21,17 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) 
     if (!nodeType || nodeType === BlockEnum.Start || nodeType === BlockEnum.DataSource)
       return []
 
-    return availableNodesType
+    if (nodeType === BlockEnum.Calculator)
+      return [BlockEnum.Calculator]
+
+    return availableNodesType.filter(nType => nType !== BlockEnum.Calculator)
   }
   const availableNextBlocks = () => {
     if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd)
       return []
+
+    if (nodeType === BlockEnum.Calculator)
+      return [BlockEnum.Calculator]
 
     return availableNodesType
   }
@@ -38,6 +44,12 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) 
     let availableNextBlocks = availableNodesType
     if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd)
       availableNextBlocks = []
+
+    if (nodeType === BlockEnum.Calculator)
+      availableNextBlocks = [BlockEnum.Calculator]
+
+    if (nodeType === BlockEnum.Calculator)
+      availablePrevBlocks = [BlockEnum.Calculator]
 
     return {
       availablePrevBlocks: availablePrevBlocks.filter(nType => availableBlocksFilter(nType, inContainer)),

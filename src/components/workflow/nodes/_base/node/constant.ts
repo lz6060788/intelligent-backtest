@@ -63,10 +63,6 @@ export const RETRIEVAL_OUTPUT_STRUCT = `{
   }
 }`
 
-export const SUPPORT_OUTPUT_VARS_NODE = [
-  BlockEnum.Start, BlockEnum.Loop,
-]
-
 export const AGENT_OUTPUT_STRUCT: Var[] = [
   {
     variable: 'usage',

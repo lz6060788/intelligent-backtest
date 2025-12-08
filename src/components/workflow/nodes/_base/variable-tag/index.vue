@@ -60,7 +60,6 @@ const { t } = useI18n()
 const isRagVar = computed(() => isRagVariableVar(props.valueSelector))
 
 const node = computed(() => {
-  console.log('props.valueSelector', props.valueSelector)
   if (isSystemVar(props.valueSelector)) {
     const startNode = props.availableNodes?.find(n => n.data!.type === BlockEnum.Start)
     if (startNode)
@@ -81,7 +80,6 @@ const isChatVar = computed(() => isConversationVar(props.valueSelector))
 
 // 计算是否有效
 const isValid = computed(() => {
-  console.log(node.value)
   return Boolean(node.value) || isEnv.value || isChatVar.value || isRagVar.value
 })
 

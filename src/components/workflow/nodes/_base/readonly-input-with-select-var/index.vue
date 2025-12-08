@@ -11,8 +11,11 @@ import { computed, h } from 'vue'
 import cn from 'classnames'
 import { useWorkflow } from '../../../hooks'
 import { BlockEnum } from '@/types'
-import { getNodeInfoById, isSystemVar } from '../variable/utils'
+import { getNodeInfoById, isENV, isSystemVar } from '../variable/utils'
 import { VariableLabelInText } from '@/components/workflow/nodes/_base/variable/variable-label'
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n()
 
 interface Props {
   nodeId: string
@@ -41,7 +44,7 @@ const renderedContent = computed(() => {
   return strWithVarPlaceholder.split(VAR_PLACEHOLDER).map((str, index) => {
     if (!vars[index]) {
       return {
-        render: () => h('span', { class: 'relative top-[-3px] leading-[16px]' }, str)
+        render: () => h('span', { class: 'relative leading-[16px]' }, str)
       }
     }
 
@@ -49,6 +52,12 @@ const renderedContent = computed(() => {
     const isSystem = isSystemVar(value)
     const node = (isSystem ? startNode : getNodeInfoById(availableNodes, value[0] ?? ''))?.data
     const isShowAPart = value.length > 2
+
+    const isEnv = isENV(value)
+
+    const isValid = () => {
+      return Boolean(node) || isEnv
+    }
 
     return {
       render: () => h(
@@ -60,6 +69,7 @@ const renderedContent = computed(() => {
             nodeTitle: node?.title,
             nodeType: node?.type,
             notShowFullPath: isShowAPart,
+            'error-msg': !isValid() ? t('workflow.errorMsg.invalidVariable') : undefined,
             variables: value
           })
         ]

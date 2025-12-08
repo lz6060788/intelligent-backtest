@@ -67,7 +67,6 @@ const useConfig = (id: string, inputs: Ref<HttpNodeType>) => {
 
   const handleFieldChange = (field: string) => {
     return (value: string) => {
-      console.log('handleFieldChange', field, value)
       const newInputs = {
         ...inputs.value,
         [field]: value,

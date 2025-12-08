@@ -65,17 +65,18 @@ const ICON_CONTAINER_CLASSNAME_SIZE_MAP: Record<string, string> = {
 }
 
 const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
-  [BlockEnum.Start]: 'bg-blue-3',
-  [BlockEnum.LLM]: 'bg-blue-3',
-  [BlockEnum.Code]: 'bg-blue-3',
-  [BlockEnum.End]: 'bg-blue-3',
-  [BlockEnum.IfElse]: 'bg-blue-3',
-  [BlockEnum.Loop]: 'bg-blue-3',
-  [BlockEnum.LoopEnd]: 'bg-blue-3',
-  [BlockEnum.HttpRequest]: 'bg-blue-3',
-  [BlockEnum.Agent]: 'bg-blue-3',
-  [BlockEnum.DataSource]: 'bg-blue-3',
-  [BlockEnum.VariableAggregator]: 'bg-blue-3',
+  [BlockEnum.Start]: 'bg-blue-4',
+  [BlockEnum.LLM]: 'bg-blue-4',
+  [BlockEnum.Code]: 'bg-blue-4',
+  [BlockEnum.End]: 'bg-blue-4',
+  [BlockEnum.IfElse]: 'bg-blue-4',
+  [BlockEnum.Loop]: 'bg-blue-4',
+  [BlockEnum.LoopEnd]: 'bg-blue-4',
+  [BlockEnum.HttpRequest]: 'bg-blue-4',
+  [BlockEnum.Agent]: 'bg-blue-4',
+  [BlockEnum.DataSource]: 'bg-blue-4',
+  [BlockEnum.VariableAggregator]: 'bg-blue-4',
+  [BlockEnum.Calculator]: 'bg-blue-4',
 }
 
 const iconComponentMap = {
@@ -90,6 +91,7 @@ const iconComponentMap = {
   [BlockEnum.DataSource]: Datasource,
   [BlockEnum.Agent]: Agent,
   [BlockEnum.VariableAggregator]: VariableX,
+  [BlockEnum.Calculator]: VariableX,
 }
 
 // 计算属性

@@ -21,7 +21,7 @@ export const enum BlockEnum {
   LoopStart = 'loop-start',
   LoopEnd = 'loop-end',
   DataSource = 'DataSource',
-  Calculator = 'Calculator',
+  Calculator = 'calculator',
   Tool = 'tool',
 }
 

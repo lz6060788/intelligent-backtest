@@ -269,6 +269,7 @@ const translation = {
     'loop-end': 'Exit Loop',
     'knowledge-index': 'Knowledge Base',
     'datasource': 'Data Source',
+    'calculator': 'Calculator',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',
@@ -294,6 +295,7 @@ const translation = {
     'agent': 'Invoking large language models to answer questions or process natural language',
     'knowledge-index': 'Knowledge Base About',
     'datasource': 'Data Source About',
+    'calculator': 'Calculator About',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -962,6 +964,18 @@ const translation = {
       retrievalSettingIsRequired: 'Retrieval setting is required',
       rerankingModelIsRequired: 'Reranking model is required',
     },
+    calculator: {
+      input: 'input',
+      output: 'output',
+      params: 'params',
+      setVariables: 'Please set variables',
+      calculator: 'Calculator',
+      alias: 'alias',
+      noCalculator: 'Please select a calculator',
+      outputVars: {
+        result: 'Calculator result',
+      },
+    }
   },
   tracing: {
     stopBy: 'Stop by {{user}}',

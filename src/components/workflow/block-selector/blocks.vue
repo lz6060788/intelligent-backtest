@@ -24,16 +24,16 @@
           class="flex h-8 w-full cursor-pointer items-center rounded-lg px-3 hover:bg-gray-500"
           @click="handleSelect(block.metaData.type)"
         >
-          <!-- <BlockIcon
+          <BlockIcon
             className="mr-2 shrink-0"
             :type="block.metaData.type"
-          /> -->
+          />
           <div class="grow text-sm text-white/70">{{ block.metaData.title }}</div>
-          <!-- <Badge
+          <Badge
             v-if="block.metaData.type === BlockEnum.LoopEnd"
             :text="t('workflow.nodes.loop.loopNode')"
             className="ml-2 shrink-0"
-          /> -->
+          />
         </div>
       </div>
     </template>
@@ -43,7 +43,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useVueFlow } from '@vue-flow/core'
 import { groupBy } from 'lodash-es'
 import BlockIcon from '../block-icon.vue'
 import { BlockEnum } from '@/types/node'
@@ -51,7 +50,6 @@ import type { NodeDefault } from '@/types/node'
 import { BLOCK_CLASSIFICATIONS } from './constants.ts'
 import type { ToolDefaultValue } from './types'
 import Badge from '@/components/base/badge/index.vue'
-import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
 interface BlocksProps {
   searchText: string
@@ -67,6 +65,8 @@ const { t } = useI18n()
 // const { nodes } = useVueFlow(instanceId)
 
 const groups = computed(() => {
+  console.log('props.availableBlocksTypes', props.availableBlocksTypes)
+  console.log('props.blocks', props.blocks.filter(block => block.metaData.type === BlockEnum.Calculator))
   return BLOCK_CLASSIFICATIONS.reduce((acc, classification) => {
     const list = (groupBy(props.blocks, 'metaData.classification')[classification] || []).filter((block) => {
       return block.metaData.title.toLowerCase().includes(props.searchText.toLowerCase()) && props.availableBlocksTypes?.includes(block.metaData.type)
@@ -90,7 +90,6 @@ const filteredListMap = computed(() => {
     result[classification] = list
   })
 
-  console.log('result', result)
   return result
 })
 

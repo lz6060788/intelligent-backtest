@@ -6,6 +6,7 @@
         :class="cn(isFocus ? 'bg-components-input-bg-active' : 'bg-width', 'w-0 grow px-3 py-1')"
         :value="props.value"
         :vars="availableVars"
+        :available-nodes="availableNodesWithParent"
         :editable="!props.readOnly"
         :placeholder="t('workflow.nodes.http.insertVarPlaceholder')"
         :placeholder-class-name="'!leading-[21px]'"

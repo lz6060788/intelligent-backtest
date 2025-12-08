@@ -1,6 +1,6 @@
 <template>
   <BasePanel v-bind="props">
-    <NodeComponent v-bind="props" />
+    <NodeComponent v-bind="props" :key="props.id" />
   </BasePanel>
 </template>
 
@@ -14,6 +14,7 @@ import HttpPanel from './http/panel.vue';
 import LoopPanel from './loop/panel.vue';
 import LLMPanel from './llm/panel.vue';
 import VariableAssignerPanel from './variable-assigner/panel.vue';
+import CalculatorPanel from './calculator/panel.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BasePanel from './_base/workflow-panel/index.vue'
 
@@ -27,6 +28,7 @@ const NodeComponentMap = {
   [BlockEnum.Loop]: LoopPanel,
   [BlockEnum.LLM]: LLMPanel,
   [BlockEnum.VariableAggregator]: VariableAssignerPanel,
+  [BlockEnum.Calculator]: CalculatorPanel,
 } as const
 
 // 声明组件接收的 props

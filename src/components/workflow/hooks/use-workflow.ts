@@ -1,12 +1,14 @@
 import { getIncomers, getOutgoers, useVueFlow, type Connection } from "@vue-flow/core"
 import { useAvailableBlocks, useNodesMetaData } from "./index"
-import { CUSTOM_LOOP_START_NODE, SUPPORT_OUTPUT_VARS_NODE } from "../nodes/_base/node/constant"
-import { type Node, type Edge, type ValueSelector, type BlockEnum, WorkflowRunningStatus } from "@/types"
+import { CUSTOM_LOOP_START_NODE } from "../nodes/_base/node/constant"
+import { SUPPORT_OUTPUT_VARS_NODE } from "../constant/nodes"
+import { BlockEnum, type Node, type Edge, type ValueSelector, WorkflowRunningStatus } from "@/types"
 import { uniqBy } from "lodash-es"
 import type { LoopNodeType } from "../nodes/loop/type"
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { computed } from "vue"
 import { findUsedVarNodes } from "../nodes/_base/variable/utils"
+import type { CalculatorNodeType } from "../nodes/calculator/types"
 
 export const useWorkflow = () => {
   const { instanceId } = useWorkflowInstance()
@@ -125,8 +127,13 @@ export const useWorkflow = () => {
     const nodes = getBeforeNodesInSameBranch(nodeId, newNodes, newEdges)
     const {
       nodes: allNodes,
+      getIncomers
     } = store
     const node = allNodes.value.find(n => n.id === nodeId)
+    // 对于算子节点至于前置有别名节点或相邻前置节点相关联
+    if (node?.data?.type === BlockEnum.Calculator) {
+      return [...nodes.filter(item => (item.data as CalculatorNodeType)!.alias), ...getIncomers(nodeId).filter(item => !(item.data as CalculatorNodeType)!.alias)]
+    }
     const parentNodeId = node?.parentNode
     const parentNode = allNodes.value.find(n => n.id === parentNodeId)
     if (parentNode)

@@ -99,8 +99,6 @@ interface Props {
   isSupportFileVar?: boolean
   itemWidth?: number
   maxHeightClass?: string
-  onClose?: () => void
-  onBlur?: () => void
   zIndex?: number
   isInCodeGeneratorInstructionEditor?: boolean
   showManageInputField?: boolean
@@ -111,6 +109,8 @@ interface Props {
 
 const emit = defineEmits<{
   (e: 'change', value: ValueSelector, item: Var): void
+  (e: 'close'): void
+  (e: 'blur'): void
 }>()
 
 const handleChange = (value: ValueSelector, item: Var) => {
@@ -126,7 +126,7 @@ const searchText = ref('')
 const handleKeyDown = (e: Event | KeyboardEvent) => {
   if ((e as KeyboardEvent).key === 'Escape') {
     e.preventDefault()
-    props.onClose?.()
+    emit('close')
   }
 }
 

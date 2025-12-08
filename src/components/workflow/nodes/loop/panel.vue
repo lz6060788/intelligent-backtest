@@ -54,25 +54,6 @@
             <div class="pl-3">{{ t(`${i18nPrefix}.loopMaxCount`) }}</div>
           </template>
           <div class="px-3 py-2">
-            <!-- <InputNumberWithSlider
-              :min="1"
-              :max="LOOP_NODE_MAX_COUNT"
-              :value="inputs.loop_count"
-              @change="(val) => {
-                const roundedVal = Math.round(val)
-                handleUpdateLoopCount(Number.isNaN(roundedVal) ? 1 : roundedVal)
-              }"
-            /> -->
-            <!-- <el-slider
-              :model-value="payload.loop_count"
-              :min="1"
-              :max="LOOP_NODE_MAX_COUNT"
-              :step="1"
-              :show-input="true"
-              input-controls-position="right"
-              @change="handleUpdateLoopCount"
-              size="small"
-            /> -->
             <el-input-number
               :model-value="payload.loop_count"
               :min="1"
