@@ -295,14 +295,9 @@ export const useWorkflowUpdate = () => {
       edges,
       viewport,
     } = payload
-    const { setViewport } = store
-    // eventEmitter?.emit({
-    //   type: WORKFLOW_DATA_UPDATE,
-    //   payload: {
-    //     nodes: initialNodes(nodes, edges),
-    //     edges: initialEdges(edges, nodes),
-    //   },
-    // } as any)
+    const { setViewport, setNodes, setEdges } = store
+    setNodes(nodes)
+    setEdges(edges)
     setViewport(viewport)
   }
 

@@ -1211,45 +1211,11 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       ])
       break
     }
-    // case BlockEnum.DataSource: {
-    //   const payload = data as DataSourceNodeType
-    //   const mixVars = matchNotSystemVars(
-    //     Object.keys(payload.datasource_parameters)
-    //       ?.filter(
-    //         key =>
-    //           payload.datasource_parameters[key].type === ToolVarType.mixed,
-    //       )
-    //       .map(key => payload.datasource_parameters[key].value) as string[],
-    //   )
-    //   const vars
-    //     = Object.keys(payload.datasource_parameters)
-    //       .filter(
-    //         key =>
-    //           payload.datasource_parameters[key].type === ToolVarType.variable,
-    //       )
-    //       .map(key => payload.datasource_parameters[key].value as string)
-    //     || []
-    //   res = [...(mixVars as ValueSelector[]), ...(vars as any)]
-    //   break
-    // }
-
-    // case BlockEnum.VariableAssigner: {
-    //   res = (data as VariableAssignerNodeType)?.variables
-    //   break
-    // }
 
     case BlockEnum.VariableAggregator: {
       res = (data as VariableAssignerNodeType)?.variables
       break
     }
-
-    // case BlockEnum.ParameterExtractor: {
-    //   const payload = data as ParameterExtractorNodeType
-    //   res = [payload.query]
-    //   const varInInstructions = matchNotSystemVars([payload.instruction || ''])
-    //   res.push(...varInInstructions)
-    //   break
-    // }
 
     case BlockEnum.Loop: {
       const payload = data as LoopNodeType
@@ -1260,29 +1226,17 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       break
     }
 
-    // case BlockEnum.ListFilter: {
-    //   res = [(data as ListFilterNodeType).variable]
-    //   break
-    // }
-
-    // case BlockEnum.Agent: {
-    //   const payload = data as AgentNodeType
-    //   const valueSelectors: ValueSelector[] = []
-    //   if (!payload.agent_parameters) break
-
-    //   Object.keys(payload.agent_parameters || {}).forEach((key) => {
-    //     const { value } = payload.agent_parameters![key]
-    //     if (typeof value === 'string')
-    //       valueSelectors.push(...matchNotSystemVars([value]))
-    //   })
-    //   res = valueSelectors
-    //   break
-    // }
+    case BlockEnum.Calculator: {
+      res = (data as CalculatorNodeType).variables?.filter(v => !v.isConst).map((v) => {
+        return v.value as ValueSelector
+      })
+      break
+    }
   }
   return res || []
 }
 
-// can be used in iteration node
+// 单节点调试使用
 export const getNodeUsedVarPassToServerKey = (
   node: Node,
   valueSelector: ValueSelector,
@@ -1332,10 +1286,10 @@ export const getNodeUsedVarPassToServerKey = (
     //   res = 'query'
     //   break
     // }
-    // case BlockEnum.HttpRequest: {
-    //   res = `#${valueSelector.join('.')}#`
-    //   break
-    // }
+    case BlockEnum.HttpRequest: {
+      res = `#${valueSelector.join('.')}#`
+      break
+    }
 
 
     // case BlockEnum.VariableAssigner: {
@@ -1378,78 +1332,41 @@ export const updateNodeVars = (
     const { type } = data
 
     switch (type) {
-      // case BlockEnum.End: {
-      //   const payload = data as EndNodeType
-      //   if (payload.outputs) {
-      //     payload.outputs = payload.outputs.map((output) => {
-      //       if (output.value_selector.join('.') === oldVarSelector.join('.'))
-      //         output.value_selector = newVarSelector
-      //       return output
-      //     })
-      //   }
-      //   break
-      // }
-      // case BlockEnum.Answer: {
-      //   const payload = data as AnswerNodeType
-      //   if (payload.variables) {
-      //     payload.variables = payload.variables.map((v) => {
-      //       if (v.value_selector.join('.') === oldVarSelector.join('.'))
-      //         v.value_selector = newVarSelector
-      //       return v
-      //     })
-      //   }
-      //   break
-      // }
-      // case BlockEnum.LLM: {
-      //   const payload = data as LLMNodeType
-      //   const isChatModel = payload.model?.mode === 'chat'
-      //   if (isChatModel) {
-      //     payload.prompt_template = (
-      //       payload.prompt_template as PromptItem[]
-      //     ).map((prompt) => {
-      //       return {
-      //         ...prompt,
-      //         text: replaceOldVarInText(
-      //           prompt.text,
-      //           oldVarSelector,
-      //           newVarSelector,
-      //         ),
-      //       }
-      //     })
-      //     if (payload.memory?.query_prompt_template) {
-      //       payload.memory.query_prompt_template = replaceOldVarInText(
-      //         payload.memory.query_prompt_template,
-      //         oldVarSelector,
-      //         newVarSelector,
-      //       )
-      //     }
-      //   }
-      //   else {
-      //     payload.prompt_template = {
-      //       ...payload.prompt_template,
-      //       text: replaceOldVarInText(
-      //         (payload.prompt_template as PromptItem).text,
-      //         oldVarSelector,
-      //         newVarSelector,
-      //       ),
-      //     }
-      //   }
-      //   if (
-      //     payload.context?.variable_selector?.join('.')
-      //     === oldVarSelector.join('.')
-      //   )
-      //     payload.context.variable_selector = newVarSelector
+      case BlockEnum.LLM: {
+        const payload = data as LLMNodeType
+        const isChatModel = payload.model?.mode === 'chat'
+        if (isChatModel) {
+          payload.prompt_template = (
+            payload.prompt_template as PromptItem[]
+          ).map((prompt) => {
+            return {
+              ...prompt,
+              text: replaceOldVarInText(
+                prompt.text,
+                oldVarSelector,
+                newVarSelector,
+              ),
+            }
+          })
+        }
+        else {
+          payload.prompt_template = {
+            ...payload.prompt_template,
+            text: replaceOldVarInText(
+              (payload.prompt_template as PromptItem).text,
+              oldVarSelector,
+              newVarSelector,
+            ),
+          }
+        }
+        if (
+          payload.context?.variable_selector?.join('.')
+          === oldVarSelector.join('.')
+        )
+          payload.context.variable_selector = newVarSelector
 
-      //   break
-      // }
-      // case BlockEnum.KnowledgeRetrieval: {
-      //   const payload = data as KnowledgeRetrievalNodeType
-      //   if (
-      //     payload.query_variable_selector.join('.') === oldVarSelector.join('.')
-      //   )
-      //     payload.query_variable_selector = newVarSelector
-      //   break
-      // }
+        break
+      }
       case BlockEnum.IfElse: {
         const payload = data as IfElseNodeType
         if (payload.conditions) {
@@ -1499,68 +1416,44 @@ export const updateNodeVars = (
         }
         break
       }
-      // case BlockEnum.TemplateTransform: {
-      //   const payload = data as TemplateTransformNodeType
-      //   if (payload.variables) {
-      //     payload.variables = payload.variables.map((v: any) => {
-      //       if (v.value_selector.join('.') === oldVarSelector.join('.'))
-      //         v.value_selector = newVarSelector
-      //       return v
-      //     })
-      //   }
-      //   break
-      // }
-      // case BlockEnum.QuestionClassifier: {
-      //   const payload = data as QuestionClassifierNodeType
-      //   if (
-      //     payload.query_variable_selector.join('.') === oldVarSelector.join('.')
-      //   )
-      //     payload.query_variable_selector = newVarSelector
-      //   payload.instruction = replaceOldVarInText(
-      //     payload.instruction,
-      //     oldVarSelector,
-      //     newVarSelector,
-      //   )
-      //   break
-      // }
-      // case BlockEnum.HttpRequest: {
-      //   const payload = data as HttpNodeType
-      //   payload.url = replaceOldVarInText(
-      //     payload.url,
-      //     oldVarSelector,
-      //     newVarSelector,
-      //   )
-      //   payload.headers = replaceOldVarInText(
-      //     payload.headers,
-      //     oldVarSelector,
-      //     newVarSelector,
-      //   )
-      //   payload.params = replaceOldVarInText(
-      //     payload.params,
-      //     oldVarSelector,
-      //     newVarSelector,
-      //   )
-      //   if (typeof payload.body.data === 'string') {
-      //     payload.body.data = replaceOldVarInText(
-      //       payload.body.data,
-      //       oldVarSelector,
-      //       newVarSelector,
-      //     )
-      //   }
-      //   else {
-      //     payload.body.data = payload.body.data.map((d) => {
-      //       return {
-      //         ...d,
-      //         value: replaceOldVarInText(
-      //           d.value || '',
-      //           oldVarSelector,
-      //           newVarSelector,
-      //         ),
-      //       }
-      //     })
-      //   }
-      //   break
-      // }
+      case BlockEnum.HttpRequest: {
+        const payload = data as HttpNodeType
+        payload.url = replaceOldVarInText(
+          payload.url,
+          oldVarSelector,
+          newVarSelector,
+        )
+        payload.headers = replaceOldVarInText(
+          payload.headers,
+          oldVarSelector,
+          newVarSelector,
+        )
+        payload.params = replaceOldVarInText(
+          payload.params,
+          oldVarSelector,
+          newVarSelector,
+        )
+        if (typeof payload.body.data === 'string') {
+          payload.body.data = replaceOldVarInText(
+            payload.body.data,
+            oldVarSelector,
+            newVarSelector,
+          )
+        }
+        else {
+          payload.body.data = payload.body.data.map((d) => {
+            return {
+              ...d,
+              value: replaceOldVarInText(
+                d.value || '',
+                oldVarSelector,
+                newVarSelector,
+              ),
+            }
+          })
+        }
+        break
+      }
       // case BlockEnum.Tool: {
       //   const payload = data as ToolNodeType
       //   const hasShouldRenameVar = Object.keys(payload.tool_parameters)?.filter(
@@ -1594,42 +1487,6 @@ export const updateNodeVars = (
       //   }
       //   break
       // }
-      // case BlockEnum.DataSource: {
-      //   const payload = data as DataSourceNodeType
-      //   const hasShouldRenameVar = Object.keys(
-      //     payload.datasource_parameters,
-      //   )?.filter(
-      //     key =>
-      //       payload.datasource_parameters[key].type !== ToolVarType.constant,
-      //   )
-      //   if (hasShouldRenameVar) {
-      //     Object.keys(payload.datasource_parameters).forEach((key) => {
-      //       const value = payload.datasource_parameters[key]
-      //       const { type } = value
-      //       if (
-      //         type === ToolVarType.variable
-      //         && value.value.join('.') === oldVarSelector.join('.')
-      //       ) {
-      //         payload.datasource_parameters[key] = {
-      //           ...value,
-      //           value: newVarSelector,
-      //         }
-      //       }
-
-      //       if (type === ToolVarType.mixed) {
-      //         payload.datasource_parameters[key] = {
-      //           ...value,
-      //           value: replaceOldVarInText(
-      //             payload.datasource_parameters[key].value as string,
-      //             oldVarSelector,
-      //             newVarSelector,
-      //           ),
-      //         }
-      //       }
-      //     })
-      //   }
-      //   break
-      // }
       // case BlockEnum.VariableAssigner: {
       //   const payload = data as VariableAssignerNodeType
       //   if (payload.variables) {
@@ -1641,51 +1498,36 @@ export const updateNodeVars = (
       //   break
       // }
       // // eslint-disable-next-line sonarjs/no-duplicated-branches
-      // case BlockEnum.VariableAggregator: {
-      //   const payload = data as VariableAssignerNodeType
-      //   if (payload.variables) {
-      //     payload.variables = payload.variables.map((v) => {
-      //       if (v.join('.') === oldVarSelector.join('.')) v = newVarSelector
-      //       return v
-      //     })
-      //   }
-      //   break
-      // }
-      // case BlockEnum.ParameterExtractor: {
-      //   const payload = data as ParameterExtractorNodeType
-      //   if (payload.query.join('.') === oldVarSelector.join('.'))
-      //     payload.query = newVarSelector
-      //   payload.instruction = replaceOldVarInText(
-      //     payload.instruction,
-      //     oldVarSelector,
-      //     newVarSelector,
-      //   )
-      //   break
-      // }
-      // case BlockEnum.Iteration: {
-      //   const payload = data as IterationNodeType
-      //   if (payload.iterator_selector.join('.') === oldVarSelector.join('.'))
-      //     payload.iterator_selector = newVarSelector
-
-      //   break
-      // }
-      // case BlockEnum.Loop: {
-      //   const payload = data as LoopNodeType
-      //   if (payload.break_conditions) {
-      //     payload.break_conditions = payload.break_conditions.map((c) => {
-      //       if (c.variable_selector?.join('.') === oldVarSelector.join('.'))
-      //         c.variable_selector = newVarSelector
-      //       return c
-      //     })
-      //   }
-      //   break
-      // }
-      // case BlockEnum.ListFilter: {
-      //   const payload = data as ListFilterNodeType
-      //   if (payload.variable.join('.') === oldVarSelector.join('.'))
-      //     payload.variable = newVarSelector
-      //   break
-      // }
+      case BlockEnum.VariableAggregator: {
+        const payload = data as VariableAssignerNodeType
+        if (payload.variables) {
+          payload.variables = payload.variables.map((v) => {
+            if (v.join('.') === oldVarSelector.join('.')) v = newVarSelector
+            return v
+          })
+        }
+        break
+      }
+      case BlockEnum.Loop: {
+        const payload = data as LoopNodeType
+        if (payload.break_conditions) {
+          payload.break_conditions = payload.break_conditions.map((c) => {
+            if (c.variable_selector?.join('.') === oldVarSelector.join('.'))
+              c.variable_selector = newVarSelector
+            return c
+          })
+        }
+        break
+      }
+      case BlockEnum.Calculator: {
+        const payload = data as CalculatorNodeType
+        if (payload.variables) {
+          payload.variables = payload.variables.map((v) => {
+            if (!v.isConst && Array.isArray(v.value) && (v.value as ValueSelector).join('.') === oldVarSelector.join('.')) (v.value as ValueSelector) = newVarSelector
+            return v
+          })
+        }
+      }
     }
   })
   return newNode
@@ -1750,36 +1592,36 @@ export const getNodeOutputVars = (
   let res: ValueSelector[] = []
 
   switch (type) {
-    // case BlockEnum.Start: {
-    //   const { variables } = data as StartNodeType
-    //   res = variables.map((v) => {
-    //     return [id, v.variable]
-    //   })
+    case BlockEnum.Start: {
+      const { variables } = data as StartNodeType
+      res = variables.map((v) => {
+        return [id, v.variable]
+      })
 
     //   if (isChatMode) {
     //     res.push([id, 'sys', 'query'])
     //     res.push([id, 'sys', 'files'])
     //   }
     //   break
-    // }
+    }
 
-    // case BlockEnum.LLM: {
-    //   const vars = [...LLM_OUTPUT_STRUCT]
-    //   const llmNodeData = data as LLMNodeType
-    //   if (
-    //     llmNodeData.structured_output_enabled
-    //     && llmNodeData.structured_output?.schema?.properties
-    //     && Object.keys(llmNodeData.structured_output.schema.properties).length > 0
-    //   ) {
-    //     vars.push({
-    //       variable: 'structured_output',
-    //       type: VarType.object,
-    //       children: llmNodeData.structured_output,
-    //     })
-    //   }
-    //   varsToValueSelectorList(vars, [id], res)
-    //   break
-    // }
+    case BlockEnum.LLM: {
+      const vars = [...LLM_OUTPUT_STRUCT]
+      const llmNodeData = data as LLMNodeType
+      // if (
+      //   llmNodeData.structured_output_enabled
+      //   && llmNodeData.structured_output?.schema?.properties
+      //   && Object.keys(llmNodeData.structured_output.schema.properties).length > 0
+      // ) {
+      //   vars.push({
+      //     variable: 'structured_output',
+      //     type: VarType.object,
+      //     children: llmNodeData.structured_output,
+      //   })
+      // }
+      varsToValueSelectorList(vars, [id], res)
+      break
+    }
 
     case BlockEnum.Code: {
       const { outputs } = data as CodeNodeType
@@ -1789,44 +1631,23 @@ export const getNodeOutputVars = (
       break
     }
 
-    // case BlockEnum.TemplateTransform: {
-    //   varsToValueSelectorList(TEMPLATE_TRANSFORM_OUTPUT_STRUCT, [id], res)
-    //   break
-    // }
-
-    // case BlockEnum.QuestionClassifier: {
-    //   varsToValueSelectorList(QUESTION_CLASSIFIER_OUTPUT_STRUCT, [id], res)
-    //   break
-    // }
-
-    // case BlockEnum.HttpRequest: {
-    //   varsToValueSelectorList(HTTP_REQUEST_OUTPUT_STRUCT, [id], res)
-    //   break
-    // }
+    case BlockEnum.HttpRequest: {
+      varsToValueSelectorList(HTTP_REQUEST_OUTPUT_STRUCT, [id], res)
+      break
+    }
 
     // case BlockEnum.VariableAssigner: {
     //   res.push([id, 'output'])
     //   break
     // }
 
-    // case BlockEnum.VariableAggregator: {
-    //   res.push([id, 'output'])
-    //   break
-    // }
+    case BlockEnum.VariableAggregator: {
+      res.push([id, 'output'])
+      break
+    }
 
     // case BlockEnum.Tool: {
     //   varsToValueSelectorList(TOOL_OUTPUT_STRUCT, [id], res)
-    //   break
-    // }
-
-    // case BlockEnum.ParameterExtractor: {
-    //   const { parameters } = data as ParameterExtractorNodeType
-    //   if (parameters?.length > 0) {
-    //     parameters.forEach((p) => {
-    //       res.push([id, p.name])
-    //     })
-    //   }
-
     //   break
     // }
 
@@ -1835,22 +1656,15 @@ export const getNodeOutputVars = (
     //   break
     // }
 
-    // case BlockEnum.Loop: {
-    //   res.push([id, 'output'])
-    //   break
-    // }
+    case BlockEnum.Loop: {
+      res.push([id, 'output'])
+      break
+    }
 
-    // case BlockEnum.DocExtractor: {
-    //   res.push([id, 'text'])
-    //   break
-    // }
-
-    // case BlockEnum.ListFilter: {
-    //   res.push([id, 'result'])
-    //   res.push([id, 'first_record'])
-    //   res.push([id, 'last_record'])
-    //   break
-    // }
+    case BlockEnum.Calculator: {
+      res.push([id, 'result'])
+      break
+    }
   }
 
   return res

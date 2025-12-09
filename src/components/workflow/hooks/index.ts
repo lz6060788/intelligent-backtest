@@ -9,6 +9,8 @@ export { useWorkflowVariables, useWorkflowVariableType } from './use-workflow-va
 export { useWorkflowHistory } from './use-workflow-history'
 export { useWorkflowInteractions } from './use-workflow-interactions'
 export { useWorkflowInstance } from './use-workflow-instance'
+export { useNodesSyncDraft } from './use-nodes-sync-draft'
+export { useWorkflowRefreshDraft } from './use-workflow-refresh-draft'
 export * from './use-workflow'
 export * from './use-workflow-interactions'
 export * from './use-function-call'

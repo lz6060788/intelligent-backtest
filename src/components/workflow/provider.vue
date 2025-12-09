@@ -1,8 +1,13 @@
 <template>
-  <div class="w-full h-full flex">
+  <div class="w-full h-full">
+    <div class="h-10 w-full flex items-center justify-center">
+      <el-button type="primary" @click="doSyncWorkflowDraft">Sync Workflow Draft</el-button>
+      <el-button type="primary" @click="handleRefreshWorkflowDraft">Refresh Workflow Draft</el-button>
+      <el-button type="primary" @click="debugPrint">Print Workflow Draft</el-button>
+    </div>
     <div
       id="workflow-container"
-      class="h-full min-w-[800px] relative flex-1"
+      class="h-[calc(100%-40px)] min-w-[800px] relative flex-1"
       ref="workflowContainerRef"
     >
       <VueFlow
@@ -67,12 +72,11 @@
         >
           <Controller />
         </div>
-        <el-button class="absolute right-2 top-1 z-[9999]" @click="debugPrint" type="primary">print</el-button>
         <!-- <VueFlowControls /> -->
       </VueFlow>
       <Panel />
+      <!-- <Aime></Aime> -->
     </div>
-    <!-- <Aime></Aime> -->
   </div>
 </template>
 
@@ -88,7 +92,7 @@ import customEdge from './edge/index.vue';
 import customLoopStartNode from './nodes/loop-start/index.vue'
 import customSimpleNode from './simple-node/index.vue'
 import Panel from './panel/index.vue'
-import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly } from './hooks/index'
+import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly, useNodesSyncDraft, useWorkflowRefreshDraft } from './hooks/index'
 import type { WorkflowProps } from '@/types/workflow'
 import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
@@ -100,6 +104,8 @@ const workflowContainerRef = ref<HTMLDivElement>();
 
 const { instanceId,  instance: workflowStore } = useWorkflowInstance()
 const store = useVueFlow(instanceId)
+const { doSyncWorkflowDraft } = useNodesSyncDraft()
+const { handleRefreshWorkflowDraft } = useWorkflowRefreshDraft()
 
 const props = withDefaults(defineProps<WorkflowProps>(), {
   nodes: () => [],

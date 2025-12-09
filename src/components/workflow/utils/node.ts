@@ -1,6 +1,6 @@
 import { BlockEnum, type Node } from '@/types'
 import { CUSTOM_NODE, ITERATION_NODE_Z_INDEX, LOOP_NODE_Z_INDEX, CUSTOM_LOOP_START_NODE, LOOP_CHILDREN_Z_INDEX } from '../nodes/_base/node/constant'
-import { Position } from '@vue-flow/core'
+import { Position, type GraphNode } from '@vue-flow/core'
 import type { LoopNodeType } from '../nodes/loop/type'
 
 
@@ -109,4 +109,21 @@ export const getNestedNodePosition = (node: Node, parentNode: Node) => {
 export const getNodeCustomTypeByNodeDataType = (nodeType: BlockEnum) => {
   if (nodeType === BlockEnum.LoopEnd)
     return 'custom-simple'
+}
+
+export const transformGraphNodesToNodes = (nodes: GraphNode[]): Node[] => {
+  return nodes.map((node) => {
+    return {
+      id: node.id,
+      type: node.type,
+      data: node.data,
+      position: node.position,
+      targetPosition: node.targetPosition,
+      sourcePosition: node.sourcePosition,
+      zIndex: node.zIndex,
+      parentNode: node.parentNode,
+      width: node.dimensions.width,
+      height: node.dimensions.height,
+    }
+  })
 }
