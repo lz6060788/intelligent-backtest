@@ -273,6 +273,7 @@ const translation = {
     'knowledge-index': '知识库',
     'datasource': '数据源',
     'calculator': '算子',
+    'calculator-start': '开始',
   },
   blocksAbout: {
     'start': '定义一个 workflow 流程启动的初始参数',
@@ -298,7 +299,8 @@ const translation = {
     'agent': '调用大型语言模型回答问题或处理自然语言',
     'knowledge-index': '知识库节点',
     'datasource': '数据源节点',
-    'calculator': '计算器节点',
+    'calculator': '算子节点',
+    'calculator-start': '算子开始节点',
   },
   operator: {
     zoomIn: '放大',
@@ -978,7 +980,17 @@ const translation = {
       outputVars: {
         result: '算子结果',
       },
-    }
+    },
+    calculatorStart: {
+      setOutputVariable: '设置输出变量',
+      outputVars: {
+        hight: '高',
+        open: '开',
+        low: '低',
+        close: '收',
+        volume: '成',
+      },
+    },
   },
   tracing: {
     stopBy: '由{{user}}终止',

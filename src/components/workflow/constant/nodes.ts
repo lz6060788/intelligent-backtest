@@ -9,6 +9,7 @@ import llmDefault from '@/components/workflow/nodes/llm/default';
 import variableAssignerDefault from '@/components/workflow/nodes/variable-assigner/default';
 import endDefault from '@/components/workflow/nodes/end/default';
 import calculatorDefault from '@/components/workflow/nodes/calculator/default';
+import calculatorStartDefault from '@/components/workflow/nodes/calculator-start/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -26,6 +27,7 @@ export const WORKFLOW_COMMON_NODES = [
   variableAssignerDefault,
   endDefault,
   calculatorDefault,
+  calculatorStartDefault,
 ] as NodeDefault[]
 
 
@@ -107,7 +109,7 @@ export const RETRIEVAL_OUTPUT_STRUCT = `{
 export const SUPPORT_OUTPUT_VARS_NODE = [
   BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code, BlockEnum.Calculator,
   BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
-  BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource,
+  BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource, BlockEnum.CalculatorStart,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [

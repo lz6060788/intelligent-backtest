@@ -11,7 +11,7 @@
           :placeholder="t('workflow.common.searchVar') || ''"
           @keydown="handleKeyDown"
           @clear="handleClear"
-          @blur="onBlur"
+          @blur="emit('blur')"
           :autofocus="autoFocus"
           size="small"
           clearable

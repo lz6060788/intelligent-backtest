@@ -1,6 +1,6 @@
-import { produce } from 'immer'
 import type { VariableAssignerNodeType } from '../../types'
 import type { ValueSelector } from '@/types'
+import { cloneDeep } from 'lodash-es'
 
 type Params = {
   id: string
@@ -12,17 +12,15 @@ function useVarList({
   setInputs,
 }: Params) {
   const handleVarListChange = (newList: ValueSelector[]) => {
-    const newInputs = produce(inputs, (draft) => {
-      draft.variables = newList
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(inputs)
+    draft.variables = newList
+    setInputs(draft)
   }
 
   const handleAddVariable = () => {
-    const newInputs = produce(inputs, (draft) => {
-      draft.variables.push([])
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(inputs)
+    draft.variables.push([])
+    setInputs(draft)
   }
   return {
     handleVarListChange,

@@ -164,7 +164,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { produce } from 'immer'
 import type { VarType as NumberVarType } from '@/components/workflow/nodes/tool/types'
 import type {
   Condition,
@@ -191,6 +190,7 @@ import cn from '@/utils/classnames'
 import { RiDeleteBinLine } from '@remixicon/vue'
 // import BoolValue from '@/components/workflow/panel/chat-variable-panel/components/bool-value'
 import { getVarType } from '@/components/workflow/nodes/_base/variable/utils'
+import { cloneDeep } from 'lodash-es'
 // import { useIsChatMode } from '@/components/workflow/hooks/use-workflow'
 // import useMatchSchemaType from '../../../_base/components/variable/use-match-schema-type'
 // import {
@@ -360,18 +360,17 @@ const subVarOptions = computed(() => SUB_VARIABLES.map(item => ({
 })))
 
 const handleSubVarKeyChange = (key: string) => {
-  const newCondition = produce(props.condition, (draft) => {
-    draft.key = key
-    if (key === 'size')
-      draft.varType = VarType.number
-    else
-      draft.varType = VarType.string
+  const draft = cloneDeep(props.condition)
+  draft.key = key
+  if (key === 'size')
+    draft.varType = VarType.number
+  else
+    draft.varType = VarType.string
 
-    draft.value = ''
-    draft.comparison_operator = getOperators(undefined, { key })[0]
-  })
+  draft.value = ''
+  draft.comparison_operator = getOperators(undefined, { key })[0]
 
-  emit('updateSubVariableCondition', props.caseId, props.conditionId, props.condition.id, newCondition)
+  emit('updateSubVariableCondition', props.caseId, props.conditionId, props.condition.id, draft)
 }
 
 const doRemoveCondition = () => {
@@ -399,17 +398,16 @@ const handleVarChange = (valueSelector: ValueSelector, _varItem: Var) => {
     // schemaTypeDefinitions: schemaTypeDefinitions.value,
   })
 
-  const newCondition = produce(props.condition, (draft) => {
-    draft.variable_selector = valueSelector
-    draft.varType = resolvedVarType
-    draft.value = resolvedVarType === VarType.boolean ? false : ''
-    draft.comparison_operator = getOperators(resolvedVarType)[0]
-    delete draft.key
-    delete draft.sub_variable_condition
-    delete draft.numberVarType
-    // setTimeout(() => workflowStore.setControlPromptEditorRerenderKey?.(Date.now()))
-  })
-  doUpdateCondition(newCondition)
+  const draft = cloneDeep(props.condition)
+  draft.variable_selector = valueSelector
+  draft.varType = resolvedVarType
+  draft.value = resolvedVarType === VarType.boolean ? false : ''
+  draft.comparison_operator = getOperators(resolvedVarType)[0]
+  delete draft.key
+  delete draft.sub_variable_condition
+  delete draft.numberVarType
+  // setTimeout(() => workflowStore.setControlPromptEditorRerenderKey?.(Date.now()))
+  doUpdateCondition(draft)
   open.value = false
 }
 

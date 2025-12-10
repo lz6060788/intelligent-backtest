@@ -2,6 +2,7 @@
 </template>
 
 <script setup lang="ts">
+import 'element-plus/es/components/message-box/style/css'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { watch, ref } from 'vue'
@@ -26,8 +27,8 @@ watch(
         t(`${i18nPrefix}.content`),
         t(`${i18nPrefix}.title`),
         {
-          confirmButtonText: t('common.confirm'), // 假设通用确认文本键名
-          cancelButtonText: t('common.cancel'),   // 假设通用取消文本键名
+          confirmButtonText: t('common.operation.confirm'), // 假设通用确认文本键名
+          cancelButtonText: t('common.operation.cancel'),   // 假设通用取消文本键名
           type: 'warning'
         }
       )

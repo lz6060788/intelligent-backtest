@@ -125,7 +125,6 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RiDeleteBinLine } from '@remixicon/vue'
-import { produce } from 'immer'
 import type { VarType as NumberVarType } from '../../../tool/types'
 import type {
   Condition,
@@ -150,6 +149,7 @@ import cn from '@/utils/classnames'
 import Select from '@/components/base/select/partal-select/index.vue'
 import { Variable02 } from '@/components/base/icons/src/vender/solid/development'
 import ConditionVarSelector from './condition-var-selector.vue'
+import { cloneDeep } from 'lodash-es'
 
 const optionNameI18NPrefix = 'workflow.nodes.ifElse.optionName'
 
@@ -288,18 +288,17 @@ const subVarOptions = computed(() => SUB_VARIABLES.map(item => ({
 })))
 
 const handleSubVarKeyChange = (key: string) => {
-  const newCondition = produce(props.condition, (draft) => {
-    draft.key = key
-    if (key === 'size')
-      draft.varType = VarType.number
-    else
-      draft.varType = VarType.string
+  const draft = cloneDeep(props.condition)
+  draft.key = key
+  if (key === 'size')
+    draft.varType = VarType.number
+  else
+    draft.varType = VarType.string
 
-    draft.value = ''
-    draft.comparison_operator = getOperators(undefined, { key })[0]
-  })
+  draft.value = ''
+  draft.comparison_operator = getOperators(undefined, { key })[0]
 
-  emit('update-sub-variable-condition', props.conditionId, props.condition.id, newCondition)
+  emit('update-sub-variable-condition', props.conditionId, props.condition.id, draft)
 }
 
 const doRemoveCondition = () => {
@@ -310,16 +309,15 @@ const doRemoveCondition = () => {
 }
 
 const handleVarChange = (valueSelector: ValueSelector, varItem: Var) => {
-  const newCondition = produce(props.condition, (draft) => {
-    draft.variable_selector = valueSelector
-    draft.varType = varItem.type
-    draft.value = ''
-    draft.comparison_operator = getOperators(varItem.type)[0]
-    delete draft.key
-    delete draft.sub_variable_condition
-    delete draft.numberVarType
-  })
-  doUpdateCondition(newCondition)
+  const draft = cloneDeep(props.condition)
+  draft.variable_selector = valueSelector
+  draft.varType = varItem.type
+  draft.value = ''
+  draft.comparison_operator = getOperators(varItem.type)[0]
+  delete draft.key
+  delete draft.sub_variable_condition
+  delete draft.numberVarType
+  doUpdateCondition(draft)
 }
 </script>
 

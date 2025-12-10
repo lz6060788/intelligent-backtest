@@ -31,11 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { produce } from 'immer'
 import { useI18n } from 'vue-i18n'
 import type { KeyValue } from '../../../types'
 import KeyValueItem from './item.vue'
 import cn from '@/utils/classnames'
+import { cloneDeep } from 'lodash-es'
 
 const i18nPrefix = 'workflow.nodes.http'
 
@@ -74,9 +74,8 @@ const { t } = useI18n()
  * 处理项变更
  */
 const handleChange = (index: number, newItem: KeyValue) => {
-  const newList = produce(props.list, (draft: any) => {
-    draft[index] = newItem
-  })
+  const newList = cloneDeep(props.list)
+  newList[index] = newItem
   emit('change', newList)
 }
 
@@ -85,9 +84,8 @@ const handleChange = (index: number, newItem: KeyValue) => {
  */
 const handleRemove = (index: number) => {
   console.log('handleRemove', index, props.list)
-  const newList = produce(props.list, (draft: any) => {
-    draft.splice(index, 1)
-  })
+  const newList = cloneDeep(props.list)
+  newList.splice(index, 1)
   emit('change', newList)
 }
 </script>

@@ -1,6 +1,6 @@
-import { produce } from 'immer'
 import type { Variable } from '@/types'
 import { unref, type Ref } from 'vue'
+import { cloneDeep } from 'lodash-es'
 
 type Params<T> = {
   inputs: Ref<T>
@@ -13,18 +13,16 @@ function useVarList<T>({
   varKey = 'variables',
 }: Params<T>) {
   const handleVarListChange = (newList: Variable[] | string) => {
-    const newInputs = produce(unref(inputs), (draft: any) => {
-      draft[varKey] = newList as Variable[]
-    })
+    const newInputs = cloneDeep(unref(inputs)) as any
+    newInputs[varKey] = newList as Variable[]
     setInputs(newInputs)
   }
 
   const handleAddVariable = () => {
-    const newInputs = produce(unref(inputs), (draft: any) => {
-      draft[varKey].push({
-        variable: '',
-        value_selector: [],
-      })
+    const newInputs = cloneDeep(unref(inputs)) as any
+    newInputs[varKey].push({
+      variable: '',
+      value_selector: [],
     })
     setInputs(newInputs)
   }

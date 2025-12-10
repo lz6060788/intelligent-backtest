@@ -73,7 +73,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { produce } from 'immer'
 import { RiDeleteBinLine } from '@remixicon/vue'
 import type { VarGroupItem as VarGroupItemType } from '../types'
 import VarReferencePicker from '@/components/workflow/nodes/_base/variable/var-reference-picker.vue'
@@ -85,6 +84,7 @@ import { VarType as VarKindType } from '../../tool/types'
 import { Folder } from '@/components/base/icons/src/vender/line/files'
 import { checkKeys, replaceSpaceWithUnderscoreForValue } from '@/utils/var'
 import { ElNotification } from 'element-plus'
+import { cloneDeep } from 'lodash-es'
 
 const i18nPrefix = 'workflow.nodes.variableAssigner'
 
@@ -131,12 +131,11 @@ const handleAddVariable = (value: ValueSelector | string, _varKindType: VarKindT
   if (chosenVariables.some(item => item.join('.') === (value as ValueSelector).join('.')))
     return
 
-  const newPayload = produce(props.payload, (draft: Payload) => {
-    draft.variables.push(value as ValueSelector)
-    if (varInfo && varInfo.type !== VarType.any)
-      draft.output_type = varInfo.type
-  })
-  emit('change', newPayload)
+  const draft = cloneDeep(props.payload)
+  draft.variables.push(value as ValueSelector)
+  if (varInfo && varInfo.type !== VarType.any)
+    draft.output_type = varInfo.type
+  emit('change', draft)
 }
 
 const handleListChange = (newList: ValueSelector[], changedItem?: ValueSelector) => {
@@ -146,12 +145,11 @@ const handleListChange = (newList: ValueSelector[], changedItem?: ValueSelector)
       return
   }
 
-  const newPayload = produce(props.payload, (draft) => {
-    draft.variables = newList
-    if (newList.length === 0)
-      draft.output_type = VarType.any
-  })
-  emit('change', newPayload)
+  const draft = cloneDeep(props.payload)
+  draft.variables = newList
+  if (newList.length === 0)
+    draft.output_type = VarType.any
+  emit('change', draft)
 }
 
 const filterVar = (varPayload: Var) => {
@@ -161,14 +159,12 @@ const filterVar = (varPayload: Var) => {
 }
 
 const handleGroupNameChange = (_value: string) => {
-  console.log(_value)
   const value = replaceSpaceWithUnderscoreForValue(_value)
   const { isValid, errorKey, errorMessageKey } = checkKeys([value], false)
   if (!isValid) {
     ElNotification.error(t(`appDebug.varKeyError.${errorMessageKey}`, { key: errorKey }))
     return
   }
-  console.log(_value)
   emit('groupNameChange', value)
 }
 

@@ -215,7 +215,6 @@
 import { computed, ref, watch, onMounted, nextTick, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVueFlow, type GraphNode } from '@vue-flow/core'
-import { produce } from 'immer'
 import {
   RiArrowDownSLine,
   RiCloseLine,
@@ -261,6 +260,7 @@ import { isExceptionVariable } from '@/components/workflow/utils'
 // import VarFullPathPanel from './var-full-path-panel'
 import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 import { VariableIconWithColor } from '@/components/workflow/nodes/_base/variable/variable-label'
+import { cloneDeep } from 'lodash-es'
 
 const TRIGGER_DEFAULT_WIDTH = 227
 
@@ -478,15 +478,14 @@ watch(controlFocus, () => {
 })
 
 const handleVarReferenceChange = (value: ValueSelector, varInfo: Var) => {
-  const newValue = produce(value, (draft) => {
-    if (draft[1] && typeof draft[1] === 'string' && draft[1].startsWith('sys.')) {
-      draft.shift()
-      const paths = (draft[0] as string).split('.')
-      paths.forEach((p, i) => {
-        draft[i] = p
-      })
-    }
-  })
+  const newValue = cloneDeep(value)
+  if (newValue[1] && typeof newValue[1] === 'string' && newValue[1].startsWith('sys.')) {
+    newValue.shift()
+    const paths = (newValue[0] as string).split('.')
+    paths.forEach((p, i) => {
+      newValue[i] = p
+    })
+  }
   emit('change', newValue, varKindType.value, varInfo)
   open.value = false
 }

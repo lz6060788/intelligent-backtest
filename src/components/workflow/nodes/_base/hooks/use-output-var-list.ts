@@ -1,9 +1,9 @@
 import { ref, computed, watch, onMounted, onUnmounted, type Ref } from 'vue'
-import { produce } from 'immer'
 import { useWorkflow } from '@/components/workflow/hooks'
 import { ErrorHandleTypeEnum, VarType, type ValueSelector } from '@/types'
 import { getDefaultValue } from '@/components/workflow/nodes/_base/error-handle/utils'
 import type { OutputVar } from '../../code/types'
+import { cloneDeep } from 'lodash-es'
 // import useInspectVarsCrud from '../../../hooks/use-inspect-vars-crud'
 
 // 类型定义
@@ -48,22 +48,15 @@ function useOutputVarList<T>({
   }
 
   const handleVarsChange = (newVars: OutputVar, changedIndex?: number, newKey?: string) => {
-    console.log('handleVarsChange', newVars, changedIndex, newKey, inputs.value)
-    const newInputs = produce(inputs.value, (draft: any) => {
-      draft[varKey] = newVars
-
-      if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
-        draft.default_value = getDefaultValue(draft as any)
-    })
+    const newInputs = cloneDeep(inputs.value) as any
+    newInputs[varKey] = newVars
+    if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
+      newInputs.default_value = getDefaultValue(newInputs as any)
     setInputs(newInputs)
-
-    console.log('changedIndex', changedIndex)
-    console.log('outputKeyOrders', outputKeyOrders.value)
     if (changedIndex !== undefined) {
       outputKeyOrders.value[changedIndex] = newKey!
       onOutputKeyOrdersChange(outputKeyOrders.value)
     }
-    console.log('outputKeyOrders', outputKeyOrders.value)
 
 
     if (newKey) {
@@ -90,18 +83,16 @@ function useOutputVarList<T>({
 
   const handleAddVariable = () => {
     const newKey = generateNewKey()
-    const newInputs = produce(inputs.value, (draft: any) => {
-      draft[varKey] = {
-        ...draft[varKey],
-        [newKey]: {
-          type: VarType.string,
-          children: null,
-        },
-      }
-
-      if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
-        draft.default_value = getDefaultValue(draft as any)
-    })
+    const newInputs = cloneDeep(inputs.value) as any
+    newInputs[varKey] = {
+      ...newInputs[varKey],
+      [newKey]: {
+        type: VarType.string,
+        children: null,
+      },
+    }
+    if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
+      newInputs.default_value = getDefaultValue(newInputs as any)
     setInputs(newInputs)
     onOutputKeyOrdersChange([...outputKeyOrders.value, newKey])
   }
@@ -129,12 +120,10 @@ function useOutputVarList<T>({
       return
     }
 
-    const newInputs = produce(inputs.value, (draft: any) => {
-      delete draft[varKey][key]
-
-      if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
-        draft.default_value = getDefaultValue(draft as any)
-    })
+    const newInputs = cloneDeep(inputs.value) as any
+    delete newInputs[varKey][key]
+    if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
+      newInputs.default_value = getDefaultValue(newInputs as any)
     setInputs(newInputs)
     onOutputKeyOrdersChange(outputKeyOrders.value.filter((_, i) => i!== index))
     // const varId = nodesWithInspectVars.value.find(node => node.nodeId === id)?.vars.find((varItem) => {

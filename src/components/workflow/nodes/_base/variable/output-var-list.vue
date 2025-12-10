@@ -29,7 +29,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElNotification } from 'element-plus'
 import type { InputInstance } from 'element-plus'
-import { produce } from 'immer'
 import { cloneDeep, debounce } from 'lodash-es'
 import type { OutputVar } from '@/components/workflow/nodes/code/types'
 import RemoveButton from '@/components/base/remove-button/index.vue'
@@ -47,11 +46,12 @@ interface Props {
   outputs: OutputVar
   /** 输出键的顺序数组 */
   outputKeyOrders: string[]
-  /** 变化回调 */
-  onChange: (payload: OutputVar, changedIndex?: number, newKey?: string) => void
-  /** 删除回调 */
-  onRemove: (index: number) => void
 }
+
+const emit = defineEmits<{
+  (e: 'change', payload: OutputVar, changedIndex?: number, newKey?: string): void
+  (e: 'remove', index: number): void
+}>()
 
 const props = defineProps<Props>()
 
@@ -99,16 +99,11 @@ const handleVarNameInput = (index: number, value: string) => {
       replaceSpaceWithUnderscoreInVarNameInput(inputElement)
       const oldKey = list.value[index]!.variable
       const newKey = inputElement.value
-      console.log('oldKey', oldKey)
-      console.log('newKey', newKey)
-      console.log('list', list.value)
       validateVarInput(cloneDeep(list.value).splice(index, 1), newKey)
-      console.log('props.outputs', props.outputs)
-      const newOutputs = produce(props.outputs, (draft) => {
-        draft[newKey] = draft[oldKey]!
-        delete draft[oldKey]
-      })
-      props.onChange(newOutputs, index, newKey)
+      const newOutputs = cloneDeep(props.outputs)
+      newOutputs[newKey] = newOutputs[oldKey]!
+      delete newOutputs[oldKey]
+      emit('change', newOutputs, index, newKey)
     }
   }
 }
@@ -116,14 +111,13 @@ const handleVarNameInput = (index: number, value: string) => {
 const handleVarTypeChange = (index: number, value: string) => {
   console.log('handleVarTypeChange', index, value)
   const key = list.value[index]!.variable
-  const newOutputs = produce(props.outputs, (draft) => {
-    draft[key]!.type = value as VarType
-  })
-  props.onChange(newOutputs)
+  const newOutputs = cloneDeep(props.outputs)
+  newOutputs[key]!.type = value as VarType
+  emit('change', newOutputs)
 }
 
 const handleVarRemove = (index: number) => {
-  props.onRemove(index)
+  emit('remove', index)
 }
 </script>
 

@@ -6,10 +6,12 @@ type Props = {
   className?: string
   title?: string
   collapsed?: boolean
+  defaultCollapsed?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  collapsed: undefined
+  collapsed: undefined,
+  defaultCollapsed: true
 })
 
 
@@ -29,6 +31,7 @@ const handleCollapse = (collapsed: boolean) => {
     :class="className"
     :title="title || t('workflow.nodes.common.outputVars')"
     :collapsed="collapsed"
+    :default-collapsed="defaultCollapsed"
     @collapse="handleCollapse"
   >
     <template #default>

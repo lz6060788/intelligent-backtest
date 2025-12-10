@@ -1,5 +1,4 @@
 import { computed, onMounted, ref, unref, watch, type Ref } from 'vue'
-import { produce } from 'immer'
 import { v4 as uuid4 } from 'uuid'
 import { useVueFlow } from '@vue-flow/core'
 import {
@@ -43,42 +42,40 @@ const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
     const fixedTemplateVariables = cloneDeep(calculators.find(item => item.name === calculator)?.inputs.fixedArguments || [])
     const restTemplateVariables = cloneDeep(calculators.find(item => item.name === calculator)?.inputs.restArguments || [])
     const minTemplateVariables = calculators.find(item => item.name === calculator)?.inputs.minArguments || 1
-    const newInputs = produce(payload.value, (draft) => {
-      draft.variables = []
-      draft.alias = '';
-      draft.calculator = calculator
-      fixedTemplateVariables.forEach(item => {
+    const draft = cloneDeep(payload.value)
+    draft.variables = []
+    draft.alias = '';
+    draft.calculator = calculator
+    fixedTemplateVariables.forEach(item => {
+      draft.variables.push({
+        id: uuid4(),
+        name: item.name || '',
+        isRest: false,
+        isConst: item?.type === CalculatorArgumentTypeEnum.CONSTANT,
+        type: item?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
+        value: '',
+      })
+    })
+    // 参数不足时，添加剩余参数
+    if (restTemplateVariables.length && draft.variables.length < minTemplateVariables) {
+      for (let i = draft.variables.length; i < minTemplateVariables; i++) {
         draft.variables.push({
           id: uuid4(),
-          name: item.name || '',
-          isRest: false,
-          isConst: item?.type === CalculatorArgumentTypeEnum.CONSTANT,
-          type: item?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
+          name: '',
+          isRest: true,
+          isConst: restTemplateVariables[0]?.type === CalculatorArgumentTypeEnum.CONSTANT || false,
+          type: restTemplateVariables[0]?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
           value: '',
         })
-      })
-      // 参数不足时，添加剩余参数
-      if (restTemplateVariables.length && draft.variables.length < minTemplateVariables) {
-        for (let i = draft.variables.length; i < minTemplateVariables; i++) {
-          draft.variables.push({
-            id: uuid4(),
-            name: '',
-            isRest: true,
-            isConst: restTemplateVariables[0]?.type === CalculatorArgumentTypeEnum.CONSTANT || false,
-            type: restTemplateVariables[0]?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
-            value: '',
-          })
-        }
       }
-    })
-    setInputs(newInputs)
+    }
+    setInputs(draft)
   }
 
   const handleChangeAlias = (alias: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      draft.alias = alias;
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    draft.alias = alias
+    setInputs(draft)
   }
 
   const fixedVariables = computed(() => {
@@ -94,43 +91,40 @@ const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
       return
     }
     const restArgumentTemplate = currentCalculatorTemplate.value?.inputs.restArguments[0]
-    const newInputs = produce(payload.value, (draft) => {
-      if (!draft.variables)
-        draft.variables = []
+    const draft = cloneDeep(payload.value)
+    if (!draft.variables)
+      draft.variables = []
 
-      draft.variables.push({
-        id: uuid4(),
-        name: '',
-        isRest: true,
-        isConst: restArgumentTemplate?.type === CalculatorArgumentTypeEnum.CONSTANT || false,
-        type: restArgumentTemplate?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
-        value: '',
-      })
+    draft.variables.push({
+      id: uuid4(),
+      name: '',
+      isRest: true,
+      isConst: restArgumentTemplate?.type === CalculatorArgumentTypeEnum.CONSTANT || false,
+      type: restArgumentTemplate?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
+      value: '',
     })
-    setInputs(newInputs)
+    setInputs(draft)
   }
 
   const handleRemoveVariable = (id: string) => {
     // if (payload.value.variables.length <= currentCalculatorTemplate.value!.inputs.minArguments) {
     //   return
     // }
-    const newInputs = produce(payload.value, (draft) => {
-      draft.variables = draft.variables?.filter(item => item.id !== id)
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    draft.variables = draft.variables?.filter(item => item.id !== id)
+    setInputs(draft)
   }
 
   const handleUpdateVariable = (id: string, updateData: any) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const index = draft.variables?.findIndex(item => item.id === id)
-      if (index > -1 && draft.variables) {
-        draft.variables![index] = {
-          ...draft.variables![index]!,
-          ...updateData,
-        }
+    const draft = cloneDeep(payload.value)
+    const index = draft.variables?.findIndex(item => item.id === id)
+    if (index > -1 && draft.variables) {
+      draft.variables![index] = {
+        ...draft.variables![index]!,
+        ...updateData,
       }
-    })
-    setInputs(newInputs)
+    }
+    setInputs(draft)
   }
 
   return {

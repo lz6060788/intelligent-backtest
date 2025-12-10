@@ -1,5 +1,4 @@
-import { produce } from 'immer'
-import { debounce } from 'lodash-es';
+import { cloneDeep, debounce } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid'
 import type { ValueSelector, Var } from '@/types'
 import { VarType } from '@/types'
@@ -35,13 +34,12 @@ const useConfig = (id: string, payload: Ref<VariableAssignerNodeType>) => {
 
   const handleListOrTypeChangeInGroup = (groupId: string, _payload: VarGroupItem) => {
     const index = payload.value.advanced_settings.groups.findIndex(item => item.groupId === groupId)
-    const newInputs = produce(payload.value, (draft) => {
-      draft.advanced_settings.groups[index] = {
-        ...draft.advanced_settings.groups[index],
-        ..._payload,
-      }
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    draft.advanced_settings.groups[index] = {
+      ...draft.advanced_settings.groups[index],
+      ..._payload,
+    }
+    setInputs(draft)
   }
 
   const getAvailableVars = useGetAvailableVars()
@@ -69,54 +67,49 @@ const useConfig = (id: string, payload: Ref<VariableAssignerNodeType>) => {
       removedGroupIndex.value = index
       return
     }
-    const newInputs = produce(payload.value, (draft) => {
-      draft.advanced_settings.groups.splice(index, 1)
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    draft.advanced_settings.groups.splice(index, 1)
+    setInputs(draft)
   }
 
   const handleGroupEnabledChange = (enabled: boolean) => {
-    console.log('handleGroupEnabledChange', enabled)
-    const newInputs = produce(payload.value, (draft) => {
-      console.log('draft', draft)
-      if (!draft.advanced_settings)
-        draft.advanced_settings = { group_enabled: false, groups: [] }
-      console.log('draft.advanced_settings', draft.advanced_settings)
-      if (enabled) {
-        console.log('draft.advanced_settings.groups.length', draft.advanced_settings.groups.length)
-        if (draft.advanced_settings.groups.length === 0) {
-          console.log('draft.advanced_settings.groups.length === 0')
-          const DEFAULT_GROUP_NAME = 'Group1'
-          draft.advanced_settings.groups = [{
-            output_type: draft.output_type,
-            variables: draft.variables,
-            group_name: DEFAULT_GROUP_NAME,
-            groupId: uuid4(),
-          }]
+    const draft = cloneDeep(payload.value)
+    if (!draft.advanced_settings)
+      draft.advanced_settings = { group_enabled: false, groups: [] }
+    console.log('draft.advanced_settings', draft.advanced_settings)
+    if (enabled) {
+      console.log('draft.advanced_settings.groups.length', draft.advanced_settings.groups.length)
+      if (draft.advanced_settings.groups.length === 0) {
+        console.log('draft.advanced_settings.groups.length === 0')
+        const DEFAULT_GROUP_NAME = 'Group1'
+        draft.advanced_settings.groups = [{
+          output_type: draft.output_type,
+          variables: draft.variables,
+          group_name: DEFAULT_GROUP_NAME,
+          groupId: uuid4(),
+        }]
 
-          handleOutVarRenameChange(id, [id, 'output'], [id, DEFAULT_GROUP_NAME, 'output'])
-        }
+        handleOutVarRenameChange(id, [id, 'output'], [id, DEFAULT_GROUP_NAME, 'output'])
       }
-      else {
-        if (draft.advanced_settings.groups.length > 0) {
-          if (draft.advanced_settings.groups.length > 1) {
-            const useVars = draft.advanced_settings.groups.filter((item, index) => index > 0 && isVarUsedInNodes([id, item.group_name, 'output']))
-            if (useVars.length > 0) {
-              isShowRemoveVarConfirm.value = true
-              removedVars.value = useVars.map(item => [id, item.group_name, 'output'])
-              removeType.value = 'enableChanged'
-              return
-            }
+    }
+    else {
+      if (draft.advanced_settings.groups.length > 0) {
+        if (draft.advanced_settings.groups.length > 1) {
+          const useVars = draft.advanced_settings.groups.filter((item, index) => index > 0 && isVarUsedInNodes([id, item.group_name, 'output']))
+          if (useVars.length > 0) {
+            isShowRemoveVarConfirm.value = true
+            removedVars.value = useVars.map(item => [id, item.group_name, 'output'])
+            removeType.value = 'enableChanged'
+            return
           }
-          draft.output_type = draft.advanced_settings.groups[0]!.output_type
-          draft.variables = draft.advanced_settings.groups[0]!.variables
-          handleOutVarRenameChange(id, [id, draft.advanced_settings.groups[0]!.group_name, 'output'], [id, 'output'])
         }
+        draft.output_type = draft.advanced_settings.groups[0]!.output_type
+        draft.variables = draft.advanced_settings.groups[0]!.variables
+        handleOutVarRenameChange(id, [id, draft.advanced_settings.groups[0]!.group_name, 'output'], [id, 'output'])
       }
-      draft.advanced_settings.group_enabled = enabled
-    })
-    console.log('newInputs', newInputs)
-    setInputs(newInputs)
+    }
+    draft.advanced_settings.group_enabled = enabled
+    setInputs(draft)
     // deleteNodeInspectorVars(id)
   }
 
@@ -130,15 +123,14 @@ const useConfig = (id: string, payload: Ref<VariableAssignerNodeType>) => {
           maxInGroupName = num
       }
     })
-    const newInputs = produce(payload.value, (draft) => {
-      draft.advanced_settings.groups.push({
-        output_type: VarType.any,
-        variables: [],
-        group_name: `Group${maxInGroupName + 1}`,
-        groupId: uuid4(),
-      })
+    const draft = cloneDeep(payload.value)
+    draft.advanced_settings.groups.push({
+      output_type: VarType.any,
+      variables: [],
+      group_name: `Group${maxInGroupName + 1}`,
+      groupId: uuid4(),
     })
-    setInputs(newInputs)
+    setInputs(draft)
     // deleteNodeInspectorVars(id)
   }
 
@@ -164,11 +156,10 @@ const useConfig = (id: string, payload: Ref<VariableAssignerNodeType>) => {
   const handleVarGroupNameChange = (groupId: string, name: string) => {
     console.log(groupId, name)
     const index = payload.value.advanced_settings.groups.findIndex(item => item.groupId === groupId)
-    const newInputs = produce(payload.value, (draft) => {
-      draft.advanced_settings.groups[index]!.group_name = name
-    })
+    const draft = cloneDeep(payload.value)
+    draft.advanced_settings.groups[index]!.group_name = name
     handleOutVarRenameChange(id, [id, payload.value.advanced_settings.groups[index]!.group_name, 'output'], [id, name, 'output'])
-    setInputs(newInputs)
+    setInputs(draft)
     if(!(id in oldNameRecord.value))
       oldNameRecord.value[id] = payload.value.advanced_settings.groups[index]!.group_name
     renameInspectNameWithDebounce(id, name)
@@ -180,19 +171,17 @@ const useConfig = (id: string, payload: Ref<VariableAssignerNodeType>) => {
     })
     isShowRemoveVarConfirm.value = false
     if (removeType.value === 'group') {
-      const newInputs = produce(payload.value, (draft) => {
-        draft.advanced_settings.groups.splice(removedGroupIndex.value, 1)
-      })
-      setInputs(newInputs)
+      const draft = cloneDeep(payload.value)
+      draft.advanced_settings.groups.splice(removedGroupIndex.value, 1)
+      setInputs(draft)
     }
     else {
       // removeType === 'enableChanged' to enabled
-      const newInputs = produce(payload.value, (draft) => {
-        draft.advanced_settings.group_enabled = false
-        draft.output_type = draft.advanced_settings.groups[0]!.output_type
-        draft.variables = draft.advanced_settings.groups[0]!.variables
-      })
-      setInputs(newInputs)
+      const draft = cloneDeep(payload.value)
+      draft.advanced_settings.group_enabled = false
+      draft.output_type = draft.advanced_settings.groups[0]!.output_type
+      draft.variables = draft.advanced_settings.groups[0]!.variables
+      setInputs(draft)
     }
   }
 

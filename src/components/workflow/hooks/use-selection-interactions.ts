@@ -1,7 +1,6 @@
 import type { NodeDragEvent, GraphNode } from "@vue-flow/core"
 import { useVueFlow } from "@vue-flow/core"
 import { useWorkflowInstance } from "./use-workflow-instance"
-import { produce } from "immer"
 
 export const useSelectionInteractions = () => {
   const { instanceId } = useWorkflowInstance()

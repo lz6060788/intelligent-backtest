@@ -111,7 +111,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { produce } from 'immer'
 import OptionCard from '../option-card.vue' // 假设组件后缀为.vue
 import FileTypeItem from './file-type-item.vue'
 import Field from '@/components/base/field.vue'
@@ -120,6 +119,7 @@ import { useFileSizeLimit } from '@/hooks'
 import { formatFileSize } from '@/utils/format.ts'
 import type { UploadFileSetting } from '@/types'
 import { SupportUploadFileTypes } from '@/types'
+import { cloneDeep } from 'lodash-es'
 
 // 定义组件属性
 const props = defineProps<{
@@ -127,9 +127,11 @@ const props = defineProps<{
   isMultiple: boolean
   inFeaturePanel?: boolean
   hideSupportFileType?: boolean
-  onChange: (payload: UploadFileSetting) => void
 }>()
 
+const emit = defineEmits<{
+  (e: 'change', payload: UploadFileSetting): void
+}>()
 
 const allowed_file_upload_methods = computed(() => props.payload.allowed_file_upload_methods)
 const max_length = computed(() => props.payload.max_length)
@@ -150,57 +152,53 @@ const {
 
 // 处理支持的文件类型变更
 const handleSupportFileTypeChange = (type: SupportUploadFileTypes) => {
-  const newPayload = produce(props.payload, (draft) => {
-    if (type === SupportUploadFileTypes.custom) {
-      if (!draft.allowed_file_types.includes(SupportUploadFileTypes.custom)) {
-        draft.allowed_file_types = [SupportUploadFileTypes.custom]
-      } else {
-        draft.allowed_file_types = draft.allowed_file_types.filter(v => v !== type)
-      }
+  const draft = cloneDeep(props.payload)
+  if (type === SupportUploadFileTypes.custom) {
+    if (!draft.allowed_file_types.includes(SupportUploadFileTypes.custom)) {
+      draft.allowed_file_types = [SupportUploadFileTypes.custom]
     } else {
-      // 移除自定义类型
-      draft.allowed_file_types = draft.allowed_file_types.filter(
-        v => v !== SupportUploadFileTypes.custom
-      )
-      // 切换当前类型
-      if (draft.allowed_file_types.includes(type)) {
-        draft.allowed_file_types = draft.allowed_file_types.filter(v => v !== type)
-      } else {
-        draft.allowed_file_types.push(type)
-      }
+      draft.allowed_file_types = draft.allowed_file_types.filter(v => v !== type)
     }
-  })
-  props.onChange(newPayload)
+  } else {
+    // 移除自定义类型
+    draft.allowed_file_types = draft.allowed_file_types.filter(
+      v => v !== SupportUploadFileTypes.custom
+    )
+    // 切换当前类型
+    if (draft.allowed_file_types.includes(type)) {
+      draft.allowed_file_types = draft.allowed_file_types.filter(v => v !== type)
+    } else {
+      draft.allowed_file_types.push(type)
+    }
+  }
+  emit('change', draft)
 }
 
 // 处理上传方式变更
 const handleUploadMethodChange = (method: TransferMethod) => {
-  const newPayload = produce(props.payload, (draft) => {
-    if (method === TransferMethod.all) {
-      draft.allowed_file_upload_methods = [
-        TransferMethod.local_file,
-        TransferMethod.remote_url
-      ]
-    } else {
-      draft.allowed_file_upload_methods = [method]
-    }
-  })
-  props.onChange(newPayload)
+  const draft = cloneDeep(props.payload)
+  if (method === TransferMethod.all) {
+    draft.allowed_file_upload_methods = [
+      TransferMethod.local_file,
+      TransferMethod.remote_url
+    ]
+  } else {
+    draft.allowed_file_upload_methods = [method]
+  }
+  emit('change', draft)
 }
 
 // 处理自定义文件类型变更
 const handleCustomFileTypesChange = (customFileTypes: string[]) => {
-  const newPayload = produce(props.payload, (draft) => {
-    draft.allowed_file_extensions = customFileTypes.map(v => v)
-  })
-  props.onChange(newPayload)
+  const draft = cloneDeep(props.payload)
+  draft.allowed_file_extensions = customFileTypes.map(v => v)
+  emit('change', draft)
 }
 
 // 处理最大上传数量变更
 const handleMaxUploadNumLimitChange = (value: number) => {
-  const newPayload = produce(props.payload, (draft) => {
-    draft.max_length = value
-  })
-  props.onChange(newPayload)
+  const draft = cloneDeep(props.payload)
+  draft.max_length = value
+  emit('change', draft)
 }
 </script>

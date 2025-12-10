@@ -1,4 +1,3 @@
-import { produce } from 'immer'
 import { useVueFlow } from '@vue-flow/core'
 import { useWorkflowInstance } from './use-workflow-instance'
 // import { useNodesSyncDraft } from './use-nodes-sync-draft'

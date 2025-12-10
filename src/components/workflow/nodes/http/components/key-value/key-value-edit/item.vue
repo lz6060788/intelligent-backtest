@@ -66,7 +66,6 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { produce } from 'immer'
 import type { KeyValue } from '../../../types'
 import VarReferencePicker from '@/components/workflow/nodes/_base/variable/var-reference-picker.vue'
 import InputItem from './input-item.vue'

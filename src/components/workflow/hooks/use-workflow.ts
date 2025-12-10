@@ -3,11 +3,11 @@ import { useAvailableBlocks, useNodesMetaData } from "./index"
 import { CUSTOM_LOOP_START_NODE } from "../nodes/_base/node/constant"
 import { SUPPORT_OUTPUT_VARS_NODE } from "../constant/nodes"
 import { BlockEnum, type Node, type Edge, type ValueSelector, WorkflowRunningStatus } from "@/types"
-import { uniqBy } from "lodash-es"
+import { cloneDeep, uniqBy } from "lodash-es"
 import type { LoopNodeType } from "../nodes/loop/type"
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { computed } from "vue"
-import { findUsedVarNodes } from "../nodes/_base/variable/utils"
+import { findUsedVarNodes, getNodeOutputVars, updateNodeVars } from "../nodes/_base/variable/utils"
 import type { CalculatorNodeType } from "../nodes/calculator/types"
 
 export const useWorkflow = () => {
@@ -198,22 +198,20 @@ export const useWorkflow = () => {
     return nodes.value.filter(node => node.parentNode === nodeId)
   }
 
-  // 暂不考虑输出变量名修改
   const handleOutVarRenameChange = (nodeId: string, oldValeSelector: ValueSelector, newVarSelector: ValueSelector) => {
-    // const { instanceId } = useWorkflowInstance()
-    // const store = useVueFlow(instanceId)
-    // const { getNodes, setNodes } = store
-    // const allNodes = getNodes
-    // const affectedNodes = findUsedVarNodes(oldValeSelector, allNodes)
-    // if (affectedNodes.length > 0) {
-    //   const newNodes = allNodes.value.map((node) => {
-    //     if (affectedNodes.find(n => n.id === node.id))
-    //       return updateNodeVars(node, oldValeSelector, newVarSelector)
+    const { instanceId } = useWorkflowInstance()
+    const store = useVueFlow(instanceId)
+    const { nodes, setNodes } = store
+    const affectedNodes = findUsedVarNodes(oldValeSelector, nodes.value)
+    if (affectedNodes.length > 0) {
+      const newNodes = cloneDeep(nodes.value).map((node) => {
+        if (affectedNodes.find(n => n.id === node.id))
+          return updateNodeVars(node, oldValeSelector, newVarSelector)
 
-    //     return node
-    //   })
-    //   setNodes(newNodes)
-    // }
+        return node
+      })
+      setNodes(newNodes)
+    }
   }
 
   const isVarUsedInNodes = (varSelector: ValueSelector) => {
@@ -224,27 +222,27 @@ export const useWorkflow = () => {
   }
 
   const removeUsedVarInNodes = (varSelector: ValueSelector) => {
-    // const nodeId = varSelector[0]
-    // const { getNodes, setNodes } = store.getState()
-    // const afterNodes = getAfterNodesInSameBranch(nodeId)
-    // const effectNodes = findUsedVarNodes(varSelector, afterNodes)
-    // if (effectNodes.length > 0) {
-    //   const newNodes = getNodes().map((node) => {
-    //     if (effectNodes.find(n => n.id === node.id))
-    //       return updateNodeVars(node, varSelector, [])
+    const nodeId = varSelector[0]
+    const { nodes, setNodes } = store
+    const afterNodes = getAfterNodesInSameBranch(nodeId!)
+    const effectNodes = findUsedVarNodes(varSelector, afterNodes)
+    if (effectNodes.length > 0) {
+      const newNodes = cloneDeep(nodes.value).map((node) => {
+        if (effectNodes.find(n => n.id === node.id))
+          return updateNodeVars(node, varSelector, [])
 
-    //     return node
-    //   })
-    //   setNodes(newNodes)
-    // }
+        return node
+      })
+      setNodes(newNodes)
+    }
   }
 
   const isNodeVarsUsedInNodes = (node: Node, isChatMode: boolean) => {
-    // const outputVars = getNodeOutputVars(node, isChatMode)
-    // const isUsed = outputVars.some((varSelector) => {
-    //   return isVarUsedInNodes(varSelector)
-    // })
-    // return isUsed
+    const outputVars = getNodeOutputVars(node, isChatMode)
+    const isUsed = outputVars.some((varSelector) => {
+      return isVarUsedInNodes(varSelector)
+    })
+    return isUsed
   }
 
   const getRootNodesById = (nodeId: string) => {

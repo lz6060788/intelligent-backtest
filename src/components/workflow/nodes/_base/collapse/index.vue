@@ -7,6 +7,7 @@ const props = defineProps<{
   disabled?: boolean
   collapsed?: boolean // 外部控制状态
   hideCollapseIcon?: boolean
+  defaultCollapsed?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -14,7 +15,7 @@ const emit = defineEmits<{
   (e: 'collapse', value: boolean): void
 }>()
 
-const localCollapsed = ref(true)
+const localCollapsed = ref(props.defaultCollapsed ?? true)
 
 const isControlled = computed(() => props.collapsed !== undefined)
 const collapsedMerged = computed(() => isControlled.value ? props.collapsed : localCollapsed.value)

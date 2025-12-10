@@ -4,6 +4,7 @@ import Collapse from './index.vue' // 引入上面的 Collapse 组件
 const props = defineProps<{
   title: string
   collapsed?: boolean
+  defaultCollapsed?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -13,7 +14,6 @@ const emit = defineEmits<{
 
 // 转发事件
 const handleCollapse = (val: boolean) => {
-  console.log('handleCollapse', val)
   emit('update:collapsed', val)
   emit('collapse', val)
 }
@@ -23,6 +23,7 @@ const handleCollapse = (val: boolean) => {
   <div class="py-4">
     <Collapse
       :collapsed="collapsed"
+      :default-collapsed="defaultCollapsed"
       @collapse="handleCollapse"
     >
       <!-- 将 title 传入 trigger 插槽 -->

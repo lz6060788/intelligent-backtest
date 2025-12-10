@@ -1,6 +1,5 @@
-import { produce } from 'immer'
-import { EditionType, VarType } from '@/types'
-import type { Memory, PromptItem, ValueSelector, Var, Variable } from '@/types'
+import { VarType } from '@/types'
+import type { PromptItem, ValueSelector, Var } from '@/types'
 import {
   useNodesReadOnly,
 } from '../../hooks'
@@ -14,6 +13,7 @@ import useNodeCrud from '@/components/workflow/nodes/_base/hooks/use-node-crud'
 import { checkHasContextBlock, checkHasHistoryBlock, checkHasQueryBlock } from '@/components/base/prompt-editor/constants'
 // import useInspectVarsCrud from '@/app/components/workflow/hooks/use-inspect-vars-crud'
 import { computed, ref, type Ref } from 'vue'
+import { cloneDeep } from 'lodash-es'
 
 const useConfig = (id: string, payload: Ref<LLMNodeType>) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -142,19 +142,16 @@ const useConfig = (id: string, payload: Ref<LLMNodeType>) => {
 
   // context
   const handleContextVarChange = (newVar: ValueSelector | string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      draft.context.variable_selector = newVar as ValueSelector || []
-      draft.context.enabled = !!(newVar && newVar.length > 0)
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    draft.context.variable_selector = newVar as ValueSelector || []
+    draft.context.enabled = !!(newVar && newVar.length > 0)
+    setInputs(draft)
   }
 
   const handlePromptChange = (newPrompt: PromptItem[] | PromptItem) => {
-    console.log('handlePromptChange', newPrompt)
-    const newInputs = produce(payload.value, (draft) => {
-      draft.prompt_template = newPrompt
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    draft.prompt_template = newPrompt
+    setInputs(draft)
   }
 
 

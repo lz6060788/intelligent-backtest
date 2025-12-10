@@ -1,22 +1,13 @@
 import { computed, type Ref, ref, watch } from 'vue'
-import { produce } from 'immer'
 import { v4 as uuid4 } from 'uuid'
 import type {
-  Branch,
+  ValueSelector,
   Var,
 } from '@/types'
 import { VarType } from '@/types'
 import { LogicalOperator } from './types'
 import type {
-  CaseItem,
   Condition,
-  HandleAddCondition,
-  HandleAddSubVariableCondition,
-  HandleRemoveCondition,
-  HandleToggleConditionLogicalOperator,
-  HandleToggleSubVariableConditionLogicalOperator,
-  HandleUpdateCondition,
-  HandleUpdateSubVariableCondition,
   IfElseNodeType,
 } from './types'
 import {
@@ -32,6 +23,7 @@ import {
 } from '@/components/workflow/hooks'
 import useAvailableVarList from '@/components/workflow/nodes/_base/hooks/use-available-var-list'
 import { useVueFlow } from '@vue-flow/core'
+import { cloneDeep } from 'lodash-es'
 
 const useConfig = (id: string, payload: Ref<IfElseNodeType>) => {
   const { instanceId } = useWorkflowInstance()
@@ -82,42 +74,40 @@ const useConfig = (id: string, payload: Ref<IfElseNodeType>) => {
   })
 
   const handleAddCase = () => {
-    const newInputs = produce(payload.value, (draft) => {
-      if (draft.cases) {
-        const case_id = uuid4()
-        draft.cases.push({
-          case_id,
-          logical_operator: LogicalOperator.and,
-          conditions: [],
-        })
-        if (draft._targetBranches) {
-          const elseCaseIndex = draft._targetBranches.findIndex((branch) => branch.id === 'false')
-          if (elseCaseIndex > -1) {
-            draft._targetBranches = branchNameCorrect([
-              ...draft._targetBranches.slice(0, elseCaseIndex),
-              {
-                id: case_id,
-                name: '',
-              },
-              ...draft._targetBranches.slice(elseCaseIndex),
-            ])
-          }
+    const draft = cloneDeep(payload.value)
+    if (draft.cases) {
+      const case_id = uuid4()
+      draft.cases.push({
+        case_id,
+        logical_operator: LogicalOperator.and,
+        conditions: [],
+      })
+      if (draft._targetBranches) {
+        const elseCaseIndex = draft._targetBranches.findIndex((branch) => branch.id === 'false')
+        if (elseCaseIndex > -1) {
+          draft._targetBranches = branchNameCorrect([
+            ...draft._targetBranches.slice(0, elseCaseIndex),
+            {
+              id: case_id,
+              name: '',
+            },
+            ...draft._targetBranches.slice(elseCaseIndex),
+          ])
         }
       }
-    })
-    setInputs(newInputs)
+    }
+    setInputs(draft)
   }
 
   const handleRemoveCase = (caseId: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      draft.cases = draft.cases?.filter(item => item.case_id !== caseId)
+    const draft = cloneDeep(payload.value)
+    draft.cases = draft.cases?.filter(item => item.case_id !== caseId)
 
-      if (draft._targetBranches)
-        draft._targetBranches = branchNameCorrect(draft._targetBranches.filter(branch => branch.id !== caseId))
+    if (draft._targetBranches)
+      draft._targetBranches = branchNameCorrect(draft._targetBranches.filter(branch => branch.id !== caseId))
 
-      handleEdgeDeleteByDeleteBranch(id, caseId)
-    })
-    setInputs(newInputs)
+    handleEdgeDeleteByDeleteBranch(id, caseId)
+    setInputs(draft)
   }
 
   // const handleSortCase = (newCases: (CaseItem & { id: string })[]) => {
@@ -139,119 +129,111 @@ const useConfig = (id: string, payload: Ref<IfElseNodeType>) => {
   // }
 
   const handleAddCondition = (caseId: string, valueSelector: ValueSelector, varItem: Var) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const targetCase = draft.cases?.find(item => item.case_id === caseId)
-      if (targetCase) {
-        targetCase.conditions.push({
-          id: uuid4(),
-          varType: varItem.type,
-          variable_selector: valueSelector,
-          comparison_operator: getOperators(varItem.type, getIsVarFileAttribute(valueSelector) ? { key: valueSelector.slice(-1)[0] } : undefined)[0],
-          value: (varItem.type === VarType.boolean || varItem.type === VarType.arrayBoolean) ? false : '',
-        })
-      }
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    const targetCase = draft.cases?.find(item => item.case_id === caseId)
+    if (targetCase) {
+      targetCase.conditions.push({
+        id: uuid4(),
+        varType: varItem.type,
+        variable_selector: valueSelector,
+        comparison_operator: getOperators(varItem.type, getIsVarFileAttribute(valueSelector) ? { key: valueSelector.slice(-1)[0]! } : undefined)[0],
+        value: (varItem.type === VarType.boolean || varItem.type === VarType.arrayBoolean) ? false : '',
+      })
+    }
+    setInputs(draft)
   }
 
   const handleRemoveCondition = (caseId: string, conditionId: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const targetCase = draft.cases?.find(item => item.case_id === caseId)
-      if (targetCase)
-        targetCase.conditions = targetCase.conditions.filter(item => item.id !== conditionId)
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    const targetCase = draft.cases?.find(item => item.case_id === caseId)
+    if (targetCase)
+      targetCase.conditions = targetCase.conditions.filter(item => item.id !== conditionId)
+    setInputs(draft)
   }
 
   const handleUpdateCondition = (caseId: string, conditionId: string, newCondition: Condition) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const targetCase = draft.cases?.find(item => item.case_id === caseId)
-      if (targetCase) {
-        const targetCondition = targetCase.conditions.find(item => item.id === conditionId)
-        if (targetCondition)
-          Object.assign(targetCondition, newCondition)
-      }
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    const targetCase = draft.cases?.find(item => item.case_id === caseId)
+    if (targetCase) {
+      const targetCondition = targetCase.conditions.find(item => item.id === conditionId)
+      if (targetCondition)
+        Object.assign(targetCondition, newCondition)
+    }
+    setInputs(draft)
   }
 
   const handleToggleConditionLogicalOperator = (caseId: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const targetCase = draft.cases?.find(item => item.case_id === caseId)
-      if (targetCase)
-        targetCase.logical_operator = targetCase.logical_operator === LogicalOperator.and ? LogicalOperator.or : LogicalOperator.and
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    const targetCase = draft.cases?.find(item => item.case_id === caseId)
+    if (targetCase)
+      targetCase.logical_operator = targetCase.logical_operator === LogicalOperator.and ? LogicalOperator.or : LogicalOperator.and
+    setInputs(draft)
   }
 
   const handleAddSubVariableCondition = (caseId: string, conditionId: string, key?: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const condition = draft.cases?.find(item => item.case_id === caseId)?.conditions.find(item => item.id === conditionId)
-      if (!condition)
-        return
-      if (!condition?.sub_variable_condition) {
-        condition.sub_variable_condition = {
-          case_id: uuid4(),
-          logical_operator: LogicalOperator.and,
-          conditions: [],
-        }
+    const draft = cloneDeep(payload.value)
+    const condition = draft.cases?.find(item => item.case_id === caseId)?.conditions.find(item => item.id === conditionId)
+    if (!condition)
+      return
+    if (!condition?.sub_variable_condition) {
+      condition.sub_variable_condition = {
+        case_id: uuid4(),
+        logical_operator: LogicalOperator.and,
+        conditions: [],
       }
-      const subVarCondition = condition.sub_variable_condition
-      if (subVarCondition) {
-        if (!subVarCondition.conditions)
-          subVarCondition.conditions = []
+    }
+    const subVarCondition = condition.sub_variable_condition
+    if (subVarCondition) {
+      if (!subVarCondition.conditions)
+        subVarCondition.conditions = []
 
-        subVarCondition.conditions.push({
-          id: uuid4(),
-          key: key || '',
-          varType: VarType.string,
-          comparison_operator: undefined,
-          value: '',
-        })
-      }
-    })
-    setInputs(newInputs)
+      subVarCondition.conditions.push({
+        id: uuid4(),
+        key: key || '',
+        varType: VarType.string,
+        comparison_operator: undefined,
+        value: '',
+      })
+    }
+    setInputs(draft)
   }
 
   const handleRemoveSubVariableCondition = (caseId: string, conditionId: string, subConditionId: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const condition = draft.cases?.find(item => item.case_id === caseId)?.conditions.find(item => item.id === conditionId)
-      if (!condition)
-        return
-      if (!condition?.sub_variable_condition)
-        return
-      const subVarCondition = condition.sub_variable_condition
-      if (subVarCondition)
-        subVarCondition.conditions = subVarCondition.conditions.filter(item => item.id !== subConditionId)
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    const condition = draft.cases?.find(item => item.case_id === caseId)?.conditions.find(item => item.id === conditionId)
+    if (!condition)
+      return
+    if (!condition?.sub_variable_condition)
+      return
+    const subVarCondition = condition.sub_variable_condition
+    if (subVarCondition)
+      subVarCondition.conditions = subVarCondition.conditions.filter(item => item.id !== subConditionId)
+    setInputs(draft)
   }
 
   const handleUpdateSubVariableCondition = (caseId: string, conditionId: string, subConditionId: string, newSubCondition: Condition) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const targetCase = draft.cases?.find(item => item.case_id === caseId)
-      if (targetCase) {
-        const targetCondition = targetCase.conditions.find(item => item.id === conditionId)
-        if (targetCondition && targetCondition.sub_variable_condition) {
-          const targetSubCondition = targetCondition.sub_variable_condition.conditions.find(item => item.id === subConditionId)
-          if (targetSubCondition)
-            Object.assign(targetSubCondition, newSubCondition)
-        }
+    const draft = cloneDeep(payload.value)
+    const targetCase = draft.cases?.find(item => item.case_id === caseId)
+    if (targetCase) {
+      const targetCondition = targetCase.conditions.find(item => item.id === conditionId)
+      if (targetCondition && targetCondition.sub_variable_condition) {
+        const targetSubCondition = targetCondition.sub_variable_condition.conditions.find(item => item.id === subConditionId)
+        if (targetSubCondition)
+          Object.assign(targetSubCondition, newSubCondition)
       }
-    })
-    setInputs(newInputs)
+    }
+    setInputs(draft)
   }
 
   const handleToggleSubVariableConditionLogicalOperator = (caseId: string, conditionId: string) => {
-    const newInputs = produce(payload.value, (draft) => {
-      const targetCase = draft.cases?.find(item => item.case_id === caseId)
-      if (targetCase) {
-        const targetCondition = targetCase.conditions.find(item => item.id === conditionId)
-        if (targetCondition && targetCondition.sub_variable_condition)
-          targetCondition.sub_variable_condition.logical_operator = targetCondition.sub_variable_condition.logical_operator === LogicalOperator.and ? LogicalOperator.or : LogicalOperator.and
-      }
-    })
-    setInputs(newInputs)
+    const draft = cloneDeep(payload.value)
+    const targetCase = draft.cases?.find(item => item.case_id === caseId)
+    if (targetCase) {
+      const targetCondition = targetCase.conditions.find(item => item.id === conditionId)
+      if (targetCondition && targetCondition.sub_variable_condition)
+        targetCondition.sub_variable_condition.logical_operator = targetCondition.sub_variable_condition.logical_operator === LogicalOperator.and ? LogicalOperator.or : LogicalOperator.and
+    }
+    setInputs(draft)
   }
 
   return {

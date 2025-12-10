@@ -26,13 +26,13 @@
 </template>
 
 <script setup lang="ts">
-import { produce } from 'immer'
 import RemoveButton from '@/components/base/remove-button/index.vue'
 // import ListNoDataPlaceholder from '../../../_base/components/list-no-data-placeholder.vue'
 import VarReferencePicker from '@/components/workflow/nodes/_base/variable/var-reference-picker.vue'
 import type { ValueSelector, Var } from '@/types'
 import { VarType as VarKindType } from '../../../tool/types'
 import { useI18n } from 'vue-i18n'
+import { cloneDeep } from 'lodash-es'
 
 interface Props {
   readonly: boolean
@@ -52,17 +52,15 @@ const props = withDefaults(defineProps<Props>(), {
 const { t } = useI18n()
 
 const handleVarReferenceChange = (index: number, value: ValueSelector | string) => {
-  const newList = produce(props.list, (draft) => {
-    draft[index] = value as ValueSelector
-  })
-  emit('change', newList, value as ValueSelector)
+  const draft = cloneDeep(props.list)
+  draft[index] = value as ValueSelector
+  emit('change', draft, value as ValueSelector)
 }
 
 const handleVarRemove = (index: number) => {
-  const newList = produce(props.list, (draft) => {
-    draft.splice(index, 1)
-  })
-  emit('change', newList)
+  const draft = cloneDeep(props.list)
+  draft.splice(index, 1)
+  emit('change', draft)
 }
 
 const handleOpen = (index: number) => {

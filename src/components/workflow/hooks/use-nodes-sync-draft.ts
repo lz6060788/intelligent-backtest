@@ -1,4 +1,3 @@
-import { produce } from 'immer'
 import { BlockEnum } from '@/types'
 import { useNodesReadOnly } from './use-workflow'
 import { useWorkflowRefreshDraft, useWorkflowInstance } from '.'

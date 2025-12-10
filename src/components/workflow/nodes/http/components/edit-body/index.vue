@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-radio-group :model-value="payload.type" @change="handleTypeChange">
-      <el-radio v-for="t in allTypes" :key="t" :label="t" :disabled="readonly">{{ bodyTextMap[t] }}</el-radio>
+      <el-radio v-for="t in allTypes" :key="t" :value="t" :disabled="readonly">{{ bodyTextMap[t] }}</el-radio>
     </el-radio-group>
     <div :class="cn(payload.type !== BodyType.none && 'mt-1')">
       <template v-if="payload.type === BodyType.none">
@@ -55,8 +55,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { produce } from 'immer'
-import { uniqueId } from 'lodash-es'
+import { cloneDeep, uniqueId } from 'lodash-es'
 import type { Body, BodyPayload, KeyValue as KeyValueType } from '../../types'
 import { BodyPayloadValueType, BodyType } from '../../types'
 import KeyValue from '../key-value/key-value-edit/index.vue'
@@ -174,25 +173,23 @@ const handleTypeChange = (value: BodyType) => {
  * 添加 Body 项
  */
 const handleAddBody = () => {
-  const newPayload = produce(props.payload, (draft) => {
-    ;(draft.data as BodyPayload).push({
-      id: uniqueId(UNIQUE_ID_PREFIX),
-      type: BodyPayloadValueType.text,
-      key: '',
-      value: '',
-    })
+  const draft = cloneDeep(props.payload)
+  ;(draft.data as BodyPayload).push({
+    id: uniqueId(UNIQUE_ID_PREFIX),
+    type: BodyPayloadValueType.text,
+    key: '',
+    value: '',
   })
-  emit('change', newPayload)
+  emit('change', draft)
 }
 
 /**
  * 处理 BodyPayload 变更
  */
 const handleBodyPayloadChange = (newList: KeyValueType[]) => {
-  const newPayload = produce(props.payload, (draft) => {
-    draft.data = newList as BodyPayload
-  })
-  emit('change', newPayload)
+  const draft = cloneDeep(props.payload)
+  draft.data = newList as BodyPayload
+  emit('change', draft)
 }
 
 /**
@@ -206,18 +203,17 @@ const filterOnlyFileVariable = (varPayload: Var) => {
  * 处理 Body 值变更（用于 rawText 和 json）
  */
 const handleBodyValueChange = (value: string) => {
-  const newBody = produce(props.payload, (draft: Body) => {
-    if ((draft.data as BodyPayload).length === 0) {
-      ;(draft.data as BodyPayload).push({
-        id: uniqueId(UNIQUE_ID_PREFIX),
-        type: BodyPayloadValueType.text,
-        key: '',
-        value: '',
-      })
-    }
-    (draft.data as BodyPayload)[0]!.value = value
-  })
-  emit('change', newBody)
+  const draft = cloneDeep(props.payload)
+  if ((draft.data as BodyPayload).length === 0) {
+    ;(draft.data as BodyPayload).push({
+      id: uniqueId(UNIQUE_ID_PREFIX),
+      type: BodyPayloadValueType.text,
+      key: '',
+      value: '',
+    })
+  }
+  (draft.data as BodyPayload)[0]!.value = value
+  emit('change', draft)
 }
 
 /**
@@ -227,16 +223,15 @@ const handleBodyValueChange = (value: string) => {
  * @param varInfo 变量信息（可选，未使用）
  */
 const handleFileChange = (value: ValueSelector | string | number, varKindType?: any, varInfo?: any) => {
-  const newBody = produce(props.payload, (draft: Body) => {
-    if ((draft.data as BodyPayload).length === 0) {
-      ;(draft.data as BodyPayload).push({
-        id: uniqueId(UNIQUE_ID_PREFIX),
-        type: BodyPayloadValueType.file,
-      })
-    }
-    (draft.data as BodyPayload)[0]!.file = value as ValueSelector
-  })
-  emit('change', newBody)
+  const draft = cloneDeep(props.payload)
+  if ((draft.data as BodyPayload).length === 0) {
+    ;(draft.data as BodyPayload).push({
+      id: uniqueId(UNIQUE_ID_PREFIX),
+      type: BodyPayloadValueType.file,
+    })
+  }
+  (draft.data as BodyPayload)[0]!.file = value as ValueSelector
+  emit('change', draft)
 }
 </script>
 

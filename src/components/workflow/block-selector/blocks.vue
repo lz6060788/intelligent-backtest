@@ -65,8 +65,6 @@ const { t } = useI18n()
 // const { nodes } = useVueFlow(instanceId)
 
 const groups = computed(() => {
-  console.log('props.availableBlocksTypes', props.availableBlocksTypes)
-  console.log('props.blocks', props.blocks.filter(block => block.metaData.type === BlockEnum.Calculator))
   return BLOCK_CLASSIFICATIONS.reduce((acc, classification) => {
     const list = (groupBy(props.blocks, 'metaData.classification')[classification] || []).filter((block) => {
       return block.metaData.title.toLowerCase().includes(props.searchText.toLowerCase()) && props.availableBlocksTypes?.includes(block.metaData.type)

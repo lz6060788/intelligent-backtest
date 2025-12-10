@@ -59,7 +59,6 @@ const useConfig = (id: string, payload: Ref<StartNodeType>) => {
       // if(varId)
       //   deleteInspectVar(id, varId)
 
-      console.log('isVarUsedInNodes', id, moreInfo?.payload?.payload?.beforeKey)
       if (isVarUsedInNodes([id, moreInfo?.payload?.payload?.beforeKey || ''])) {
         showRemoveVarConfirm()
         removedVar.value = [id, moreInfo?.payload?.payload?.beforeKey || '']

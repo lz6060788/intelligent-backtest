@@ -270,6 +270,7 @@ const translation = {
     'knowledge-index': 'Knowledge Base',
     'datasource': 'Data Source',
     'calculator': 'Calculator',
+    'calculator-start': 'Calculator Start',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',
@@ -296,6 +297,7 @@ const translation = {
     'knowledge-index': 'Knowledge Base About',
     'datasource': 'Data Source About',
     'calculator': 'Calculator About',
+    'calculator-start': 'Calculator Start About',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -975,7 +977,17 @@ const translation = {
       outputVars: {
         result: 'Calculator result',
       },
-    }
+    },
+    calculatorStart: {
+      setOutputVariable: 'Set output variable',
+      outputVars: {
+        hight: 'Hight',
+        open: 'Open',
+        low: 'Low',
+        close: 'Close',
+        volume: 'Volume',
+      },
+    },
   },
   tracing: {
     stopBy: 'Stop by {{user}}',

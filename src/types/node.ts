@@ -23,6 +23,9 @@ export const enum BlockEnum {
   DataSource = 'DataSource',
   Calculator = 'calculator',
   Tool = 'tool',
+  CalculatorStart = 'calculator-start',
+  CalculatorBacktest = 'calculator-backtest',
+  CalculatorOverview = 'calculator-overview',
 }
 
 export type Branch = {

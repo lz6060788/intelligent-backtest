@@ -180,7 +180,6 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElNotification } from 'element-plus'
-import { produce } from 'immer'
 import ConfigSelect from '../config-select/index.vue'
 import Field from '@/components/base/field.vue'
 import { checkKeys, getNewVarInWorkflow, replaceSpaceWithUnderscoreInVarNameInput } from '@/utils/var'
@@ -201,6 +200,7 @@ import { DEFAULT_FILE_UPLOAD_SETTING } from '@/components/workflow/constant'
 // import { TransferMethod } from '@/types/app'
 // import type { FileEntity } from '@/app/components/base/file-uploader/types'
 import { RiUploadCloud2Line } from '@remixicon/vue'
+import { cloneDeep } from 'lodash-es'
 
 const TEXT_MAX_LENGTH = 256
 const CHECKBOX_DEFAULT_TRUE_VALUE = 'true'
@@ -434,20 +434,18 @@ const selectOptions = computed<SelectItem[]>(() => {
  */
 const handleTypeChange = (item: SelectItem) => {
   const type = item.value as InputVarType
-
-  const newPayload = produce(tempPayload.value, (draft) => {
-    draft.type = type
-    if ([InputVarType.singleFile, InputVarType.multiFiles].includes(type)) {
-      (Object.keys(DEFAULT_FILE_UPLOAD_SETTING)).forEach((key) => {
-        if (key !== 'max_length')
-          (draft as any)[key] = (DEFAULT_FILE_UPLOAD_SETTING as any)[key]
-      })
-      if (type === InputVarType.multiFiles)
-        draft.max_length = DEFAULT_FILE_UPLOAD_SETTING.max_length
-    }
-    if (type === InputVarType.paragraph)
-      draft.max_length = DEFAULT_VALUE_MAX_LEN
-  })
+  const newPayload = cloneDeep(tempPayload.value)
+  newPayload.type = type
+  if ([InputVarType.singleFile, InputVarType.multiFiles].includes(type)) {
+    (Object.keys(DEFAULT_FILE_UPLOAD_SETTING)).forEach((key) => {
+      if (key !== 'max_length')
+        (newPayload as any)[key] = (DEFAULT_FILE_UPLOAD_SETTING as any)[key]
+    })
+    if (type === InputVarType.multiFiles)
+      newPayload.max_length = DEFAULT_FILE_UPLOAD_SETTING.max_length
+  }
+  if (type === InputVarType.paragraph)
+    newPayload.max_length = DEFAULT_VALUE_MAX_LEN
   tempPayload.value = newPayload
 }
 
