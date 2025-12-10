@@ -274,6 +274,8 @@ const translation = {
     'datasource': '数据源',
     'calculator': '算子',
     'calculator-start': '开始',
+    'calculator-backtest': '回测',
+    'calculator-overview': '算子概览',
   },
   blocksAbout: {
     'start': '定义一个 workflow 流程启动的初始参数',

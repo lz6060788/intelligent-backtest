@@ -271,6 +271,8 @@ const translation = {
     'datasource': 'Data Source',
     'calculator': 'Calculator',
     'calculator-start': 'Calculator Start',
+    'calculator-backtest': 'Backtest',
+    'calculator-overview': 'Calculator Overview',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',

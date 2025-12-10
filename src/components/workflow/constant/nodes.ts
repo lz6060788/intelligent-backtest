@@ -10,6 +10,8 @@ import variableAssignerDefault from '@/components/workflow/nodes/variable-assign
 import endDefault from '@/components/workflow/nodes/end/default';
 import calculatorDefault from '@/components/workflow/nodes/calculator/default';
 import calculatorStartDefault from '@/components/workflow/nodes/calculator-start/default';
+import calculatorBacktestDefault from '@/components/workflow/nodes/calculator-backtest/default';
+import calculatorOverviewDefault from '@/components/workflow/nodes/calculator-overview/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -28,6 +30,8 @@ export const WORKFLOW_COMMON_NODES = [
   endDefault,
   calculatorDefault,
   calculatorStartDefault,
+  calculatorBacktestDefault,
+  calculatorOverviewDefault,
 ] as NodeDefault[]
 
 

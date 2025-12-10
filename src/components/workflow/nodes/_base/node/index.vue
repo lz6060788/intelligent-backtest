@@ -25,6 +25,7 @@
     <slot></slot>
     <targetHandle v-if="showTargetHandle" handle-id="target" v-bind="props"></targetHandle>
     <sourceHandle v-if="showSourceHandle" handle-id="source" v-bind="props"></sourceHandle>
+    <node-control v-bind="props"></node-control>
   </div>
 </template>
 
@@ -35,6 +36,7 @@ import { NODE_PADDING_X, NODE_PADDING_Y } from './constant';
 import BlockIcon from '../../../block-icon.vue';
 import targetHandle from '../targetHandle/index.vue'
 import sourceHandle from '../sourceHandle/index.vue'
+import nodeControl from '../node-control/index.vue'
 import { useNodeLoopInteractions } from '../../loop/use-interactions'
 import cn from '@/utils/classnames'
 
