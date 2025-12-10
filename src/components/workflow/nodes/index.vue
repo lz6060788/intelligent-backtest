@@ -1,5 +1,7 @@
 <template>
-  <BaseNode v-bind="props">
+  <BaseNode v-bind="props"
+    @edit-calculator-detail="emit('edit-calculator-detail', props.id, props.data.title, (props.data as CalculatorOverviewNodeType).graph)"
+  >
     <component
       :is="NodeComponent"
       v-bind="props"
@@ -20,6 +22,8 @@ import VariableAssignerNode from './variable-assigner/index.vue';
 import CalculatorNode from './calculator/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BaseNode from './_base/node/index.vue'
+import type { WorkflowGraph } from '@/types';
+import type { CalculatorOverviewNodeType } from './calculator-overview/types';
 
 // 定义节点组件映射关系
 const NodeComponentMap = {
@@ -41,4 +45,8 @@ const props = defineProps<NodeProps>()
 const NodeComponent = computed(() => {
   return NodeComponentMap[props.data.type as keyof typeof NodeComponentMap]
 })
+
+const emit = defineEmits<{
+  'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
+}>()
 </script>

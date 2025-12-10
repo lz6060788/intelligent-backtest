@@ -183,22 +183,14 @@ import { ElMessage, ElNotification } from 'element-plus'
 import ConfigSelect from '../config-select/index.vue'
 import Field from '@/components/base/field.vue'
 import { checkKeys, getNewVarInWorkflow, replaceSpaceWithUnderscoreInVarNameInput } from '@/utils/var'
-// import ConfigContext from '@/context/debug-configuration'
 import type { InputVar, MoreInfo, UploadFileSetting } from '@/types'
 import { ChangeType, InputVarType, SupportUploadFileTypes, TransferMethod } from '@/types'
 import FileUploadSetting from '@/components/workflow/nodes/_base/file-upload-setting/index.vue'
-// import { DEFAULT_FILE_UPLOAD_SETTING } from '@/components/workflow/constants'
 import { DEFAULT_VALUE_MAX_LEN } from '@/config'
 import type { Item as SelectItem } from './type-select.vue'
 import TypeSelector from './type-select.vue'
-// import CodeEditor from '@/components/workflow/nodes/_base/editor/code-editor/index.vue'
-import { CodeLanguage } from '@/components/workflow/nodes/code/types'
-import { jsonConfigPlaceHolder, jsonObjectWrap } from './config'
-import { useAppStore } from '@/store'
+import { jsonObjectWrap } from './config'
 import { DEFAULT_FILE_UPLOAD_SETTING } from '@/components/workflow/constant'
-// import { FileUploaderInAttachmentWrapper } from '@/app/components/base/file-uploader'
-// import { TransferMethod } from '@/types/app'
-// import type { FileEntity } from '@/app/components/base/file-uploader/types'
 import { RiUploadCloud2Line } from '@remixicon/vue'
 import { cloneDeep } from 'lodash-es'
 
@@ -254,24 +246,6 @@ const emit = defineEmits(['close', 'confirm'])
 
 const { t } = useI18n()
 const modalRef = ref<HTMLDivElement | null>(null)
-
-// 获取配置上下文（如果存在）
-let modelConfig: any = null
-// try {
-//   // 尝试获取 ConfigContext，如果不存在则忽略
-//   const context = ConfigContext as any
-//   if (context && typeof context === 'object') {
-//     modelConfig = context.modelConfig || null
-//   }
-// } catch {
-//   // 忽略错误
-// }
-
-// 获取应用详情
-const appStore = useAppStore()
-const appDetail = computed(() => appStore.appDetail)
-const isBasicApp = computed(() => appDetail.value?.mode !== 'advanced-chat' && appDetail.value?.mode !== 'workflow')
-const isSupportJSON = false
 
 // 对话框显示状态
 const dialogVisible = ref(props.isShow)
@@ -406,25 +380,25 @@ const selectOptions = computed<SelectItem[]>(() => {
     },
   ]
 
-  if (props.supportFile) {
-    baseOptions.push(
-      {
-        name: t('appDebug.variableConfig.single-file'),
-        value: InputVarType.singleFile,
-      },
-      {
-        name: t('appDebug.variableConfig.multi-files'),
-        value: InputVarType.multiFiles,
-      },
-    )
-  }
+  // if (props.supportFile) {
+  //   baseOptions.push(
+  //     {
+  //       name: t('appDebug.variableConfig.single-file'),
+  //       value: InputVarType.singleFile,
+  //     },
+  //     {
+  //       name: t('appDebug.variableConfig.multi-files'),
+  //       value: InputVarType.multiFiles,
+  //     },
+  //   )
+  // }
 
-  if (!isBasicApp.value && isSupportJSON) {
-    baseOptions.push({
-      name: t('appDebug.variableConfig.json'),
-      value: InputVarType.jsonObject,
-    })
-  }
+  // if (!isBasicApp.value && isSupportJSON) {
+  //   baseOptions.push({
+  //     name: t('appDebug.variableConfig.json'),
+  //     value: InputVarType.jsonObject,
+  //   })
+  // }
 
   return baseOptions
 })

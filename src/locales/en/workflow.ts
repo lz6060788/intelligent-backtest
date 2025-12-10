@@ -300,6 +300,8 @@ const translation = {
     'datasource': 'Data Source About',
     'calculator': 'Calculator About',
     'calculator-start': 'Calculator Start About',
+    'calculator-overview': 'Calculator Overview About',
+    'calculator-backtest': 'Calculator Backtest About',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -347,6 +349,7 @@ const translation = {
     maximize: 'Maximize Canvas',
     minimize: 'Exit Full Screen',
     optional_and_hidden: '(optional & hidden)',
+    editCalculatorDetail: 'Edit Calculation Flow',
   },
   nodes: {
     common: {

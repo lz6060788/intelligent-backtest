@@ -26,6 +26,7 @@
       :data="data"
       :show-help-link="showHelpLink"
       @close-popup="handleClosePopup"
+      @edit-calculator-detail="emit('edit-calculator-detail')"
     />
   </el-popover>
 </template>
@@ -52,6 +53,7 @@ interface PanelOperatorProps {
 
 const emit = defineEmits<{
   'open-change': [open: boolean]
+  'edit-calculator-detail': []
 }>()
 
 const props = withDefaults(defineProps<PanelOperatorProps>(), {

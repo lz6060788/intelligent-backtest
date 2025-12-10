@@ -25,7 +25,7 @@
     <slot></slot>
     <targetHandle v-if="showTargetHandle" handle-id="target" v-bind="props"></targetHandle>
     <sourceHandle v-if="showSourceHandle" handle-id="source" v-bind="props"></sourceHandle>
-    <node-control v-bind="props"></node-control>
+    <node-control v-bind="props" @edit-calculator-detail="emit('edit-calculator-detail')"></node-control>
   </div>
 </template>
 
@@ -45,6 +45,10 @@ const { handleNodeLoopChildSizeChange } = useNodeLoopInteractions()
 const nodeRef = ref(null)
 
 const props = withDefaults(defineProps<NodeProps>(), {})
+
+const emit = defineEmits<{
+  'edit-calculator-detail': []
+}>()
 
 watchEffect((onCleanup) => {
   if (nodeRef.value && props.data.selected && props.data.isInLoop) {

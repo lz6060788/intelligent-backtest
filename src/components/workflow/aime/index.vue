@@ -10,9 +10,14 @@ import Aime from '@/components/aime/index.vue'
 import { useFunctionCall } from '../hooks/index'
 import type { FunctionCallAction } from '@/components/aime/type'
 
+const props = defineProps<{
+  isCalculator: boolean;
+  workflowId: string;
+}>()
+
 const aimeRef = ref<InstanceType<typeof Aime>>()
 
-const { callExternalCapabilitiesTools, functionCallMap } = useFunctionCall()
+const { callExternalCapabilitiesTools, functionCallMap } = useFunctionCall({ isCalculator: props.isCalculator, workflowId: props.workflowId })
 
 const handleCallExternalCapabilities = (data: { functionCallAction: FunctionCallAction[] }) => {
   for (const action of data.functionCallAction) {

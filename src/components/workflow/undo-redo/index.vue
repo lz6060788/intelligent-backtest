@@ -41,7 +41,12 @@ import { useNodesReadOnly } from '@/components/workflow/hooks/use-workflow'
 
 const { t } = useI18n()
 const { instance: workflowStore, instanceId } = useWorkflowInstance()
-const { currentHistoryIndex, historyList } = toRefs(workflowStore)
+const currentHistoryIndex = computed(() => {
+  return workflowStore.currentHistoryIndex.value
+})
+const historyList = computed(() => {
+  return workflowStore.historyList.value
+})
 const { nodesReadOnly } = useNodesReadOnly()
 
 const buttonsDisabled = computed(() => {

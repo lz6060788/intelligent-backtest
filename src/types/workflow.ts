@@ -7,11 +7,18 @@ export enum WorkflowVersion {
   Latest = 'latest',
 }
 
+export type WorkflowGraph = {
+  nodes: Node[];
+  edges: Edge[];
+  viewport?: ViewportTransform;
+}
+
 export type WorkflowProps = {
-  id: string
-  nodes: Node[]
-  edges: Edge[]
-  viewport?: ViewportTransform
+  id: string;
+  isCalculator: boolean;
+  nodes: Node[];
+  edges: Edge[];
+  viewport?: ViewportTransform;
 }
 
 export type WorkflowDataUpdater = {
@@ -108,14 +115,6 @@ export type WorkflowRetryConfig = {
 export enum VarInInspectType {
   environment = 'environment',
   conversation = 'conversation',
-}
-
-export type EnvironmentVariable = {
-  id: string
-  name: string
-  value: any
-  value_type: 'string' | 'number' | 'secret'
-  description: string
 }
 
 export enum WorkflowRunningStatus {

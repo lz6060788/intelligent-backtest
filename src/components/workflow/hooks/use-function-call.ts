@@ -11,8 +11,8 @@ export const enum FunctionCallName {
   DeleteNode = 'deleteNode',
 }
 
-export const useFunctionCall = () => {
-  const { instanceId,  instance: workflowStore } = useWorkflowInstance()
+export const useFunctionCall = ({ isCalculator, workflowId }: { isCalculator: boolean, workflowId: string }) => {
+  const { instanceId,  instance: workflowStore } = useWorkflowInstance(workflowId)
   const store = useVueFlow(instanceId)
   const { nodes, edges } = store
   const { availableNodesType } = useAvailableBlocks()

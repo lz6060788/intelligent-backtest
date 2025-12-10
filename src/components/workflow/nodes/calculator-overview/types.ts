@@ -1,5 +1,5 @@
-import type { CommonNodeType } from '@/types'
+import type { CommonNodeType, WorkflowGraph } from '@/types'
 
-export type CalculatorBacktestNodeType = CommonNodeType & {
-  
+export type CalculatorOverviewNodeType = CommonNodeType & {
+  graph: WorkflowGraph
 }

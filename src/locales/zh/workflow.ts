@@ -303,6 +303,8 @@ const translation = {
     'datasource': '数据源节点',
     'calculator': '算子节点',
     'calculator-start': '算子开始节点',
+    'calculator-overview': '算子概览节点',
+    'calculator-backtest': '算子回测节点',
   },
   operator: {
     zoomIn: '放大',
@@ -350,6 +352,7 @@ const translation = {
     maximize: '最大化画布',
     minimize: '退出最大化',
     optional_and_hidden: '（选填 & 隐藏）',
+    editCalculatorDetail: '编辑算子计算流',
   },
   nodes: {
     common: {

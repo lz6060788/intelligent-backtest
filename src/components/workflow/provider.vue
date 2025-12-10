@@ -52,7 +52,10 @@
         class="w-full h-full"
       >
         <template #node-custom="customNodeProps">
-          <customNode v-bind="customNodeProps" />
+          <customNode
+            v-bind="customNodeProps"
+            @edit-calculator-detail="(id: string, title: string, graph: WorkflowGraph) => emit('edit-calculator-detail', id, title, graph)"
+          />
         </template>
         <template #node-custom-loop-start="customLoopStartNodeProps">
           <customLoopStartNode v-bind="customLoopStartNodeProps" />
@@ -75,13 +78,12 @@
         <!-- <VueFlowControls /> -->
       </VueFlow>
       <Panel />
-      <!-- <Aime></Aime> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref, toRefs, watch } from 'vue'
+import { computed, onMounted, onUnmounted, provide, ref, toRefs, watch } from 'vue'
 import { useVueFlow, VueFlow, SelectionMode } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 // import { Controls as VueFlowControls } from '@vue-flow/controls'
@@ -93,29 +95,34 @@ import customLoopStartNode from './nodes/loop-start/index.vue'
 import customSimpleNode from './simple-node/index.vue'
 import Panel from './panel/index.vue'
 import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly, useNodesSyncDraft, useWorkflowRefreshDraft } from './hooks/index'
-import type { WorkflowProps } from '@/types/workflow'
+import type { WorkflowProps, WorkflowGraph } from '@/types/workflow'
 import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
 import { BlockEnum, ControlMode } from '@/types';
-import Aime from './aime/index.vue'
 
 const workflowContainerRef = ref<HTMLDivElement>();
 
-const { instanceId,  instance: workflowStore } = useWorkflowInstance()
+const { instanceId,  instance: workflowStore, cleanInstance } = useWorkflowInstance()
 const store = useVueFlow(instanceId)
+const { setNodes, setEdges } = store
 const { doSyncWorkflowDraft } = useNodesSyncDraft()
 const { handleRefreshWorkflowDraft } = useWorkflowRefreshDraft()
 
 const props = withDefaults(defineProps<WorkflowProps>(), {
   nodes: () => [],
   edges: () => [],
+  isCalculator: false,
   viewport: () => ({
     x: 0,
     y: 0,
     zoom: 0.25
   })
 });
+
+const emit = defineEmits<{
+  'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
+}>()
 
 const {
   handleNodeClick,
@@ -195,13 +202,28 @@ onMounted(() => {
     }
   })
 
-  // TODO 临时代码
-  setTimeout(() => {
-    handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })
-    setTimeout(() => {
-      handleIsolatedNodeAdd(BlockEnum.End, { x: 2000, y: 800 })
-    }, 500)
-  }, 500)
+  if (props.nodes.length > 0) {
+    setNodes(props.nodes)
+    setEdges(props.edges)
+  } else {
+    // TODO 临时代码
+    if (props.isCalculator) {
+      handleIsolatedNodeAdd(BlockEnum.CalculatorStart, { x: 200, y: 800 })
+      setTimeout(() => {
+        handleIsolatedNodeAdd(BlockEnum.CalculatorBacktest, { x: 2000, y: 800 })
+      }, 500)
+    }
+    else {
+      handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })
+      setTimeout(() => {
+        handleIsolatedNodeAdd(BlockEnum.End, { x: 2000, y: 800 })
+      }, 500)
+    }
+  }
+})
+
+onUnmounted(() => {
+  cleanInstance()
 })
 
 const debugPrint = () => {

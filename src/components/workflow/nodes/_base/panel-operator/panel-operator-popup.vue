@@ -1,28 +1,5 @@
 <template>
   <div class="w-[240px] rounded-lg border-[0.5px] border-gray-500 bg-gray-800 shadow-xl">
-    <!-- <template v-if="showChangeBlock || canRunBySingleValue">
-      <div class="p-1">
-        <template v-if="canRunBySingleValue">
-          <div
-            class="
-              flex h-8 cursor-pointer items-center rounded-lg px-3 text-sm text-text-secondary
-              hover:bg-state-base-hover
-            "
-            @click="handleRunThisStep"
-          >
-            {{ t('workflow.panel.runThisStep') }}
-          </div>
-        </template>
-        <template v-if="showChangeBlock">
-          <ChangeBlock
-            :node-id="id"
-            :node-data="data"
-            :source-handle="edge?.sourceHandle || 'source'"
-          />
-        </template>
-      </div>
-      <div class="h-px bg-divider-regular"></div>
-    </template> -->
     <template v-if="!nodesReadOnly">
       <template v-if="!nodeMetaData.isSingleton">
         <div class="p-1">
@@ -37,6 +14,17 @@
             @click="handleDuplicate"
           >
             {{ t('workflow.common.duplicate') }}
+          </div>
+        </div>
+        <div class="h-px bg-divider-regular"></div>
+      </template>
+      <template v-if="canEditCalculatorDetail">
+        <div class="p-1">
+          <div
+            class="flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 text-sm text-text-secondary hover:bg-gray-700"
+            @click="handleEditCalculatorDetail"
+          >
+            {{ t('workflow.panel.editCalculatorDetail') }}
           </div>
         </div>
         <div class="h-px bg-divider-regular"></div>
@@ -98,7 +86,7 @@ import {
   useNodesSyncDraft,
   useWorkflowInstance,
 } from '@/components/workflow/hooks'
-import type { Node } from '@/types'
+import { BlockEnum, type Node } from '@/types'
 
 /** 面板操作弹窗 Props */
 interface PanelOperatorPopupProps {
@@ -115,7 +103,8 @@ const props = withDefaults(defineProps<PanelOperatorPopupProps>(), {
 })
 
 const emit = defineEmits<{
-  'close-popup': []
+  'close-popup': [],
+  'edit-calculator-detail': []
 }>()
 
 const { t } = useI18n()
@@ -176,6 +165,10 @@ const handleRunThisStep = () => {
   emit('close-popup')
 }
 
+const canEditCalculatorDetail = computed(() => {
+  return props.data!.type === BlockEnum.CalculatorOverview
+})
+
 /** 处理复制 */
 const handleCopy = () => {
   emit('close-popup')
@@ -191,6 +184,11 @@ const handleDuplicate = () => {
 /** 处理删除 */
 const handleDelete = () => {
   handleNodeDelete(props.id)
+}
+
+const handleEditCalculatorDetail = () => {
+  emit('edit-calculator-detail')
+  emit('close-popup')
 }
 </script>
 

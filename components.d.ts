@@ -115,6 +115,7 @@ declare module 'vue' {
     CoinsStacked01: typeof import('./src/components/base/icons/src/vender/line/financeAndECommerce/CoinsStacked01.vue')['default']
     Collapse: typeof import('./src/components/base/icons/src/vender/knowledge/Collapse.vue')['default']
     Colors: typeof import('./src/components/base/icons/src/vender/line/editor/Colors.vue')['default']
+    Components: typeof import('./src/components/workflow-app/components/index.vue')['default']
     ConditionAdd: typeof import('./src/components/workflow/nodes/if-else/components/condition-add.vue')['default']
     ConditionFilesListValue: typeof import('./src/components/workflow/nodes/if-else/components/condition-files-list-value.vue')['default']
     ConditionInput: typeof import('./src/components/workflow/nodes/if-else/components/condition-list/condition-input.vue')['default']

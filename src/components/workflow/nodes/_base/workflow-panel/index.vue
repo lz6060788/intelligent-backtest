@@ -202,7 +202,6 @@ import {
   isSupportCustomRunForm,
 } from '@/components/workflow/utils'
 import { BlockEnum, type Node, NodeRunningStatus } from '@/types/node'
-// import { useStore as useAppStore } from '@/store'
 import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 // import Tab, { TabType } from './tab/index.vue'
 // import LastRun from './last-run/index.vue'
@@ -244,7 +243,6 @@ const props = defineProps<BasePanelProps>()
 
 const { t } = useI18n()
 const { instance: workflowStore } = useWorkflowInstance()
-// const { showMessageLogModal } = useAppStore()
 
 const isSingleRunning = computed(() => props.data?._singleRunningStatus === NodeRunningStatus.Running)
 
@@ -333,7 +331,6 @@ const handleDescriptionChange = (desc: string) => {
 
 const isChildNode = computed(() => !!(props.data?.isInLoop))
 const isSupportSingleRun = computed(() => canRunBySingle(props.data!.type, isChildNode.value))
-// const appDetail = computed(() => useAppStore().appDetail)
 
 const hasClickRunning = ref(false)
 const isPaused = ref(false)
