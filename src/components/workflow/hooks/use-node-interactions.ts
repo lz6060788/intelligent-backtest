@@ -20,8 +20,8 @@ import {
   useWorkflowHistory,
 } from './use-workflow-history'
 
-export const useNodesInteractions = () => {
-  const { instance: workflowStore, instanceId } = useWorkflowInstance();
+export const useNodesInteractions = (id?: string) => {
+  const { instance: workflowStore, instanceId } = useWorkflowInstance(id);
   const store = useVueFlow(instanceId);
   const { getNodesReadOnly } = useNodesReadOnly()
   const { getWorkflowReadOnly } = useWorkflowReadOnly()

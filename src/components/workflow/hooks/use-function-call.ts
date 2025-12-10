@@ -3,7 +3,7 @@ import { useNodesInteractions, useAvailableBlocks, useWorkflowInstance } from '.
 import { useVueFlow } from '@vue-flow/core'
 import type { CallExternalCapabilitiesTool, FunctionCallAction } from '@/components/aime/type'
 import { BlockEnum } from '@/types'
-import { unref } from 'vue'
+import { unref, type Ref } from 'vue'
 
 export const enum FunctionCallName {
   GetWorkflowInfo = 'getWorkflowInfo',
@@ -11,12 +11,8 @@ export const enum FunctionCallName {
   DeleteNode = 'deleteNode',
 }
 
-export const useFunctionCall = ({ isCalculator, workflowId }: { isCalculator: boolean, workflowId: string }) => {
-  const { instanceId,  instance: workflowStore } = useWorkflowInstance(workflowId)
-  const store = useVueFlow(instanceId)
-  const { nodes, edges } = store
+export const useFunctionCall = (payload: Ref<{ isCalculator: boolean, workflowId: string }>) => {
   const { availableNodesType } = useAvailableBlocks()
-  const { handleNodeAdd, handleNodeDelete } = useNodesInteractions()
 
   const callExternalCapabilitiesTools = [
     // 数据查询
@@ -91,6 +87,8 @@ export const useFunctionCall = ({ isCalculator, workflowId }: { isCalculator: bo
   ] as const satisfies CallExternalCapabilitiesTool[]
 
   const callGetWorkflowInfo = () => {
+    const store = useVueFlow(payload.value.workflowId)
+    const { nodes, edges } = store
     return {
       nodes: unref(nodes).map((node) => ({
         id: node.id,
@@ -114,6 +112,7 @@ export const useFunctionCall = ({ isCalculator, workflowId }: { isCalculator: bo
   }
 
   const callAddNode = (data: {nodeType: BlockEnum, prevNodeId?: string, prevNodeSourceHandle?: string, nextNodeId?: string, nextNodeTargetHandle?: string}) => {
+    const { handleNodeAdd } = useNodesInteractions(payload.value.workflowId)
     const { nodeType, prevNodeId, prevNodeSourceHandle, nextNodeId, nextNodeTargetHandle } = data
     return handleNodeAdd(
       {
@@ -129,6 +128,7 @@ export const useFunctionCall = ({ isCalculator, workflowId }: { isCalculator: bo
   }
 
   const callDeleteNode = ({ nodeId }: { nodeId: string }) => {
+    const { handleNodeDelete } = useNodesInteractions(payload.value.workflowId)
     return handleNodeDelete(nodeId)
   }
 

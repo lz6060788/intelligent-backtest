@@ -17,7 +17,8 @@ const props = defineProps<{
 
 const aimeRef = ref<InstanceType<typeof Aime>>()
 
-const { callExternalCapabilitiesTools, functionCallMap } = useFunctionCall({ isCalculator: props.isCalculator, workflowId: props.workflowId })
+const payload = computed(() => ({ isCalculator: props.isCalculator, workflowId: props.workflowId }))
+const { callExternalCapabilitiesTools, functionCallMap } = useFunctionCall(payload)
 
 const handleCallExternalCapabilities = (data: { functionCallAction: FunctionCallAction[] }) => {
   for (const action of data.functionCallAction) {
