@@ -35,7 +35,7 @@
         />
       </div>
     </div>
-    <aime class="shrink-0" :is-calculator="activeWorkflow!.isCalculator" :workflow-id="activeWorkflow!.id"></aime>
+    <aime v-if="isProd" class="shrink-0" :is-calculator="activeWorkflow!.isCalculator" :workflow-id="activeWorkflow!.id"></aime>
   </div>
 </template>
 
@@ -59,7 +59,6 @@ interface TabItem {
   graph: WorkflowGraph
 }
 
-
 interface Props {
   appId: string
 }
@@ -72,4 +71,6 @@ const {
   removeWorkflow,
   openNewWorkflow,
 } = workflowStore
+
+const isProd = import.meta.env.PROD;
 </script>
