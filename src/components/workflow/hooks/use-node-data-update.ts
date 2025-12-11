@@ -8,10 +8,10 @@ type NodeDataUpdatePayload = {
   data: Record<string, any>
 }
 
-export const useNodeDataUpdate = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useNodeDataUpdate = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
 //   const { handleSyncWorkflowDraft } = useNodesSyncDraft()
-  const { getNodesReadOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly(id)
 
   const handleNodeDataUpdate = ({ id, data }: NodeDataUpdatePayload) => {
     const { nodes } = useVueFlow(instanceId)

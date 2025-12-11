@@ -11,12 +11,12 @@ import {
 // import useInspectVarsCrud from '@/components/workflow/hooks/use-inspect-vars-crud'
 import { hasDuplicateStr } from '@/utils/var'
 import { ElNotification } from 'element-plus'
-import { useI18n } from 'vue-i18n'
+import i18n from '@/locales'
 import { computed, ref, type Ref } from 'vue'
 import { cloneDeep } from 'lodash-es'
 
 const useConfig = (id: string, payload: Ref<StartNodeType>) => {
-  const { t } = useI18n()
+  const t = i18n.global.t
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
   // const { instanceId } = useWorkflowInstance()
   const { handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()

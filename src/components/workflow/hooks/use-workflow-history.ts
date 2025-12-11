@@ -1,9 +1,9 @@
 import { useVueFlow } from "@vue-flow/core"
 import type { WorkflowHistoryEventMeta } from "../store/workflow-history-slice"
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
-import { useI18n } from "vue-i18n"
 import { ref, unref } from "vue"
 import { cloneDeep, debounce } from "lodash-es"
+import i18n from "@/locales"
 
 
 export const WorkflowHistoryEvent = {
@@ -26,10 +26,10 @@ export const WorkflowHistoryEvent = {
 
 export type WorkflowHistoryEventT = keyof typeof WorkflowHistoryEvent
 
-export const useWorkflowHistory = () => {
-  const { instance: workflowHistoryStore, instanceId } = useWorkflowInstance()
+export const useWorkflowHistory = (id?: string) => {
+  const { instance: workflowHistoryStore, instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
-  const { t } = useI18n()
+  const t = i18n.global.t
 
   const undoCallbacks = ref<(() => void)[]>([])
   const redoCallbacks = ref<(() => void)[]>([])

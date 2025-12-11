@@ -10,8 +10,8 @@ import { computed } from "vue"
 import { findUsedVarNodes, getNodeOutputVars, updateNodeVars } from "../nodes/_base/variable/utils"
 import type { CalculatorNodeType } from "../nodes/calculator/types"
 
-export const useWorkflow = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useWorkflow = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
   const { getAvailableBlocks } = useAvailableBlocks()
   const { nodesMap } = useNodesMetaData()
@@ -199,7 +199,7 @@ export const useWorkflow = () => {
   }
 
   const handleOutVarRenameChange = (nodeId: string, oldValeSelector: ValueSelector, newVarSelector: ValueSelector) => {
-    const { instanceId } = useWorkflowInstance()
+    const { instanceId } = useWorkflowInstance(id)
     const store = useVueFlow(instanceId)
     const { nodes, setNodes } = store
     const affectedNodes = findUsedVarNodes(oldValeSelector, nodes.value)
@@ -375,8 +375,8 @@ export const useWorkflow = () => {
   }
 }
 
-export const useWorkflowReadOnly = () => {
-  const { instance:workflowStore } = useWorkflowInstance()
+export const useWorkflowReadOnly = (id?: string) => {
+  const { instance:workflowStore } = useWorkflowInstance(id)
   const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
 
   const getWorkflowReadOnly = () => {
@@ -389,8 +389,8 @@ export const useWorkflowReadOnly = () => {
   }
 }
 
-export const useNodesReadOnly = () => {
-  const { instance: workflowStore } = useWorkflowInstance()
+export const useNodesReadOnly = (id?: string) => {
+  const { instance: workflowStore } = useWorkflowInstance(id)
   const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
   // const historyWorkflowData = workflowStore.historyWorkflowData
   // const isRestoring = workflowStore.isRestoring

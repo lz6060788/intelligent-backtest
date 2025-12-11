@@ -2,8 +2,8 @@ import { useVueFlow } from '@vue-flow/core'
 import { useWorkflowInstance } from './use-workflow-instance'
 import { NodeRunningStatus } from '@/types'
 
-export const useNodesInteractionsWithoutSync = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useNodesInteractionsWithoutSync = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
 
   const handleNodeCancelRunningStatus = () => {

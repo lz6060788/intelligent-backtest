@@ -6,11 +6,11 @@ import { useNodesReadOnly } from './use-workflow'
 import { useWorkflowInstance } from './use-workflow-instance'
 
 
-export const useEdgeInteractions = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useEdgeInteractions = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId);
-  const { saveStateToHistory } = useWorkflowHistory()
-  const { getNodesReadOnly } = useNodesReadOnly()
+  const { saveStateToHistory } = useWorkflowHistory(instanceId)
+  const { getNodesReadOnly } = useNodesReadOnly(instanceId)
 
   const handleEdgeMouseEnter = (e: EdgeMouseEvent) => {
     if (getNodesReadOnly())
@@ -26,7 +26,7 @@ export const useEdgeInteractions = () => {
     if (getNodesReadOnly())
       return
     const { edges } = store
-    
+
     const currentEdge = edges.value.find(edge => edge.id === e.edge.id)!
 
     currentEdge.data._hovering = false

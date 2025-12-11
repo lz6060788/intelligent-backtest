@@ -61,6 +61,9 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
     const workflow = workflowList.value.find(workflow => workflow.id === id);
     if (workflow) {
       workflow.graph = { nodes: nodes.value, edges: edges.value, viewport: viewport.value };
+      if (workflow.isCalculator) {
+        // workflow.isCalculator = false;
+      }
     }
   }
 

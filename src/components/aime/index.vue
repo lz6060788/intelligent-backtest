@@ -12,13 +12,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['pageLoaded', 'login', 'openViewController', 'callExternalCapabilities']);
 
-const aimeIframeRef = ref<HTMLIFrameElement>();
-
 // 向Aime发送协议
 function postMessageToAime(data: unknown) {
   const AimeIframeSelector = '#aime_container';
   const aimeIframe = document.querySelector(AimeIframeSelector) as HTMLIFrameElement;
-  console.log('resp', data)
+  console.log('回复Aime：', data)
   aimeIframe?.contentWindow?.postMessage(
     data,
     '*'
@@ -30,7 +28,7 @@ const isAimeReady = ref(false);
 // 监听Aime的message信息
 const handleMessage = (event: MessageEvent) => {
   const { type, content } = event.data || {};
-  console.log('handleMessage', event.data, type, content);
+  console.log('Aime消息：', event.data, type, content);
   const execuMethod: ExecuMethodMap = {
     pageLoaded: () => {
       const config = {

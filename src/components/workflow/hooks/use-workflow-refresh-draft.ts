@@ -1,9 +1,9 @@
 import { useWorkflowInstance, useWorkflowUpdate } from '.'
 // import type { WorkflowDataUpdater } from '@/app/components/workflow/types'
 
-export const useWorkflowRefreshDraft = () => {
+export const useWorkflowRefreshDraft = (id?: string) => {
   // const { instance: workflowStore, instanceId } = useWorkflowInstance()
-  const { handleUpdateWorkflowCanvas } = useWorkflowUpdate()
+  const { handleUpdateWorkflowCanvas } = useWorkflowUpdate(id)
 
   const handleRefreshWorkflowDraft = () => {
     // const {

@@ -23,13 +23,13 @@ import {
 export const useNodesInteractions = (id?: string) => {
   const { instance: workflowStore, instanceId } = useWorkflowInstance(id);
   const store = useVueFlow(instanceId);
-  const { getNodesReadOnly } = useNodesReadOnly()
-  const { getWorkflowReadOnly } = useWorkflowReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly(instanceId)
+  const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId)
   const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy }
-    = useNodeLoopInteractions()
+    = useNodeLoopInteractions(instanceId)
   const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
-  const { getAfterNodesInSameBranch } = useWorkflow()
-  const { store: workflowHistoryStore, saveStateToHistory, undo, redo } = useWorkflowHistory()
+  const { getAfterNodesInSameBranch } = useWorkflow(instanceId)
+  const { store: workflowHistoryStore, saveStateToHistory, undo, redo } = useWorkflowHistory(instanceId)
 
   const dragNodeStartPosition = reactive({ x: 0, y: 0 } as {
     x: number;

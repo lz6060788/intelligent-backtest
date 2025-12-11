@@ -2,10 +2,9 @@ import type { NodeDragEvent, GraphNode } from "@vue-flow/core"
 import { useVueFlow } from "@vue-flow/core"
 import { useWorkflowInstance } from "./use-workflow-instance"
 
-export const useSelectionInteractions = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useSelectionInteractions = (id?: string) => {
+  const { instanceId, instance: workflowStore } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
-  const { instance: workflowStore } = useWorkflowInstance()
   const handleSelectionStart = (e: MouseEvent) => {
     const {
       nodes,

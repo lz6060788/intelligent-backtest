@@ -5,8 +5,8 @@ import { LOOP_PADDING, CUSTOM_LOOP_START_NODE, LOOP_MIN_WIDTH, LOOP_MIN_HEIGHT }
 import { generateNewNode } from "../../utils/node";
 import { useWorkflowInstance } from "../../hooks/use-workflow-instance";
 
-export const useNodeLoopInteractions = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useNodeLoopInteractions = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
   const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
 

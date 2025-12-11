@@ -1,4 +1,3 @@
-import { useI18n } from 'vue-i18n'
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { getVarType, toNodeAvailableVars, type SchemaTypeDefinition } from '@/components/workflow/nodes/_base/variable/utils'
 import type {
@@ -10,16 +9,13 @@ import type {
 // import { useIsChatMode } from './use-workflow'
 import { useVueFlow } from '@vue-flow/core'
 import type { Type } from '../nodes/llm/types'
-import { storeToRefs } from 'pinia'
-// import useMatchSchemaType from '../nodes/_base/variable/use-match-schema-type'
-import { api } from '@/api'
 import { computed, ref } from 'vue'
 import type { ToolWithProvider } from '../block-selector/types'
+import i18n from '@/locales'
 
-export const useWorkflowVariables = () => {
-  const { t } = useI18n()
-  const { instance: workflowStore, instanceId } = useWorkflowInstance()
-  console.log(workflowStore)
+export const useWorkflowVariables = (id?: string) => {
+  const t = i18n.global.t
+  const { instance: workflowStore, instanceId } = useWorkflowInstance(id)
   const environmentVariables = computed(() => workflowStore.environmentVariables.value)
   // const { schemaTypeDefinitions } = useMatchSchemaType()
   // TODO: 需要后续完善协议获取，用于工具节点的变量输出
@@ -124,13 +120,13 @@ export const useWorkflowVariables = () => {
   }
 }
 
-export const useWorkflowVariableType = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useWorkflowVariableType = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
   const {
     nodes,
   } = store
-  const { getCurrentVariableType } = useWorkflowVariables()
+  const { getCurrentVariableType } = useWorkflowVariables(instanceId)
 
   const isChatMode = ref(false)
 

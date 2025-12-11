@@ -28,6 +28,7 @@ const handleCallExternalCapabilities = (data: { functionCallAction: FunctionCall
         data: JSON.stringify(result)
       })
     } catch (error) {
+      console.log('aime调用外部能力报错：', error)
       aimeRef.value?.respFunctionCall(action.uuid, false, (error as Error).message)
     }
   }

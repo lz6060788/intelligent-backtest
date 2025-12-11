@@ -1,8 +1,8 @@
 import { useVueFlow } from '@vue-flow/core'
 import { useWorkflowInstance } from './use-workflow-instance'
 
-export const useEdgesInteractionsWithoutSync = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useEdgesInteractionsWithoutSync = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
 
   const handleEdgeCancelRunningStatus = () => {

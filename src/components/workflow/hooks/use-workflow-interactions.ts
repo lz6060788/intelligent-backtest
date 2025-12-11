@@ -28,10 +28,10 @@ import { cloneDeep } from 'lodash-es'
 import { computed } from 'vue'
 // import { useEventEmitterContextContext } from '@/context/event-emitter'
 
-export const useWorkflowInteractions = () => {
-  const { instance: workflowStore} = useWorkflowInstance()
-  const { handleNodeCancelRunningStatus } = useNodesInteractionsWithoutSync()
-  const { handleEdgeCancelRunningStatus } = useEdgesInteractionsWithoutSync()
+export const useWorkflowInteractions = (id?: string) => {
+  const { instance: workflowStore, instanceId } = useWorkflowInstance(id)
+  const { handleNodeCancelRunningStatus } = useNodesInteractionsWithoutSync(instanceId)
+  const { handleEdgeCancelRunningStatus } = useEdgesInteractionsWithoutSync(instanceId)
 
   const handleCancelDebugAndPreviewPanel = () => {
     workflowStore.setShowDebugAndPreviewPanel(false)
@@ -45,13 +45,13 @@ export const useWorkflowInteractions = () => {
   }
 }
 
-export const useWorkflowMoveMode = () => {
-  const { instance: workflowStore} = useWorkflowInstance()
+export const useWorkflowMoveMode = (id?: string) => {
+  const { instance: workflowStore, instanceId } = useWorkflowInstance(id)
   const { setControlMode } = workflowStore
   const {
     getNodesReadOnly,
-  } = useNodesReadOnly()
-  const { handleSelectionCancel } = useSelectionInteractions()
+  } = useNodesReadOnly(instanceId)
+  const { handleSelectionCancel } = useSelectionInteractions(instanceId)
 
   const handleModePointer = () => {
     if (getNodesReadOnly())
@@ -74,12 +74,11 @@ export const useWorkflowMoveMode = () => {
   }
 }
 
-export const useWorkflowOrganize = () => {
-  const { instance: workflowStore} = useWorkflowInstance()
-  const { instanceId } = useWorkflowInstance()
+export const useWorkflowOrganize = (id?: string) => {
+  const { instance: workflowStore, instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
-  const { getNodesReadOnly } = useNodesReadOnly()
-  const { saveStateToHistory } = useWorkflowHistory()
+  const { getNodesReadOnly } = useNodesReadOnly(instanceId)
+  const { saveStateToHistory } = useWorkflowHistory(instanceId)
   // const { handleSyncWorkflowDraft } = useNodesSyncDraft()
 
   const handleLayout = async () => {
@@ -224,9 +223,9 @@ export const useWorkflowOrganize = () => {
   }
 }
 
-export const useWorkflowZoom = () => {
+export const useWorkflowZoom = (id?: string) => {
   // const { handleSyncWorkflowDraft } = useNodesSyncDraft()
-  const { getWorkflowReadOnly } = useWorkflowReadOnly()
+  const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId)
   const { instanceId } = useWorkflowInstance()
   const {
     zoomIn,
@@ -284,8 +283,8 @@ export const useWorkflowZoom = () => {
   }
 }
 
-export const useWorkflowUpdate = () => {
-  const { instanceId } = useWorkflowInstance()
+export const useWorkflowUpdate = (id?: string) => {
+  const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
   // const { eventEmitter } = useEventEmitterContextContext()
 
@@ -306,15 +305,15 @@ export const useWorkflowUpdate = () => {
   }
 }
 
-export const useWorkflowCanvasMaximize = () => {
-  const { instance: workflowStore } = useWorkflowInstance()
+export const useWorkflowCanvasMaximize = (id?: string) => {
+  const { instance: workflowStore, instanceId } = useWorkflowInstance(id)
   // const { eventEmitter } = useEventEmitterContextContext()
 
   const maximizeCanvas = computed(() => workflowStore.maximizeCanvas)
   const { setMaximizeCanvas } = workflowStore
   const {
     getNodesReadOnly,
-  } = useNodesReadOnly()
+  } = useNodesReadOnly(instanceId)
 
   const handleToggleMaximizeCanvas = () => {
     if (getNodesReadOnly())

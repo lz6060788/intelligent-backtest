@@ -1,16 +1,16 @@
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import i18n from '@/locales'
 import { WORKFLOW_COMMON_NODES } from "../constant"
 import type { AvailableNodesMetaData } from './use-nodes-meta-data'
 
 export const useAvailableNodesMetaData = () => {
-  const { t } = useI18n()
+  const t = i18n.global.t
 //   const isChatMode = useIsChatMode()
 //   const language = useGetLanguage()
 
   const mergedNodesMetaData = computed(() => ([
     ...WORKFLOW_COMMON_NODES
-]))
+  ]))
 
   const prefixLink = computed(() => {
     return ''
