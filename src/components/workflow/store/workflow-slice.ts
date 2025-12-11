@@ -13,6 +13,8 @@ type PreviewRunningData = WorkflowRunningData & {
 }
 
 export type WorkflowSliceShape = {
+  workflowIsCalculator: Ref<boolean>
+  setWorkflowIsCalculator: (workflowIsCalculator: boolean) => void
   workflowRunningData: Ref<WorkflowRunningData | undefined>
   setWorkflowRunningData: (workflowData?: WorkflowRunningData) => void
   clipboardElements: Ref<Node[]>
@@ -36,6 +38,8 @@ export type WorkflowSliceShape = {
 }
 
 export const createWorkflowSlice = () => {
+  const workflowIsCalculator = ref<boolean>(false);
+  const setWorkflowIsCalculator = (val: boolean) => workflowIsCalculator.value = val;
   const workflowRunningData = ref<WorkflowRunningData | undefined>();
   const setWorkflowRunningData = (val?: WorkflowRunningData) => workflowRunningData.value = val;
   const clipboardElements = ref<Node[]>([]);
@@ -60,6 +64,8 @@ export const createWorkflowSlice = () => {
   // const setFileUploadConfig = (val: WorkflowSliceShape['fileUploadConfig']) => fileUploadConfig.value = val;
 
   return {
+    workflowIsCalculator,
+    setWorkflowIsCalculator,
     workflowRunningData,
     setWorkflowRunningData,
     clipboardElements,

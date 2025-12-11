@@ -11,6 +11,7 @@ const metaData = genNodeMetaData({
   isUndeletable: true,
   isSingleton: true,
   isTypeFixed: true,
+  _isBelongToCalculator: true,
 })
 const nodeDefault: NodeDefault<CalculatorStartNodeType> = {
   metaData,

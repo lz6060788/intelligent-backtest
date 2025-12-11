@@ -13,6 +13,7 @@ export type GenNodeMetaDataParams = {
   isStart?: boolean
   isSingleton?: boolean
   isTypeFixed?: boolean
+  _isBelongToCalculator?: boolean
 }
 export const genNodeMetaData = ({
   classification = BlockClassificationEnum.Default,
@@ -26,6 +27,7 @@ export const genNodeMetaData = ({
   isStart = false,
   isSingleton = false,
   isTypeFixed = false,
+  _isBelongToCalculator = false,
 }: GenNodeMetaDataParams) => {
   return {
     classification,
@@ -39,5 +41,6 @@ export const genNodeMetaData = ({
     isStart,
     isSingleton,
     isTypeFixed,
+    _isBelongToCalculator,
   }
 }

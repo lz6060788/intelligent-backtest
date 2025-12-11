@@ -7,6 +7,7 @@ const metaData = genNodeMetaData({
   sort: 2.1,
   type: BlockEnum.CalculatorBacktest,
   isRequired: false,
+  _isBelongToCalculator: true,
 })
 const nodeDefault: NodeDefault<CalculatorBacktestNodeType> = {
   metaData,

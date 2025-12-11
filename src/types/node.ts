@@ -82,6 +82,7 @@ export type CommonNodeType<T = {}> = {
   default_value?: DefaultValueForm[]
   credential_id?: string
   _dimmed?: boolean
+  _isBelongToCalculator?: boolean
   // _dimmed?: boolean
 } & T;
 
@@ -112,6 +113,7 @@ export type NodeDefault<T = {}> = {
     isStart?: boolean
     isSingleton?: boolean
     isTypeFixed?: boolean
+    _isBelongToCalculator?: boolean
   }
   defaultValue: Partial<T>
   defaultRunInputData?: Record<string, any>

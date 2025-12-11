@@ -102,14 +102,9 @@ import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
 import { BlockEnum, ControlMode } from '@/types';
 import { api } from '@/api'
+import { ElNotification } from 'element-plus'
 
 const workflowContainerRef = ref<HTMLDivElement>();
-
-const { instanceId,  instance: workflowStore, cleanInstance } = useWorkflowInstance()
-const store = useVueFlow(instanceId)
-const { setNodes, setEdges } = store
-const { doSyncWorkflowDraft } = useNodesSyncDraft()
-const { handleRefreshWorkflowDraft } = useWorkflowRefreshDraft()
 
 const props = withDefaults(defineProps<WorkflowProps>(), {
   nodes: () => [],
@@ -121,6 +116,14 @@ const props = withDefaults(defineProps<WorkflowProps>(), {
     zoom: 0.25
   })
 });
+
+const { instanceId,  instance: workflowStore, cleanInstance } = useWorkflowInstance(props.id)
+workflowStore.setWorkflowIsCalculator(props.isCalculator)
+
+const store = useVueFlow(instanceId)
+const { setNodes, setEdges } = store
+const { doSyncWorkflowDraft } = useNodesSyncDraft()
+const { handleRefreshWorkflowDraft } = useWorkflowRefreshDraft()
 
 const emit = defineEmits<{
   'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
@@ -212,13 +215,13 @@ onMounted(() => {
     if (props.isCalculator) {
       handleIsolatedNodeAdd(BlockEnum.CalculatorStart, { x: 200, y: 800 })
       setTimeout(() => {
-        handleIsolatedNodeAdd(BlockEnum.CalculatorBacktest, { x: 2000, y: 800 })
+        handleIsolatedNodeAdd(BlockEnum.CalculatorBacktest, { x: 1000, y: 800 })
       }, 500)
     }
     else {
       handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })
       setTimeout(() => {
-        handleIsolatedNodeAdd(BlockEnum.End, { x: 2000, y: 800 })
+        handleIsolatedNodeAdd(BlockEnum.End, { x: 1000, y: 800 })
       }, 500)
     }
   }
@@ -242,9 +245,15 @@ const runWorkflow = async () => {
       inputs: {},
       graph: { nodes: store.nodes.value, edges: store.edges.value, viewport: store.viewport.value }
     })
-    console.log('res', res)
+    if (res.status_code !== 0) {
+      throw new Error(res.status_msg || '请求失败')
+    }
   } catch (error) {
-    console.error('runWorkflow error', error)
+    ElNotification({
+      title: '运行失败',
+      message: (error as Error).message,
+      type: 'error'
+    })
   }
 }
 </script>

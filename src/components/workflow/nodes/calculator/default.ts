@@ -11,6 +11,7 @@ const metaData = genNodeMetaData({
   sort: 1,
   type: BlockEnum.Calculator,
   helpLinkUri: 'calculator',
+  _isBelongToCalculator: true,
 })
 const nodeDefault: NodeDefault<CalculatorNodeType> = {
   metaData,
