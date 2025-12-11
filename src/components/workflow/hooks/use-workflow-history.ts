@@ -59,7 +59,6 @@ export const useWorkflowHistory = (id?: string) => {
   }
 
   const saveStateToHistoryRef = debounce((event: WorkflowHistoryEventT, meta?: WorkflowHistoryEventMeta) => {
-    console.log('saveStateToHistoryRef', event, meta, workflowHistoryStore)
     const nodes = unref(store.getNodes)
     const edges = unref(store.getEdges)
     workflowHistoryStore.addHistory(cloneDeep({

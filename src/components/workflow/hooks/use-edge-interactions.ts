@@ -36,7 +36,7 @@ export const useEdgeInteractions = (id?: string) => {
     if (getNodesReadOnly())
       return
     const { edges } = store
-    
+
     changes.forEach((change) => {
       if (change.type === 'select')
         edges.value.find(edge => edge.id === change.id)!.selected = change.selected
@@ -82,9 +82,7 @@ export const useEdgeInteractions = (id?: string) => {
 
     const {
       nodes,
-      setNodes,
       edges,
-      setEdges,
     } = store
     const currentEdgeIndex = edges.value.findIndex(edge => edge.selected)
 
@@ -105,8 +103,7 @@ export const useEdgeInteractions = (id?: string) => {
         }
       }
     })
-    const newEdges = edges.value.splice(currentEdgeIndex, 1)
-    setEdges(newEdges)
+    edges.value.splice(currentEdgeIndex, 1)
     // handleSyncWorkflowDraft()
     saveStateToHistory(WorkflowHistoryEvent.EdgeDelete)
   }
