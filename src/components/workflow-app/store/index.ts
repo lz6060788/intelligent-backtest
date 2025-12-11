@@ -66,7 +66,6 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
       workflow.graph = { nodes: nodes.value, edges: edges.value, viewport: viewport.value };
       // 当算子工作流切换时，需要将工作流数据同步至主流程图中
       if (workflow.isCalculator) {
-        console.log('同步算子工作流数据至主流程图中');
         const graph = {
           nodes: transformGraphNodesToNodes(nodes.value),
           edges: transformGraphEdgesToEdges(edges.value),

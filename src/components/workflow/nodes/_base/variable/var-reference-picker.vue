@@ -340,16 +340,23 @@ const { instanceId } = useWorkflowInstance()
 const { nodes } = useVueFlow(instanceId)
 const { getCurrentVariableType } = useWorkflowVariables()
 
-const availableData = computed(() => useAvailableVarList(props.nodeId, {
+const availableData = ref(useAvailableVarList(props.nodeId, {
   onlyLeafNodeVar: props.onlyLeafNodeVar,
   passedInAvailableNodes: props.availableNodes,
   filterVar: props.filterVar,
 }))
 
+// 监听 props 变化
+watch([() => props.nodeId, () => props.onlyLeafNodeVar, () => props.availableNodes, () => props.filterVar], () => {
+  availableData.value = useAvailableVarList(props.nodeId, {
+    onlyLeafNodeVar: props.onlyLeafNodeVar,
+    passedInAvailableNodes: props.availableNodes,
+    filterVar: props.filterVar,
+  })
+}, { deep: true })
+
 const availableVars = computed(() => availableData.value.availableVars)
 const availableNodes = computed(() => availableData.value.availableNodesWithParent)
-
-console.log('availableData ===> ', availableData.value)
 
 const startNode = availableNodes.value.find((node: Node) => node.data!.type === BlockEnum.Start)
 

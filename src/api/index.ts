@@ -6,9 +6,14 @@ const isApiItemConfig = (value: any): value is ApiItemConfig => {
   return value && typeof value === 'object' && 'url' in value && 'method' in value;
 };
 
-type ResType<T> = {
-  data: T;
-};
+export type ResType<T> = {
+  status_code: number;
+  process_info: Record<string, unknown>;
+  response: T;
+  cost_time: number;
+  status_msg: string;
+  [index: string]: unknown;
+}
 
 // 根据配置项生成类型化的API调用函数
 type ApiFuncType<T extends ApiItemConfig> = T extends ApiItemConfig<infer Res, infer Data>
