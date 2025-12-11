@@ -3,6 +3,9 @@ import { computed, ref } from 'vue';
 import type { WorkflowGraph } from '@/types';
 import { MAIN_WORKFLOW_APP_ID } from '@/components/workflow-app/constant';
 import { useVueFlow } from '@vue-flow/core';
+import { transformGraphNodesToNodes, transformGraphEdgesToEdges } from '@/components/workflow/utils';
+import type { CalculatorNodeType } from '@/components/workflow/nodes/calculator/types';
+import type { Node } from '@/types';
 
 export type WorkflowItem = {
   id: string;
@@ -61,8 +64,25 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
     const workflow = workflowList.value.find(workflow => workflow.id === id);
     if (workflow) {
       workflow.graph = { nodes: nodes.value, edges: edges.value, viewport: viewport.value };
+      // 当算子工作流切换时，需要将工作流数据同步至主流程图中
       if (workflow.isCalculator) {
-        // workflow.isCalculator = false;
+        console.log('同步算子工作流数据至主流程图中');
+        const graph = {
+          nodes: transformGraphNodesToNodes(nodes.value),
+          edges: transformGraphEdgesToEdges(edges.value),
+          viewport: viewport.value,
+        }
+        const mainWorkflow = workflowList.value.find(workflow => workflow.id === MAIN_WORKFLOW_APP_ID);
+        if (mainWorkflow && mainWorkflow.graph.nodes.length) {
+          mainWorkflow.graph.nodes.forEach((node: any) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                graph: graph
+              }
+            }
+          });
+        }
       }
     }
   }
