@@ -4,8 +4,8 @@ import workflow from './workflow';
 
 // 1. 全局默认配置
 export const GLOBAL_CONFIG: GlobalConfig = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 15000, // 全局默认超时15秒
+  baseURL: import.meta.env.BASE_URL + (import.meta.env.VITE_API_BASE_URL || 'api'),
+  timeout: 60 * 1000, // 全局默认超时15秒
   headers: {
     'Content-Type': 'application/json;charset=utf-8',
     'X-Platform': 'web',

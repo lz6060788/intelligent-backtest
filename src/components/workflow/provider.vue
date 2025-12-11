@@ -4,6 +4,7 @@
       <el-button type="primary" @click="doSyncWorkflowDraft">Sync Workflow Draft</el-button>
       <el-button type="primary" @click="handleRefreshWorkflowDraft">Refresh Workflow Draft</el-button>
       <el-button type="primary" @click="debugPrint">Print Workflow Draft</el-button>
+      <el-button type="primary" @click="runWorkflow">Run Workflow</el-button>
     </div>
     <div
       id="workflow-container"
@@ -100,6 +101,7 @@ import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
 import { BlockEnum, ControlMode } from '@/types';
+import { api } from '@/api'
 
 const workflowContainerRef = ref<HTMLDivElement>();
 
@@ -231,6 +233,19 @@ const debugPrint = () => {
   console.log('edges', store.edges.value)
   console.log('userSelectionRect', store.userSelectionRect.value)
   console.log('workflowStore', workflowStore)
+}
+
+const runWorkflow = async () => {
+  try {
+    const res = await api.workflow.run({
+      id: props.id,
+      inputs: {},
+      graph: { nodes: store.nodes.value, edges: store.edges.value, viewport: store.viewport.value }
+    })
+    console.log('res', res)
+  } catch (error) {
+    console.error('runWorkflow error', error)
+  }
 }
 </script>
 

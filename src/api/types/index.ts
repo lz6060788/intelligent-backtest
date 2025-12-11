@@ -28,9 +28,9 @@ export interface ApiItemConfig<Res = any, Data = any> {
 
 // 类型化接口配置辅助函数
 export function defineApiItem<Res = any, Data = any>(
-  config: Omit<ApiItemConfig<Res, Data>, '_res' | '_data'>
-): ApiItemConfig<Res, Data> {
-  return config as ApiItemConfig<Res, Data>;
+  config: Omit<ApiItemConfig<ResType<Res>, Data>, '_res' | '_data'>
+): ApiItemConfig<ResType<Res>, Data> {
+  return config as ApiItemConfig<ResType<Res>, Data>;
 }
 
 // API配置结构类型（支持嵌套模块）
@@ -42,4 +42,13 @@ export interface ApiConfigStructure {
 export interface ApiCallParams<Data = any> {
   dataOrParams?: Data; // 请求数据（GET用params，其他用data）
   config?: Partial<Omit<ApiItemConfig, 'url' | 'method'>>; // 调用时覆盖的配置
+}
+
+export type ResType<T> = {
+  status_code: number;
+  process_info: Record<string, unknown>;
+  response: T;
+  cost_time: number;
+  status_msg: string;
+  [index: string]: unknown;
 }

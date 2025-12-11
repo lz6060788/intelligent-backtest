@@ -9,8 +9,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 export default defineConfig({
   base:  '/ai-backtest/',
   build: {
-    outDir: 'dist/ai-backtest',
-    assetsDir: 'assets',
+    outDir: 'dist',
   },
   plugins: [
     vue(),
