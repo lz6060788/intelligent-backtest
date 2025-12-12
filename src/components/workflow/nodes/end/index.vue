@@ -1,5 +1,5 @@
 <template>
-  <div v-if="filteredOutputs.length > 0" className='mb-1 space-y-0.5 px-3 py-1'>
+  <div v-if="filteredOutputs.length > 0" className='w-60 space-y-0.5 px-3 py-1'>
     <template v-for="(item, index) in filteredOutputs" :key="index">
       <VariableLabelInNode
         :variables="item.value_selector"

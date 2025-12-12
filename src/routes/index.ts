@@ -3,6 +3,7 @@ import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-rout
 import HomeView from '@/view/HomeView.vue'
 import StrategysView from '@/view/StrategysView.vue'
 import StrategyDetailVue from '@/view/StrategyDetail.vue'
+import TestView from '@/view/TestView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -12,6 +13,11 @@ const routes: RouteRecordRaw[] = [
       return { path: '/strategy/detail/1' }
     },
     // component: HomeView
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: TestView
   },
   {
     path: '/strategy',

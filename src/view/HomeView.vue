@@ -1,10 +1,11 @@
 <template>
   <div>
-    Home
+    <monaco :model-value="''" language="json"></monaco>
   </div>
 </template>
 
 <script setup lang="ts">
+import monaco from '@/components/base/monaco/index.vue'
 interface Props {
 }
 

@@ -61,13 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, type Component, type VNode, onUnmounted } from 'vue';
-import { ElCard } from 'element-plus';
+import { ref, computed, watch, type VNode } from 'vue';
 import cn from '@/utils/classnames';
 import { CodeLanguage } from '@/components/workflow/nodes/code/types';
-//   import { Theme } from '@/types';
-//   import useTheme from '@/hooks/use-theme';
-import { debounce, noop } from 'lodash-es';
 import MonacoEditor from '@/components/base/monaco/index.vue';
 import Base from '../base.vue';
 // import MonacoEditor from '@monaco-editor/vue3';
@@ -135,7 +131,6 @@ const handleEditorChange = (value: string | undefined) => {
 };
 
 const handleEditorDidMount = (editor: any, monaco: any) => {
-  console.log('handleEditorDidMount', editor, monaco)
   editorRef.value = editor;
   resizeEditorToContent();
 
@@ -144,6 +139,22 @@ const handleEditorDidMount = (editor: any, monaco: any) => {
   });
   editor.onDidBlurEditorText(() => {
       isFocus.value = false;
+  });
+
+  // 阻止空格键事件冒泡到 VueFlow，避免与 VueFlow 的 selection-key-code 冲突
+  const editorContainer = editor.getContainerDomNode();
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // 当编辑器聚焦时，阻止空格键事件冒泡
+    if (e.key === ' ' || e.keyCode === 32 || (e.ctrlKey && e.key === 'c') || (e.ctrlKey && e.key === 'v')) {
+      e.stopPropagation();
+    }
+  };
+
+  editorContainer.addEventListener('keydown', handleKeyDown, true);
+
+  // 清理事件监听器
+  editor.onDidDispose(() => {
+    editorContainer.removeEventListener('keydown', handleKeyDown, true);
   });
 
   emit('mount', editor, monaco);

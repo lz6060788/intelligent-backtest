@@ -30,8 +30,6 @@
         :show-code-generator="true"
       >
         <template #title>
-          <!-- TypeSelector 使用 el-select 替代 -->
-          <!-- 原组件：TypeSelector from '@/app/components/workflow/nodes/_base/components/selector' -->
           <el-select
             :model-value="inputs.code_language"
             @change="handleCodeLanguageChange"
@@ -101,10 +99,10 @@ const codeLanguages = [
     label: 'Python3',
     value: CodeLanguage.python3,
   },
-  {
-    label: 'JavaScript',
-    value: CodeLanguage.javascript,
-  },
+  // {
+  //   label: 'JavaScript',
+  //   value: CodeLanguage.javascript,
+  // },
 ]
 
 const props = defineProps<NodePanelProps<CodeNodeType>>()

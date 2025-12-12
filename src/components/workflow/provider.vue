@@ -153,21 +153,21 @@ const {
 } = useSelectionInteractions();
 
 
-// hotkeys('ctrl+c', function(event, handler){
-//   event.preventDefault()
-//   handleNodesCopy();
-// });
+hotkeys('ctrl+c', function(event, handler){
+  event.preventDefault()
+  handleNodesCopy();
+});
 
-// hotkeys('ctrl+v', function(event, handler){
-//   event.preventDefault()
-//   handleNodesPaste();
-// });
+hotkeys('ctrl+v', function(event, handler){
+  event.preventDefault()
+  handleNodesPaste();
+});
 
-// hotkeys('delete,backspace', function(event, handler){
-//   event.preventDefault()
-//   handleNodesDelete()
-//   handleEdgeDelete()
-// });
+hotkeys('delete,backspace', function(event, handler){
+  event.preventDefault()
+  handleNodesDelete()
+  handleEdgeDelete()
+});
 
 const controlMode = computed(() => workflowStore.controlMode.value)
 

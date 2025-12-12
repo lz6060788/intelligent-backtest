@@ -14,7 +14,7 @@ const metaData = genNodeMetaData({
 const nodeDefault: NodeDefault<CodeNodeType> = {
   metaData,
   defaultValue: {
-    code: '',
+    code: '\ndef main(arg1: str, arg2: str):\n    return {\n        \"result\": arg1 + arg2,\n    }\n',
     code_language: CodeLanguage.python3,
     variables: [],
     outputs: {},

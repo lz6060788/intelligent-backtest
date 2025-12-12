@@ -6,7 +6,6 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import * as monaco from 'monaco-editor';
 
-
 interface Props {
   modelValue: string;
   readonly?: boolean;
@@ -30,7 +29,6 @@ const getSelectedText = (): string => {
 };
 
 const getEditor = () => editor;
-
 
 // 暴露方法给父组件
 defineExpose({
