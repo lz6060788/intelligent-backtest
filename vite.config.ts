@@ -22,6 +22,7 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
     monacoEditorPlugin({
+      languageWorkers: ['json', 'typescript'],
       customWorkers: [
         {
           label: 'editorWorkerService',
@@ -32,8 +33,8 @@ export default defineConfig({
           entry: path.resolve(__dirname, 'node_modules/monaco-editor/esm/vs/language/json/json.worker.js')
         },
         {
-          label: 'javascript',
-          entry: path.resolve(__dirname, 'node_modules/monaco-editor/esm/vs/language/javascript/ts.worker.js')
+          label: 'typescript',
+          entry: path.resolve(__dirname, 'node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js')
         }
       ],
     }),
