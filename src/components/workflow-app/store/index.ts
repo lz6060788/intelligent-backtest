@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import type { WorkflowGraph } from '@/types';
+import { BlockEnum, type WorkflowGraph } from '@/types';
 import { MAIN_WORKFLOW_APP_ID } from '@/components/workflow-app/constant';
 import { useVueFlow } from '@vue-flow/core';
 import { transformGraphNodesToNodes, transformGraphEdgesToEdges } from '@/components/workflow/utils';
-import type { CalculatorNodeType } from '@/components/workflow/nodes/calculator/types';
-import type { Node } from '@/types';
+import type { CalculatorOverviewNodeType } from '@/components/workflow/nodes/calculator-overview/types';
+import { ElNotification } from 'element-plus';
 
 export type WorkflowItem = {
   id: string;
@@ -37,23 +37,33 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
   ]);
   const removeWorkflow = (id: string) => {
     const index = workflowList.value.findIndex(workflow => workflow.id === id);
-    workflowList.value = workflowList.value.filter(workflow => workflow.id !== id);
     if (activeWorkflowId.value === id) {
-      activeWorkflowId.value = workflowList.value[index - 1]!.id;
+      changeActiveWorkflowId(workflowList.value[index - 1]!.id);
     }
+    workflowList.value = workflowList.value.filter(workflow => workflow.id !== id);
   }
-  const openNewWorkflow = (id: string, name: string, graph: WorkflowGraph) => {
+  const openNewWorkflow = (id: string, name?: string) => {
+    if (workflowList.value.find(workflow => workflow.id === id)) {
+      changeActiveWorkflowId(id);
+      return
+    }
+    const vueflow = useVueFlow(MAIN_WORKFLOW_APP_ID);
+    const { nodes } = vueflow;
+    const node = nodes.value.find(node => node.id === id);
+    if (!node) {
+      ElNotification.error('节点不存在');
+      throw new Error('节点不存在');
+    } else if (node.data.type !== BlockEnum.CalculatorOverview) {
+      ElNotification.error('该节点不是算子概览节点，无法展开');
+      throw new Error('该节点不是算子概览节点，无法展开');
+    }
     const workflow = {
       id,
-      name,
-      graph,
+      name: name || node.data.title,
+      graph: (node.data as CalculatorOverviewNodeType).graph,
       isCalculator: true,
     }
-    if (workflowList.value.find(workflow => workflow.id === id)) {
-      return;
-    } else {
-      workflowList.value.push(workflow);
-    }
+    workflowList.value.push(workflow);
     changeActiveWorkflowId(id);
   }
 

@@ -199,8 +199,6 @@ export const useWorkflow = (id?: string) => {
   }
 
   const handleOutVarRenameChange = (nodeId: string, oldValeSelector: ValueSelector, newVarSelector: ValueSelector) => {
-    const { instanceId } = useWorkflowInstance(id)
-    const store = useVueFlow(instanceId)
     const { nodes, setNodes } = store
     const affectedNodes = findUsedVarNodes(oldValeSelector, nodes.value)
     if (affectedNodes.length > 0) {

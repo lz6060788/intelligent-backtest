@@ -33,9 +33,9 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) 
       return []
 
     if (nodeType === BlockEnum.Calculator)
-      return [BlockEnum.Calculator]
+      return [BlockEnum.Calculator, BlockEnum.CalculatorBacktest]
     if (nodeType === BlockEnum.CalculatorStart)
-      return [BlockEnum.CalculatorBacktest]
+      return [BlockEnum.Calculator]
 
     return availableNodesType
   }
@@ -50,9 +50,9 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) 
       availableNextBlocks = []
 
     if (nodeType === BlockEnum.Calculator)
-      availableNextBlocks = [BlockEnum.Calculator]
+      availableNextBlocks = [BlockEnum.Calculator, BlockEnum.CalculatorBacktest]
     if (nodeType === BlockEnum.CalculatorStart)
-      availableNextBlocks = [BlockEnum.CalculatorBacktest]
+      availableNextBlocks = [BlockEnum.Calculator]
 
     if (nodeType === BlockEnum.Calculator)
       availablePrevBlocks = [BlockEnum.Calculator]

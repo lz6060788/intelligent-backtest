@@ -1,6 +1,6 @@
 <template>
   <BaseNode v-bind="props"
-    @edit-calculator-detail="emit('edit-calculator-detail', props.id, props.data.title, (props.data as CalculatorOverviewNodeType).graph)"
+    @edit-calculator-detail="emit('edit-calculator-detail', props.id, props.data.title, props.data)"
   >
     <component
       :is="NodeComponent"
@@ -47,6 +47,6 @@ const NodeComponent = computed(() => {
 })
 
 const emit = defineEmits<{
-  'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
+  'edit-calculator-detail': [id: string, title: string, data: any]
 }>()
 </script>

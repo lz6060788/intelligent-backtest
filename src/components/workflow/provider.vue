@@ -50,7 +50,7 @@
         <template #node-custom="customNodeProps">
           <customNode
             v-bind="customNodeProps"
-            @edit-calculator-detail="(id: string, title: string, graph: WorkflowGraph) => emit('edit-calculator-detail', id, title, graph)"
+            @edit-calculator-detail="(id: string, title: string, data: any) => emit('edit-calculator-detail', id, title, data)"
           />
         </template>
         <template #node-custom-loop-start="customLoopStartNodeProps">
@@ -118,7 +118,7 @@ const store = useVueFlow(instanceId)
 const { setNodes, setEdges } = store
 
 const emit = defineEmits<{
-  'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
+  'edit-calculator-detail': [id: string, title: string, data: any]
 }>()
 
 const {

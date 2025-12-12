@@ -24,15 +24,17 @@
       </div>
 
       <div class="relative flex-1 overflow-hidden">
-        <workflow
-          :key="activeWorkflow!.id"
-          :id="activeWorkflow!.id"
-          :is-calculator="activeWorkflow!.isCalculator"
-          :nodes="activeWorkflow!.graph.nodes"
-          :edges="activeWorkflow!.graph.edges"
-          :viewport="activeWorkflow!.graph.viewport || { x: 0, y: 0, zoom: 1 }"
-          @edit-calculator-detail="openNewWorkflow"
-        />
+        <transition name="fade">
+          <workflow
+            :key="activeWorkflow!.id"
+            :id="activeWorkflow!.id"
+            :is-calculator="activeWorkflow!.isCalculator"
+            :nodes="activeWorkflow!.graph.nodes"
+            :edges="activeWorkflow!.graph.edges"
+            :viewport="activeWorkflow!.graph.viewport || { x: 0, y: 0, zoom: 1 }"
+            @edit-calculator-detail="openNewWorkflow"
+          />
+        </transition>
       </div>
     </div>
     <aime v-if="isProd" class="shrink-0" :is-calculator="activeWorkflow!.isCalculator" :workflow-id="activeWorkflow!.id"></aime>
@@ -72,5 +74,22 @@ const {
   openNewWorkflow,
 } = workflowStore
 
-const isProd = import.meta.env.PROD;
+const isProd = import.meta.env.PROD || true;
 </script>
+
+<style scoped>
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+/* 可选：防止离开动画时组件占位 */
+.fade-leave-active {
+  position: absolute;
+}
+</style>

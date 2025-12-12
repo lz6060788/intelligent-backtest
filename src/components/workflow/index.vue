@@ -1,13 +1,13 @@
 <template>
   <workflowProvider
     v-bind="props"
-    @edit-calculator-detail="(id: string, title: string, graph: WorkflowGraph) => emit('edit-calculator-detail', id, title, graph)"
+    @edit-calculator-detail="(id: string, title: string, data: any) => emit('edit-calculator-detail', id, title, data)"
   ></workflowProvider>
 </template>
 
 <script setup lang="ts">
 import { provide, ref } from 'vue'
-import type { WorkflowProps, WorkflowGraph } from '@/types/workflow'
+import type { WorkflowProps } from '@/types/workflow'
 import workflowProvider from './provider.vue'
 
 const props = withDefaults(defineProps<WorkflowProps>(), {});
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<WorkflowProps>(), {});
 provide('workflowInstanceId', props.id);
 
 const emit = defineEmits<{
-  'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
+  'edit-calculator-detail': [id: string, title: string, data: any]
 }>()
 </script>
 

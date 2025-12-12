@@ -76,7 +76,7 @@ export const useEdgeInteractions = (id?: string) => {
     saveStateToHistory(WorkflowHistoryEvent.EdgeDeleteByDeleteBranch)
   }
 
-  const handleEdgeDelete = () => {
+  const handleEdgeDelete = (edgeId?: string) => {
     if (getNodesReadOnly())
       return
 
@@ -84,7 +84,7 @@ export const useEdgeInteractions = (id?: string) => {
       nodes,
       edges,
     } = store
-    const currentEdgeIndex = edges.value.findIndex(edge => edge.selected)
+    const currentEdgeIndex = edgeId ? edges.value.findIndex(edge => edge.id === edgeId) : edges.value.findIndex(edge => edge.selected)
 
     if (currentEdgeIndex < 0)
       return
