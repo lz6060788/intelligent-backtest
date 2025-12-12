@@ -5,7 +5,11 @@ import type {
 
 export default {
   run: defineApiItem<any, WorkflowRunParamsType>({
-    url: '/workflow/run',
+    url: '/quantitativee/flow/draft/run?debug=1',
+    method: 'POST',
+  }),
+  stop: defineApiItem<any>({
+    url: '/quantitativee/flow/draft/stop',
     method: 'POST',
   }),
 } as const;

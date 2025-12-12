@@ -83,8 +83,8 @@ const borderStatus = computed(() => {
   }
 })
 
-const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End].includes(props.data.type))
-const showTargetHandle = computed(() => props.data.type !== BlockEnum.Start)
+const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End, BlockEnum.CalculatorBacktest].includes(props.data.type))
+const showTargetHandle = computed(() => ![BlockEnum.Start, BlockEnum.CalculatorStart].includes(props.data.type))
 </script>
 
 <style scoped>

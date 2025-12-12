@@ -61,7 +61,7 @@ const isRagVar = computed(() => isRagVariableVar(props.valueSelector))
 
 const node = computed(() => {
   if (isSystemVar(props.valueSelector)) {
-    const startNode = props.availableNodes?.find(n => n.data!.type === BlockEnum.Start)
+    const startNode = props.availableNodes?.find(n => n.data!.type === BlockEnum.Start || n.data!.type === BlockEnum.CalculatorStart)
     if (startNode)
       return startNode
   }

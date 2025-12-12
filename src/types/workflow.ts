@@ -1,6 +1,7 @@
 import type { BlockEnum, CommonNodeType, Node } from './node';
 import type { Edge } from './edge';
 import type { ViewportTransform } from '@vue-flow/core';
+import type { InputVarType } from '.';
 
 export enum WorkflowVersion {
   Draft = 'draft',
@@ -160,10 +161,10 @@ export type NodeTracing = {
     parent_parallel_id?: string
     parent_parallel_start_node_id?: string
     parallel_mode_run_id?: string
-    iteration_duration_map?: IterationDurationMap
-    loop_duration_map?: LoopDurationMap
+    iteration_duration_map?: any
+    loop_duration_map?: any
     error_strategy?: ErrorHandleTypeEnum
-    agent_log?: AgentLogItem[]
+    agent_log?: any[]
     tool_info?: {
       agent_strategy?: string
       icon?: string
@@ -182,8 +183,8 @@ export type NodeTracing = {
     name: string
     email: string
   }
-  iterDurationMap?: IterationDurationMap
-  loopDurationMap?: LoopDurationMap
+  iterDurationMap?: any
+  loopDurationMap?: any
   finished_at: number
   extras?: any
   expand?: boolean // for UI
@@ -200,7 +201,7 @@ export type NodeTracing = {
   parallel_start_node_id?: string
   parent_parallel_id?: string
   parent_parallel_start_node_id?: string
-  agentLog?: AgentLogItemWithChildren[] // agent log
+  agentLog?: any[] // agent log
 }
 
 export type NodeRunResult = NodeTracing
@@ -221,4 +222,13 @@ export type MoreInfo = {
 export type NodePanelProps<T> = {
   id: string
   data: CommonNodeType<T>
+}
+
+export type InputForm = {
+  type: InputVarType
+  label: string
+  variable: any
+  required: boolean
+  hide: boolean
+  [key: string]: any
 }

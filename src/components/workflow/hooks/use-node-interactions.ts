@@ -1065,6 +1065,7 @@ export const useNodesInteractions = (id?: string) => {
         node =>
           node.id === nodeId
           && node.data.type !== BlockEnum.Start
+          && node.data.type !== BlockEnum.CalculatorStart
           // && node.type !== CUSTOM_ITERATION_START_NODE
           && node.type !== CUSTOM_LOOP_START_NODE
           && node.data.type !== BlockEnum.LoopEnd
@@ -1271,7 +1272,7 @@ export const useNodesInteractions = (id?: string) => {
     const { nodes, edges } = store
 
     const bundledNodes = nodes.value.filter(
-      node => node.data._isBundled && node.data.type !== BlockEnum.Start,
+      node => node.data._isBundled && node.data.type !== BlockEnum.Start && node.data.type !== BlockEnum.CalculatorStart,
     )
 
     if (bundledNodes.length) {
@@ -1284,7 +1285,7 @@ export const useNodesInteractions = (id?: string) => {
     if (edgeSelected) return
 
     const selectedNode = nodes.value.find(
-      node => node.data.selected && node.data.type !== BlockEnum.Start,
+      node => node.data.selected && node.data.type !== BlockEnum.Start && node.data.type !== BlockEnum.CalculatorStart,
     )
 
     if (selectedNode) handleNodeDelete(selectedNode.id)

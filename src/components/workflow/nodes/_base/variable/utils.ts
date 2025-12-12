@@ -693,8 +693,8 @@ export const toNodeOutputVars = (
   // }
   // Sort nodes in reverse chronological order (most recent first)
   const sortedNodes = [...nodes].sort((a, b) => {
-    if (a.data.type === BlockEnum.Start) return 1
-    if (b.data.type === BlockEnum.Start) return -1
+    if (a.data.type === BlockEnum.Start || a.data.type === BlockEnum.CalculatorStart) return 1
+    if (b.data.type === BlockEnum.Start || b.data.type === BlockEnum.CalculatorStart) return -1
     if (a.data.type === 'env') return 1
     if (b.data.type === 'env') return -1
     if (a.data.type === 'conversation') return 1
@@ -737,7 +737,7 @@ export const toNodeOutputVars = (
           // ),
           schemaTypeDefinitions,
         ),
-        isStartNode: node.data.type === BlockEnum.Start,
+        isStartNode: node.data.type === BlockEnum.Start || node.data.type === BlockEnum.CalculatorStart,
       }
     })
     .filter(item => item.vars.length > 0)
@@ -947,7 +947,7 @@ export const getVarType = ({
     = isRagVariableVar(valueSelector) && valueSelector[1] !== 'shared'
 
   const startNode = availableNodes.find((node: any) => {
-    return node?.data.type === BlockEnum.Start
+    return node?.data.type === BlockEnum.Start || node?.data.type === BlockEnum.CalculatorStart
   })
 
   const targetVarNodeId = (() => {
@@ -1603,7 +1603,7 @@ export const getNodeOutputVars = (
     //     res.push([id, 'sys', 'query'])
     //     res.push([id, 'sys', 'files'])
     //   }
-    //   break
+      break
     }
 
     case BlockEnum.LLM: {

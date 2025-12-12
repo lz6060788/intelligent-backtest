@@ -64,8 +64,6 @@ const nodesReadOnly = ref(false);
 const { handleNodeAdd } = useNodesInteractions()
 const { availableNextBlocks } = useAvailableBlocks(BlockEnum.Start, true)
 
-console.log('availableNextBlocks', availableNextBlocks)
-
 const handleSelect: OnSelectBlock = (type) => {
   handleNodeAdd(
     {

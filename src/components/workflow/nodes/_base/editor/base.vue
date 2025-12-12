@@ -25,12 +25,6 @@
           @click.stop
         >
           <slot name="headerRight" />
-          <!-- <el-button
-            class="ml-1"
-            size="small"
-            :icon="isCopied ? CopyCheck : Copy"
-            @click="handleCopy"
-          /> -->
           <action-button @click="handleCopy" size='l' custom-class='group shrink-0'>
             <template v-if="isCopied">
               <copy-check></copy-check>

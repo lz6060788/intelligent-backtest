@@ -1,11 +1,6 @@
 <template>
   <div class="w-full h-full">
-    <div class="h-10 w-full flex items-center justify-center">
-      <el-button type="primary" @click="doSyncWorkflowDraft">Sync Workflow Draft</el-button>
-      <el-button type="primary" @click="handleRefreshWorkflowDraft">Refresh Workflow Draft</el-button>
-      <el-button type="primary" @click="debugPrint">Print Workflow Draft</el-button>
-      <el-button type="primary" @click="runWorkflow">Run Workflow</el-button>
-    </div>
+    <Header />
     <div
       id="workflow-container"
       class="h-[calc(100%-40px)] min-w-[800px] relative flex-1"
@@ -95,14 +90,13 @@ import customEdge from './edge/index.vue';
 import customLoopStartNode from './nodes/loop-start/index.vue'
 import customSimpleNode from './simple-node/index.vue'
 import Panel from './panel/index.vue'
+import Header from './header/index.vue'
 import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly, useNodesSyncDraft, useWorkflowRefreshDraft } from './hooks/index'
 import type { WorkflowProps, WorkflowGraph } from '@/types/workflow'
 import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
 import { BlockEnum, ControlMode } from '@/types';
-import { api } from '@/api'
-import { ElNotification } from 'element-plus'
 
 const workflowContainerRef = ref<HTMLDivElement>();
 
@@ -122,8 +116,6 @@ workflowStore.setWorkflowIsCalculator(props.isCalculator)
 
 const store = useVueFlow(instanceId)
 const { setNodes, setEdges } = store
-const { doSyncWorkflowDraft } = useNodesSyncDraft()
-const { handleRefreshWorkflowDraft } = useWorkflowRefreshDraft()
 
 const emit = defineEmits<{
   'edit-calculator-detail': [id: string, title: string, graph: WorkflowGraph]
@@ -161,21 +153,21 @@ const {
 } = useSelectionInteractions();
 
 
-hotkeys('ctrl+c', function(event, handler){
-  event.preventDefault()
-  handleNodesCopy();
-});
+// hotkeys('ctrl+c', function(event, handler){
+//   event.preventDefault()
+//   handleNodesCopy();
+// });
 
-hotkeys('ctrl+v', function(event, handler){
-  event.preventDefault()
-  handleNodesPaste();
-});
+// hotkeys('ctrl+v', function(event, handler){
+//   event.preventDefault()
+//   handleNodesPaste();
+// });
 
-hotkeys('delete,backspace', function(event, handler){
-  event.preventDefault()
-  handleNodesDelete()
-  handleEdgeDelete()
-});
+// hotkeys('delete,backspace', function(event, handler){
+//   event.preventDefault()
+//   handleNodesDelete()
+//   handleEdgeDelete()
+// });
 
 const controlMode = computed(() => workflowStore.controlMode.value)
 
@@ -230,32 +222,6 @@ onMounted(() => {
 onUnmounted(() => {
   cleanInstance()
 })
-
-const debugPrint = () => {
-  console.log('nodes', store.nodes.value)
-  console.log('edges', store.edges.value)
-  console.log('userSelectionRect', store.userSelectionRect.value)
-  console.log('workflowStore', workflowStore)
-}
-
-const runWorkflow = async () => {
-  try {
-    const res = await api.workflow.run({
-      id: props.id,
-      inputs: {},
-      graph: { nodes: store.nodes.value, edges: store.edges.value, viewport: store.viewport.value }
-    })
-    if (res.status_code !== 0) {
-      throw new Error(res.status_msg || '请求失败')
-    }
-  } catch (error) {
-    ElNotification({
-      title: '运行失败',
-      message: (error as Error).message,
-      type: 'error'
-    })
-  }
-}
 </script>
 
 <style>

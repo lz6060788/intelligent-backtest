@@ -32,7 +32,7 @@ const { getBeforeNodesInSameBranchIncludeParent } = useWorkflow()
 const renderedContent = computed(() => {
   const availableNodes = getBeforeNodesInSameBranchIncludeParent(props.nodeId)
   const startNode = availableNodes.find((node: any) => {
-    return node.data.type === BlockEnum.Start
+    return node.data.type === BlockEnum.Start || node.data.type === BlockEnum.CalculatorStart
   })
 
   const vars: string[] = []

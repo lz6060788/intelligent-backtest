@@ -137,7 +137,7 @@ const useLastRun = <T>({
 }: Params<T>) => {
   const { conversationVars, systemVars, hasSetInspectVar } = useInspectVarsCrud()
   const blockType = oneStepRunParams.data.type
-  const isStartNode = blockType === BlockEnum.Start
+  const isStartNode = blockType === BlockEnum.Start || blockType === BlockEnum.CalculatorStart
   const isIterationNode = blockType === BlockEnum.Iteration
   const isLoopNode = blockType === BlockEnum.Loop
   const isAggregatorNode = blockType === BlockEnum.VariableAggregator

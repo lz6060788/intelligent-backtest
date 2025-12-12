@@ -7,7 +7,6 @@ import { inject, onUnmounted } from 'vue'
  */
 export function useWorkflowInstance(instanceId?: string) {
   const store = useWorkflowStore()
-
   instanceId = instanceId || inject('workflowInstanceId') as string
 
   // 初始化实例

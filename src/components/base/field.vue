@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, useSlots, type Component } from 'vue'
+import { ref, useSlots } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RiInformationLine } from '@remixicon/vue'
 

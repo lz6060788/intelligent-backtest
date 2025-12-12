@@ -38,6 +38,9 @@ const blocks = computed(() => {
     if (block.metaData.type === BlockEnum.LoopStart)
       return false
 
+    if (block.metaData.type === BlockEnum.CalculatorStart)
+      return false
+
     return true
   })
 })
