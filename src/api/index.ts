@@ -1,30 +1,22 @@
 import { API_CONFIG } from './configs';
 import { baseRequest } from './request';
 import type { ApiConfigStructure, ApiCallParams, ApiItemConfig } from './types';
+import type { ApiResponse } from './request';
 
 const isApiItemConfig = (value: any): value is ApiItemConfig => {
   return value && typeof value === 'object' && 'url' in value && 'method' in value;
 };
-
-export type ResType<T> = {
-  status_code: number;
-  process_info: Record<string, unknown>;
-  response: T;
-  cost_time: number;
-  status_msg: string;
-  [index: string]: unknown;
-}
 
 // 根据配置项生成类型化的API调用函数
 type ApiFuncType<T extends ApiItemConfig> = T extends ApiItemConfig<infer Res, infer Data>
   ? (
       dataOrParams?: ApiCallParams<Data>['dataOrParams'],
       config?: ApiCallParams<Data>['config']
-    ) => Promise<ResType<Res>>
+    ) => Promise<ApiResponse<Res>>
   : (
       dataOrParams?: ApiCallParams<any>['dataOrParams'],
       config?: ApiCallParams<any>['config']
-    ) => Promise<ResType<any>>;
+    ) => Promise<ApiResponse<any>>;
 
 // 递归生成API调用函数（与配置结构一致）
 type ApiService<T> = {

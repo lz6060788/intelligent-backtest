@@ -34,7 +34,7 @@ const debugPrint = () => {
 const { handleWorkflowStartRun } = useWorkflowStartRun()
 const runWorkflow = async () => {
   try {
-    const res = await handleWorkflowStartRun({
+    await handleWorkflowStartRun({
       id: instanceId,
       inputs: {},
       graph: {
@@ -43,9 +43,6 @@ const runWorkflow = async () => {
         viewport: store.viewport.value
       }
     })
-    if (typeof res === 'object' && 'status_code' in res && res.status_code !== 0) {
-      throw new Error(res.status_msg || '请求失败')
-    }
   } catch (error) {
     ElNotification({
       title: '运行失败',

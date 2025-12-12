@@ -98,7 +98,7 @@ const doRun = async () => {
   }
   emit('run')
   try {
-    const res = await handleRun({
+    await handleRun({
       id: instanceId,
       inputs: getProcessedInputs(initInputs, startVariables.value as any),
       graph: {
@@ -107,9 +107,6 @@ const doRun = async () => {
         viewport: store.viewport.value
       }
     })
-    if (res.status_code !== 0) {
-      throw new Error(res.status_msg)
-    }
   } catch (error) {
     ElNotification({
       title: 'Error',

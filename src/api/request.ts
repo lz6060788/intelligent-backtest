@@ -6,6 +6,7 @@ import axios, {
 } from 'axios';
 import { GLOBAL_CONFIG } from './configs';
 import type { GlobalConfig, ApiItemConfig, ApiCallParams } from './types';
+import { ElNotification } from 'element-plus';
 
 declare module 'axios' {
   interface InternalAxiosRequestConfig {
@@ -15,11 +16,13 @@ declare module 'axios' {
 }
 
 // 定义API响应结构
-interface ApiResponse<T = any> {
-  code: number;
-  message: string;
-  data: T;
-  success: boolean;
+export interface ApiResponse<T = any> {
+  status_code: number;
+  process_info: Record<string, unknown>;
+  response: T;
+  cost_time: number;
+  status_msg: string;
+  [index: string]: any;
 }
 
 // 创建axios实例
@@ -62,7 +65,7 @@ const createAxiosInstance = (globalConfig: GlobalConfig): AxiosInstance => {
   // 响应拦截器
   instance.interceptors.response.use(
     (response: AxiosResponse<ApiResponse>) => {
-      const { config, data } = response;
+      const { config, data, status } = response;
       const showLoading = config.showLoading !== undefined 
         ? config.showLoading 
         : globalConfig.showLoading;
@@ -72,26 +75,25 @@ const createAxiosInstance = (globalConfig: GlobalConfig): AxiosInstance => {
         // console.log('加载完成');
       }
 
+      // 401未登录处理
+      if (status === 401) {
+        ElNotification.error('未登录，请先登录');
+      }
+
       // 业务错误处理
-      if (!data.success) {
+      if (data.status_code !== 0) {
         const ignoreError = config.ignoreError !== undefined 
           ? config.ignoreError 
           : globalConfig.ignoreError;
-
-        // 401未登录处理
-        if (data.code === 401) {
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-        }
 
         // 非忽略错误时提示
         if (!ignoreError) {
           console.error('业务错误:', data.message);
         }
-        return Promise.reject(new Error(data.message || '请求失败'));
+        return Promise.reject(new Error(data.status_msg || '请求失败'));
       }
 
-      return data.data;
+      return response;
     },
     (error: AxiosError) => {
       const { config } = error;
