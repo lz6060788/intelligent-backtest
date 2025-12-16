@@ -117,3 +117,13 @@ button {
 .popper-default {
   @apply border border-gray-700 border-solid bg-gray-800  rounded-lg;
 }
+
+button {
+  cursor: pointer;
+  background-color: transparent;
+}
+
+a:-webkit-any-link {
+  text-decoration: none;
+  color: inherit;
+}

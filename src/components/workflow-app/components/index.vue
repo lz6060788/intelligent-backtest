@@ -74,7 +74,7 @@ const {
   openNewWorkflow,
 } = workflowStore
 
-const isProd = import.meta.env.PROD || true;
+const isProd = import.meta.env.PROD;
 </script>
 
 <style scoped>

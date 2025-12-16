@@ -8,7 +8,7 @@ import LayoutSideMenu from '@/components/Layout/SideMenu/index.vue'
     <LayoutHeader></LayoutHeader>
     <div class="h-[calc(100%-var(--height-header))] w-full flex">
       <LayoutSideMenu></LayoutSideMenu>
-      <div class="h-full flex-1">
+      <div class="h-full flex-1 overflow-y-auto">
         <router-view></router-view>
       </div>
     </div>

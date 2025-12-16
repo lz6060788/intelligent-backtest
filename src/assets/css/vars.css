@@ -1,5 +1,7 @@
 :root {
-  --global-background: rgba(var(--dark-black-8));
+  --global-background: rgb(15 23 42 / 0.9);
+  --header-background: rgb(2 6 23 / 1);
+  --sidemenu-background: rgb(2 6 23 / 1);
   --panel-background: rgba(var(--dark-black-6));
   --font-main: rgba(var(--dark-white));
   --font-secondary: rgba(var(--dark-white), 0.6);

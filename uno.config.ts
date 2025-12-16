@@ -31,8 +31,8 @@ export default defineConfig({
       getCSS: () => `
         :root {
           /* 映射尺寸变量 */
-          --height-header: 40px;
-          --width-sidemenu: 64px;
+          --height-header: 56px;
+          --width-sidemenu: 180px;
           ${cssVars}
         }
       `
