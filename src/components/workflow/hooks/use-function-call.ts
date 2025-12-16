@@ -19,7 +19,6 @@ import {
   transformGraphNodesToNodes,
   transformGraphEdgesToEdges,
 } from "../utils";
-import { ElNotification } from "element-plus";
 
 export const enum FunctionCallName {
   GetWorkflowInfo = "get_workflow_info",
@@ -38,7 +37,6 @@ export const enum FunctionCallName {
 export const useFunctionCall = (
   payload: Ref<{ isOperator: boolean; workflowId: string }>
 ) => {
-  const { availableNodesType } = useAvailableBlocks();
 
   const callExternalCapabilitiesTools = [
     // get_workflow_info
@@ -336,24 +334,43 @@ export const useFunctionCall = (
   };
 
   const callSetNodeConnections = ({
-    connections,
+    connections
   }: {
-    connections: Connection[];
+    connections: {
+      source: {
+        nodeId: string;
+        handle: string;
+      },
+      target: {
+        nodeId: string;
+        handle: string;
+      }
+    }[]
   }) => {
     const { replaceEdges } = useEdgeInteractions(payload.value.workflowId);
-    return replaceEdges(connections);
+    return replaceEdges(connections.map(i => ({
+      source: i.source.nodeId,
+      sourceHandle: i.source.handle,
+      target: i.target.nodeId,
+      targetHandle: i.target.handle,
+    })) as Connection[]);
   };
 
-  const callCreateNodes = (
+  const callCreateNodes = ({
+    nodes
+  }: {
     nodes: {
       nodeType: BlockEnum;
     }[]
-  ) => {
+  }) => {
     const { handleIsolatedNodeAdd } = useNodesInteractions(payload.value.workflowId);
     return nodes.forEach((node) => {
       const {
         nodeType,
       } = node;
+      if (nodeType === BlockEnum.Start || nodeType === BlockEnum.OperatorStart) {
+        return;
+      }
       return handleIsolatedNodeAdd(nodeType);
     });
   };

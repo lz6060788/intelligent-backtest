@@ -27,7 +27,7 @@ export const useNodesInteractions = (id?: string) => {
   const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId)
   const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy }
     = useNodeLoopInteractions(instanceId)
-  const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
+  const { nodesMap: nodesMetaDataMap } = useNodesMetaData(instanceId)
   const { getAfterNodesInSameBranch } = useWorkflow(instanceId)
   const { store: workflowHistoryStore, saveStateToHistory, undo, redo } = useWorkflowHistory(instanceId)
 

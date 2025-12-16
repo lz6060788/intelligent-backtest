@@ -12,10 +12,10 @@ const availableBlocksFilter = (nodeType: BlockEnum, inContainer?: boolean) => {
   return true
 }
 
-export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) => {
+export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean, workflowId?: string) => {
   const {
     nodes: availableNodes,
-  } = useNodesMetaData()
+  } = useNodesMetaData(workflowId)
   const availableNodesType = availableNodes.map(node => node.metaData.type)
   const availablePrevBlocks = () => {
     if (!nodeType || nodeType === BlockEnum.Start || nodeType === BlockEnum.DataSource || nodeType === BlockEnum.OperatorStart)

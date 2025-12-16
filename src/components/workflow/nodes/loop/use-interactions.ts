@@ -8,7 +8,7 @@ import { useWorkflowInstance } from "../../hooks/use-workflow-instance";
 export const useNodeLoopInteractions = (id?: string) => {
   const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
-  const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
+  const { nodesMap: nodesMetaDataMap } = useNodesMetaData(instanceId)
 
   const handleNodeLoopRerender = (nodeId: string) => {
     const {

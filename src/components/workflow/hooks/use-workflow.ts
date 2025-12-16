@@ -13,8 +13,8 @@ import type { CalculatorNodeType } from "../nodes/operator/types"
 export const useWorkflow = (id?: string) => {
   const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
-  const { getAvailableBlocks } = useAvailableBlocks()
-  const { nodesMap } = useNodesMetaData()
+  const { getAvailableBlocks } = useAvailableBlocks(undefined, undefined, instanceId)
+  const { nodesMap } = useNodesMetaData(instanceId)
 
   const getNodeById =(nodeId: string) => {
     const {

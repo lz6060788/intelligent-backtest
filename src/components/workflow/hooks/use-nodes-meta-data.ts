@@ -7,9 +7,9 @@ export type AvailableNodesMetaData = {
 }
 
 // 这里需要补充各类节点的基础信息，按需要拓展为通过接口获取
-export const useNodesMetaData = () => {
+export const useNodesMetaData = (id?: string) => {
 
-  const availableNodesMetaData = useAvailableNodesMetaData()
+  const availableNodesMetaData = useAvailableNodesMetaData(id)
 
   return {
     nodes: availableNodesMetaData.nodes.value,

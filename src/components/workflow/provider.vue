@@ -203,18 +203,13 @@ onMounted(() => {
     setNodes(props.nodes)
     setEdges(props.edges)
   } else {
-    // TODO 临时代码
     if (props.isOperator) {
       handleIsolatedNodeAdd(BlockEnum.OperatorStart, { x: 200, y: 800 })
-      setTimeout(() => {
-        handleIsolatedNodeAdd(BlockEnum.Backtest, { x: 1000, y: 800 })
-      }, 500)
+      handleIsolatedNodeAdd(BlockEnum.Backtest, { x: 1000, y: 800 })
     }
     else {
       handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })
-      setTimeout(() => {
-        handleIsolatedNodeAdd(BlockEnum.End, { x: 1000, y: 800 })
-      }, 500)
+      handleIsolatedNodeAdd(BlockEnum.End, { x: 1000, y: 800 })
     }
   }
 })

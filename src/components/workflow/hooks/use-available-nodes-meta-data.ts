@@ -5,8 +5,8 @@ import type { AvailableNodesMetaData } from './use-nodes-meta-data'
 import { useWorkflowInstance } from './use-workflow-instance'
 import { useI18n } from 'vue-i18n'
 
-export const useAvailableNodesMetaData = () => {
-  const { instance: workflowStore } = useWorkflowInstance()
+export const useAvailableNodesMetaData = (id?: string) => {
+  const { instance: workflowStore } = useWorkflowInstance(id)
   const isOperator = computed(() => workflowStore.workflowIsCalculator.value)
   const t = i18n.global.t
 //   const isChatMode = useIsChatMode()

@@ -113,7 +113,7 @@ export const useEdgeInteractions = (id?: string) => {
   }
 
   const replaceEdges = (edges: Connection[]) => {
-    const { edges: currentEdges, nodes } = store
+    const { edges: currentEdges, nodes, setEdges } = store
 
     const newEdges = [] as Edge[]
     edges.forEach((edge) => {
@@ -173,6 +173,8 @@ export const useEdgeInteractions = (id?: string) => {
         }
       }
     })
+
+    setEdges(newEdges)
     saveStateToHistory(WorkflowHistoryEvent.EdgeReplace)
   }
 

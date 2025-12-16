@@ -2,6 +2,7 @@ import { BlockEnum, type Node } from '@/types'
 import { CUSTOM_NODE, ITERATION_NODE_Z_INDEX, LOOP_NODE_Z_INDEX, CUSTOM_LOOP_START_NODE, LOOP_CHILDREN_Z_INDEX } from '../nodes/_base/node/constant'
 import { Position, type GraphNode } from '@vue-flow/core'
 import type { LoopNodeType } from '../nodes/loop/type'
+import { v4 as uuid4 } from 'uuid'
 
 
 export function generateNewNode({ data, position, id, zIndex, type, ...rest }: Omit<Node, 'id'> & { id?: string }): {
@@ -10,7 +11,7 @@ export function generateNewNode({ data, position, id, zIndex, type, ...rest }: O
   newLoopStartNode?: Node
 } {
   const newNode = {
-    id: id || `${Date.now()}`,
+    id: id || `${uuid4()}`,
     type: type || CUSTOM_NODE,
     data,
     position,
