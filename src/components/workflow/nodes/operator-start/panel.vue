@@ -62,16 +62,16 @@ import RemoveEffectVarConfirm from '../_base/remove-effect-var-confrim/index.vue
 import VarItem from '@/components/workflow/nodes/_base/output-var/var-item.vue';
 import OutputVars from '@/components/workflow/nodes/_base/output-var/index.vue';
 import useConfig from './use-config'
-import type { CalculatorStartNodeType } from './types'
+import type { OperatorStartNodeType } from './types'
 import Split from '@/components/base/split.vue'
 import type { NodePanelProps } from '@/types'
 import { computed } from 'vue'
 import cn from '@/utils/classnames';
 import RemoveButton from '@/components/base/remove-button/index.vue';
 
-const i18nPrefix = 'workflow.nodes.calculatorStart'
+const i18nPrefix = 'workflow.nodes.operatorStart'
 
-const props = defineProps<NodePanelProps<CalculatorStartNodeType>>()
+const props = defineProps<NodePanelProps<OperatorStartNodeType>>()
 
 const { t } = useI18n()
 

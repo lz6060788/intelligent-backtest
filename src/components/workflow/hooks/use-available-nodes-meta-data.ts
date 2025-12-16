@@ -7,13 +7,13 @@ import { useI18n } from 'vue-i18n'
 
 export const useAvailableNodesMetaData = () => {
   const { instance: workflowStore } = useWorkflowInstance()
-  const isCalculator = computed(() => workflowStore.workflowIsCalculator.value)
+  const isOperator = computed(() => workflowStore.workflowIsCalculator.value)
   const t = i18n.global.t
 //   const isChatMode = useIsChatMode()
 //   const language = useGetLanguage()
 
   const mergedNodesMetaData = computed(() => ([
-    ...WORKFLOW_COMMON_NODES.filter(node => node.metaData._isBelongToCalculator === isCalculator.value),
+    ...WORKFLOW_COMMON_NODES.filter(node => node.metaData._isBelongToCalculator === isOperator.value),
   ]))
 
   const prefixLink = computed(() => {

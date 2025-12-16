@@ -8,7 +8,7 @@ import {
 import { ValueType, VarType } from '@/types'
 import type { Var } from '@/types'
 import { toNodeOutputVars } from '@/components/workflow/nodes/_base/variable/utils'
-import { calculators } from './constant/calculators'
+import { operators } from './constant/operators'
 import {
   CalculatorArgumentTypeEnum,
   CalculatorArgumentValueTypeEnum,
@@ -35,17 +35,17 @@ const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
   }
 
   const currentCalculatorTemplate = computed(() => {
-    return cloneDeep(calculators.find(item => item.name === payload.value.calculator))
+    return cloneDeep(operators.find(item => item.name === payload.value.operator))
   })
 
-  const handleChangeCalculator = (calculator: string) => {
-    const fixedTemplateVariables = cloneDeep(calculators.find(item => item.name === calculator)?.inputs.fixedArguments || [])
-    const restTemplateVariables = cloneDeep(calculators.find(item => item.name === calculator)?.inputs.restArguments || [])
-    const minTemplateVariables = calculators.find(item => item.name === calculator)?.inputs.minArguments || 1
+  const handleChangeCalculator = (operator: string) => {
+    const fixedTemplateVariables = cloneDeep(operators.find(item => item.name === operator)?.inputs.fixedArguments || [])
+    const restTemplateVariables = cloneDeep(operators.find(item => item.name === operator)?.inputs.restArguments || [])
+    const minTemplateVariables = operators.find(item => item.name === operator)?.inputs.minArguments || 1
     const draft = cloneDeep(payload.value)
     draft.variables = []
     draft.alias = '';
-    draft.calculator = calculator
+    draft.operator = operator
     fixedTemplateVariables.forEach(item => {
       draft.variables.push({
         id: uuid4(),

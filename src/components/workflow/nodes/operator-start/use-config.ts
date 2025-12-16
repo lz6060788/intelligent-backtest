@@ -1,4 +1,4 @@
-import type { CalculatorStartNodeType } from './types'
+import type { OperatorStartNodeType } from './types'
 import type { ValueSelector, Var } from '@/types'
 import useNodeCrud from '@/components/workflow/nodes/_base/hooks/use-node-crud.ts'
 import {
@@ -9,11 +9,11 @@ import { computed, ref, type Ref } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { SET_OUTPUT_VARIABLES } from './constant'
 
-const useConfig = (id: string, payload: Ref<CalculatorStartNodeType>) => {
+const useConfig = (id: string, payload: Ref<OperatorStartNodeType>) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
   const { isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()
 
-  const { setInputs } = useNodeCrud<CalculatorStartNodeType>(id)
+  const { setInputs } = useNodeCrud<OperatorStartNodeType>(id)
   const inputs = computed(() => payload.value)
 
   const unusedVariables = computed(() => {

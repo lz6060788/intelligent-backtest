@@ -24,7 +24,7 @@ export const useNodesSyncDraft = (id?: string) => {
     // const appId = workflowStore.
 
     if (!!nodes.value.length) {
-      const hasStartNode = nodes.value.find(node => node.data.type === BlockEnum.Start || node.data.type === BlockEnum.CalculatorStart)
+      const hasStartNode = nodes.value.find(node => node.data.type === BlockEnum.Start || node.data.type === BlockEnum.OperatorStart)
 
       if (!hasStartNode)
         return

@@ -1,7 +1,7 @@
 <template>
   <workflowProvider
     v-bind="props"
-    @edit-calculator-detail="(id: string, title: string, data: any) => emit('edit-calculator-detail', id, title, data)"
+    @edit-operator-detail="(id: string, title: string, data: any) => emit('edit-operator-detail', id, title, data)"
   ></workflowProvider>
 </template>
 
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<WorkflowProps>(), {});
 provide('workflowInstanceId', props.id);
 
 const emit = defineEmits<{
-  'edit-calculator-detail': [id: string, title: string, data: any]
+  'edit-operator-detail': [id: string, title: string, data: any]
 }>()
 </script>
 

@@ -104,7 +104,7 @@ const props = withDefaults(defineProps<PanelOperatorPopupProps>(), {
 
 const emit = defineEmits<{
   'close-popup': [],
-  'edit-calculator-detail': []
+  'edit-operator-detail': []
 }>()
 
 const { t } = useI18n()
@@ -166,7 +166,7 @@ const handleRunThisStep = () => {
 }
 
 const canEditCalculatorDetail = computed(() => {
-  return props.data!.type === BlockEnum.CalculatorOverview
+  return props.data!.type === BlockEnum.OperatorOverview
 })
 
 /** 处理复制 */
@@ -187,7 +187,7 @@ const handleDelete = () => {
 }
 
 const handleEditCalculatorDetail = () => {
-  emit('edit-calculator-detail')
+  emit('edit-operator-detail')
   emit('close-popup')
 }
 </script>

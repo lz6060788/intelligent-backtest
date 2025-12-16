@@ -270,10 +270,10 @@ const translation = {
     'loop-end': 'Exit Loop',
     'knowledge-index': 'Knowledge Base',
     'datasource': 'Data Source',
-    'calculator': 'Calculator',
-    'calculator-start': 'Calculator Start',
-    'calculator-backtest': 'Backtest',
-    'calculator-overview': 'Calculator Overview',
+    'operator': 'Operator',
+    'operator-start': 'Operator Start',
+    'backtest': 'Backtest',
+    'operator-overview': 'Operator Overview',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',
@@ -299,10 +299,10 @@ const translation = {
     'agent': 'Invoking large language models to answer questions or process natural language',
     'knowledge-index': 'Knowledge Base About',
     'datasource': 'Data Source About',
-    'calculator': 'Calculator About',
-    'calculator-start': 'Calculator Start About',
-    'calculator-overview': 'Calculator Overview About',
-    'calculator-backtest': 'Calculator Backtest About',
+    'operator': 'Operator About',
+    'operator-start': 'Operator Start About',
+    'operator-overview': 'Operator Overview About',
+    'backtest': 'Operator Backtest About',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -972,19 +972,19 @@ const translation = {
       retrievalSettingIsRequired: 'Retrieval setting is required',
       rerankingModelIsRequired: 'Reranking model is required',
     },
-    calculator: {
+    operator: {
       input: 'input',
       output: 'output',
       params: 'params',
       setVariables: 'Please set variables',
-      calculator: 'Calculator',
+      operator: 'Operator',
       alias: 'alias',
-      noCalculator: 'Please select a calculator',
+      noCalculator: 'Please select a operator',
       outputVars: {
-        result: 'Calculator result',
+        result: 'Operator result',
       },
     },
-    calculatorStart: {
+    operatorStart: {
       setOutputVariable: 'Set output variable',
       outputVars: {
         hight: 'Hight',

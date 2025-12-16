@@ -1,5 +1,5 @@
 import type { CommonNodeType, Var } from '@/types'
 
-export type CalculatorStartNodeType = CommonNodeType & {
+export type OperatorStartNodeType = CommonNodeType & {
   variables: Var[]
 }

@@ -18,46 +18,46 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) 
   } = useNodesMetaData()
   const availableNodesType = availableNodes.map(node => node.metaData.type)
   const availablePrevBlocks = () => {
-    if (!nodeType || nodeType === BlockEnum.Start || nodeType === BlockEnum.DataSource || nodeType === BlockEnum.CalculatorStart)
+    if (!nodeType || nodeType === BlockEnum.Start || nodeType === BlockEnum.DataSource || nodeType === BlockEnum.OperatorStart)
       return []
 
-    if (nodeType === BlockEnum.Calculator)
-      return [BlockEnum.Calculator]
-    if (nodeType === BlockEnum.CalculatorBacktest)
-      return [BlockEnum.Calculator]
+    if (nodeType === BlockEnum.Operator)
+      return [BlockEnum.Operator]
+    if (nodeType === BlockEnum.Backtest)
+      return [BlockEnum.Operator]
 
-    return availableNodesType.filter(nType => nType !== BlockEnum.Calculator)
+    return availableNodesType.filter(nType => nType !== BlockEnum.Operator)
   }
   const availableNextBlocks = () => {
-    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.CalculatorBacktest)
+    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.Backtest)
       return []
 
-    if (nodeType === BlockEnum.Calculator)
-      return [BlockEnum.Calculator, BlockEnum.CalculatorBacktest]
-    if (nodeType === BlockEnum.CalculatorStart)
-      return [BlockEnum.Calculator]
+    if (nodeType === BlockEnum.Operator)
+      return [BlockEnum.Operator, BlockEnum.Backtest]
+    if (nodeType === BlockEnum.OperatorStart)
+      return [BlockEnum.Operator]
 
     return availableNodesType
   }
 
   const getAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean) => {
     let availablePrevBlocks = availableNodesType
-    if (!nodeType || nodeType === BlockEnum.Start || nodeType === BlockEnum.DataSource || nodeType === BlockEnum.CalculatorStart)
+    if (!nodeType || nodeType === BlockEnum.Start || nodeType === BlockEnum.DataSource || nodeType === BlockEnum.OperatorStart)
       availablePrevBlocks = []
 
     let availableNextBlocks = availableNodesType
-    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.CalculatorBacktest)
+    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.Backtest)
       availableNextBlocks = []
 
-    if (nodeType === BlockEnum.Calculator)
-      availableNextBlocks = [BlockEnum.Calculator, BlockEnum.CalculatorBacktest]
-    if (nodeType === BlockEnum.CalculatorStart)
-      availableNextBlocks = [BlockEnum.Calculator]
+    if (nodeType === BlockEnum.Operator)
+      availableNextBlocks = [BlockEnum.Operator, BlockEnum.Backtest]
+    if (nodeType === BlockEnum.OperatorStart)
+      availableNextBlocks = [BlockEnum.Operator]
 
-    if (nodeType === BlockEnum.Calculator)
-      availablePrevBlocks = [BlockEnum.Calculator]
-    if (nodeType === BlockEnum.CalculatorBacktest)
-      availablePrevBlocks = [BlockEnum.Calculator]
+    if (nodeType === BlockEnum.Operator)
+      availablePrevBlocks = [BlockEnum.Operator]
+    if (nodeType === BlockEnum.Backtest)
+      availablePrevBlocks = [BlockEnum.Operator]
 
     return {
       availablePrevBlocks: availablePrevBlocks.filter(nType => availableBlocksFilter(nType, inContainer)),

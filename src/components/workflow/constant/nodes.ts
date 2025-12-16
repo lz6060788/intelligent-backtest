@@ -8,10 +8,10 @@ import loopEndDefault from '@/components/workflow/nodes/loop-end/default';
 import llmDefault from '@/components/workflow/nodes/llm/default';
 import variableAssignerDefault from '@/components/workflow/nodes/variable-assigner/default';
 import endDefault from '@/components/workflow/nodes/end/default';
-import calculatorDefault from '@/components/workflow/nodes/calculator/default';
-import calculatorStartDefault from '@/components/workflow/nodes/calculator-start/default';
-import calculatorBacktestDefault from '@/components/workflow/nodes/calculator-backtest/default';
-import calculatorOverviewDefault from '@/components/workflow/nodes/calculator-overview/default';
+import operatorDefault from '@/components/workflow/nodes/operator/default';
+import operatorStartDefault from '@/components/workflow/nodes/operator-start/default';
+import backtestDefault from '@/components/workflow/nodes/backtest/default';
+import operatorOverviewDefault from '@/components/workflow/nodes/operator-overview/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -28,10 +28,10 @@ export const WORKFLOW_COMMON_NODES = [
   llmDefault,
   variableAssignerDefault,
   endDefault,
-  calculatorDefault,
-  calculatorStartDefault,
-  calculatorBacktestDefault,
-  calculatorOverviewDefault,
+  operatorDefault,
+  operatorStartDefault,
+  backtestDefault,
+  operatorOverviewDefault,
 ] as NodeDefault[]
 
 
@@ -111,9 +111,9 @@ export const RETRIEVAL_OUTPUT_STRUCT = `{
 }`
 
 export const SUPPORT_OUTPUT_VARS_NODE = [
-  BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code, BlockEnum.Calculator,
+  BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code, BlockEnum.Operator,
   BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
-  BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource, BlockEnum.CalculatorStart,
+  BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource, BlockEnum.OperatorStart,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [

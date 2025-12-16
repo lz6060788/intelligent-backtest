@@ -9,14 +9,14 @@ const i18nPrefix = 'workflow.errorMsg'
 const metaData = genNodeMetaData({
   classification: BlockClassificationEnum.Logic,
   sort: 1,
-  type: BlockEnum.Calculator,
-  helpLinkUri: 'calculator',
+  type: BlockEnum.Operator,
+  helpLinkUri: 'operator',
   _isBelongToCalculator: true,
 })
 const nodeDefault: NodeDefault<CalculatorNodeType> = {
   metaData,
   defaultValue: {
-    calculator: '',
+    operator: '',
     alias: '',
     variables: []
   },

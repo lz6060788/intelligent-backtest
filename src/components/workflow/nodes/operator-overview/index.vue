@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    Calculator Overview
+    Operator Overview
   </div>
 </template>
 

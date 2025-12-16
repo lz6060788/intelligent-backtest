@@ -46,9 +46,9 @@ import type { ToolWithProvider } from '@/components/workflow/block-selector/type
 import type { LoopNodeType } from '../../loop/type'
 import type { VariableAssignerNodeType } from '../../variable-assigner/types'
 import type { HttpNodeType } from '../../http/types'
-import { calculators } from '../../calculator/constant/calculators' 
-import type { CalculatorNodeType } from '../../calculator/types'
-import type { CalculatorStartNodeType } from '../../calculator-start/types'
+import { operators } from '../../operator/constant/operators' 
+import type { CalculatorNodeType } from '../../operator/types'
+import type { OperatorStartNodeType } from '../../operator-start/types'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
@@ -500,20 +500,20 @@ const formatItem = (
     //   break
     // }
 
-    case BlockEnum.Calculator: {
-      const template = calculators.find((calculator) => calculator.name === data.calculator)
-      if (!template || !data.calculator) res.vars = []
+    case BlockEnum.Operator: {
+      const template = operators.find((operator) => operator.name === data.operator)
+      if (!template || !data.operator) res.vars = []
       res.vars = [
         {
-          variable: data.calculator!,
+          variable: data.operator!,
           type: template!.output.type as unknown as VarType,
         }
       ]
       break
     }
 
-    case BlockEnum.CalculatorStart: {
-      const { variables } = data as CalculatorStartNodeType
+    case BlockEnum.OperatorStart: {
+      const { variables } = data as OperatorStartNodeType
       res.vars = variables
       break
     }
@@ -693,8 +693,8 @@ export const toNodeOutputVars = (
   // }
   // Sort nodes in reverse chronological order (most recent first)
   const sortedNodes = [...nodes].sort((a, b) => {
-    if (a.data.type === BlockEnum.Start || a.data.type === BlockEnum.CalculatorStart) return 1
-    if (b.data.type === BlockEnum.Start || b.data.type === BlockEnum.CalculatorStart) return -1
+    if (a.data.type === BlockEnum.Start || a.data.type === BlockEnum.OperatorStart) return 1
+    if (b.data.type === BlockEnum.Start || b.data.type === BlockEnum.OperatorStart) return -1
     if (a.data.type === 'env') return 1
     if (b.data.type === 'env') return -1
     if (a.data.type === 'conversation') return 1
@@ -737,7 +737,7 @@ export const toNodeOutputVars = (
           // ),
           schemaTypeDefinitions,
         ),
-        isStartNode: node.data.type === BlockEnum.Start || node.data.type === BlockEnum.CalculatorStart,
+        isStartNode: node.data.type === BlockEnum.Start || node.data.type === BlockEnum.OperatorStart,
       }
     })
     .filter(item => item.vars.length > 0)
@@ -947,7 +947,7 @@ export const getVarType = ({
     = isRagVariableVar(valueSelector) && valueSelector[1] !== 'shared'
 
   const startNode = availableNodes.find((node: any) => {
-    return node?.data.type === BlockEnum.Start || node?.data.type === BlockEnum.CalculatorStart
+    return node?.data.type === BlockEnum.Start || node?.data.type === BlockEnum.OperatorStart
   })
 
   const targetVarNodeId = (() => {
@@ -1228,7 +1228,7 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       break
     }
 
-    case BlockEnum.Calculator: {
+    case BlockEnum.Operator: {
       res = (data as CalculatorNodeType).variables?.filter(v => !v.isConst).map((v) => {
         return v.value as ValueSelector
       })
@@ -1521,7 +1521,7 @@ export const updateNodeVars = (
       }
       break
     }
-    case BlockEnum.Calculator: {
+    case BlockEnum.Operator: {
       const payload = data as CalculatorNodeType
       if (payload.variables) {
         payload.variables = payload.variables.map((v) => {
@@ -1662,13 +1662,13 @@ export const getNodeOutputVars = (
       break
     }
 
-    case BlockEnum.Calculator: {
+    case BlockEnum.Operator: {
       res.push([id, 'result'])
       break
     }
 
-    case BlockEnum.CalculatorStart: {
-      const { variables } = data as CalculatorStartNodeType
+    case BlockEnum.OperatorStart: {
+      const { variables } = data as OperatorStartNodeType
       res = variables.map((v) => {
         return [id, v.variable]
       })

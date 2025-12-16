@@ -11,13 +11,13 @@ import { useFunctionCall } from '../hooks/index'
 import type { FunctionCallAction } from '@/components/aime/type'
 
 const props = defineProps<{
-  isCalculator: boolean;
+  isOperator: boolean;
   workflowId: string;
 }>()
 
 const aimeRef = ref<InstanceType<typeof Aime>>()
 
-const payload = computed(() => ({ isCalculator: props.isCalculator, workflowId: props.workflowId }))
+const payload = computed(() => ({ isOperator: props.isOperator, workflowId: props.workflowId }))
 const { callExternalCapabilitiesTools, functionCallMap, asyncFunctionCalls } = useFunctionCall(payload)
 
 const handleCallExternalCapabilities = async (data: { functionCallAction: FunctionCallAction[] }) => {

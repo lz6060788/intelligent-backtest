@@ -1,6 +1,6 @@
 <template>
   <BaseNode v-bind="props"
-    @edit-calculator-detail="emit('edit-calculator-detail', props.id, props.data.title, props.data)"
+    @edit-operator-detail="emit('edit-operator-detail', props.id, props.data.title, props.data)"
   >
     <component
       :is="NodeComponent"
@@ -19,11 +19,11 @@ import HttpNode from './http/index.vue';
 import LoopNode from './loop/index.vue';
 import LLMNode from './llm/index.vue';
 import VariableAssignerNode from './variable-assigner/index.vue';
-import CalculatorNode from './calculator/index.vue';
+import CalculatorNode from './operator/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BaseNode from './_base/node/index.vue'
 import type { WorkflowGraph } from '@/types';
-import type { CalculatorOverviewNodeType } from './calculator-overview/types';
+import type { OperatorOverviewNodeType } from './operator-overview/types';
 
 // 定义节点组件映射关系
 const NodeComponentMap = {
@@ -35,7 +35,7 @@ const NodeComponentMap = {
   [BlockEnum.Loop]: LoopNode,
   [BlockEnum.LLM]: LLMNode,
   [BlockEnum.VariableAggregator]: VariableAssignerNode,
-  [BlockEnum.Calculator]: CalculatorNode,
+  [BlockEnum.Operator]: CalculatorNode,
 } as const
 
 // 声明组件接收的 props
@@ -47,6 +47,6 @@ const NodeComponent = computed(() => {
 })
 
 const emit = defineEmits<{
-  'edit-calculator-detail': [id: string, title: string, data: any]
+  'edit-operator-detail': [id: string, title: string, data: any]
 }>()
 </script>

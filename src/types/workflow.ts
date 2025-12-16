@@ -16,7 +16,7 @@ export type WorkflowGraph = {
 
 export type WorkflowProps = {
   id: string;
-  isCalculator: boolean;
+  isOperator: boolean;
   nodes: Node[];
   edges: Edge[];
   viewport?: ViewportTransform;

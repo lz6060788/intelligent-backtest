@@ -28,16 +28,16 @@
           <workflow
             :key="activeWorkflow!.id"
             :id="activeWorkflow!.id"
-            :is-calculator="activeWorkflow!.isCalculator"
+            :is-operator="activeWorkflow!.isOperator"
             :nodes="activeWorkflow!.graph.nodes"
             :edges="activeWorkflow!.graph.edges"
             :viewport="activeWorkflow!.graph.viewport || { x: 0, y: 0, zoom: 1 }"
-            @edit-calculator-detail="openNewWorkflow"
+            @edit-operator-detail="openNewWorkflow"
           />
         </transition>
       </div>
     </div>
-    <aime v-if="isProd" class="shrink-0" :is-calculator="activeWorkflow!.isCalculator" :workflow-id="activeWorkflow!.id"></aime>
+    <aime v-if="isProd" class="shrink-0" :is-operator="activeWorkflow!.isOperator" :workflow-id="activeWorkflow!.id"></aime>
   </div>
 </template>
 

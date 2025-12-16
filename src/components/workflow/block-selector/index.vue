@@ -38,7 +38,7 @@ const blocks = computed(() => {
     if (block.metaData.type === BlockEnum.LoopStart)
       return false
 
-    if (block.metaData.type === BlockEnum.CalculatorStart)
+    if (block.metaData.type === BlockEnum.OperatorStart)
       return false
 
     return true

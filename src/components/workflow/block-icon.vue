@@ -76,10 +76,10 @@ const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
   [BlockEnum.Agent]: 'bg-blue-4',
   [BlockEnum.DataSource]: 'bg-blue-4',
   [BlockEnum.VariableAggregator]: 'bg-blue-4',
-  [BlockEnum.Calculator]: 'bg-blue-4',
-  [BlockEnum.CalculatorStart]: 'bg-blue-4',
-  [BlockEnum.CalculatorBacktest]: 'bg-blue-4',
-  [BlockEnum.CalculatorOverview]: 'bg-blue-4',
+  [BlockEnum.Operator]: 'bg-blue-4',
+  [BlockEnum.OperatorStart]: 'bg-blue-4',
+  [BlockEnum.Backtest]: 'bg-blue-4',
+  [BlockEnum.OperatorOverview]: 'bg-blue-4',
 }
 
 const iconComponentMap = {
@@ -94,10 +94,10 @@ const iconComponentMap = {
   [BlockEnum.DataSource]: Datasource,
   [BlockEnum.Agent]: Agent,
   [BlockEnum.VariableAggregator]: VariableX,
-  [BlockEnum.Calculator]: VariableX,
-  [BlockEnum.CalculatorStart]: Home,
-  [BlockEnum.CalculatorBacktest]: End,
-  [BlockEnum.CalculatorOverview]: VariableX,
+  [BlockEnum.Operator]: VariableX,
+  [BlockEnum.OperatorStart]: Home,
+  [BlockEnum.Backtest]: End,
+  [BlockEnum.OperatorOverview]: VariableX,
 }
 
 // 计算属性

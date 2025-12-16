@@ -36,7 +36,7 @@ export const enum FunctionCallName {
 }
 
 export const useFunctionCall = (
-  payload: Ref<{ isCalculator: boolean; workflowId: string }>
+  payload: Ref<{ isOperator: boolean; workflowId: string }>
 ) => {
   const { availableNodesType } = useAvailableBlocks();
 
@@ -294,7 +294,7 @@ export const useFunctionCall = (
     return {
       nodes: unref(nodes).map((node) => ({
         id: node.id,
-        data: node.type === BlockEnum.CalculatorOverview ? node.data : null,
+        data: node.type === BlockEnum.OperatorOverview ? node.data : null,
         position: node.position,
         parentNode: node.parentNode,
         type: node.type,
@@ -320,7 +320,7 @@ export const useFunctionCall = (
       .filter((node) => nodeIds.includes(node.id))
       .map((node) => ({
         id: node.id,
-        data: node.type === BlockEnum.CalculatorOverview ? null : node.data,
+        data: node.type === BlockEnum.OperatorOverview ? null : node.data,
       }));
   };
 

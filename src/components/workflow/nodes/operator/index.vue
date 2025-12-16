@@ -1,9 +1,9 @@
 <template>
-  <div class='mb-1 py-1 w-60' v-if="calculator">
+  <div class='mb-1 py-1 w-60' v-if="operator">
     <div class='flex items-center justify-between rounded-md p-1'>
       <div class='flex h-4 shrink-0 items-center rounded text-blue-500 px-1 text-xs font-semibold uppercase shrink-0'>
-        <span>{{ calculator?.name }}</span>
-        <el-tooltip :content="calculator?.description">
+        <span>{{ operator?.name }}</span>
+        <el-tooltip :content="operator?.description">
           <RiInformation2Fill class='h-4 w-4 text-gray-300 ml-1' />
         </el-tooltip>
       </div>
@@ -31,13 +31,13 @@
     <div class='flex justify-start rounded-md p-1'>
       <div class='flex h-4 shrink-0 items-center rounded px-1 text-xs font-semibold uppercase text-text-secondary mr-1'>{{ t(`${i18nPrefix}.output`) }}</div>
       <div class='w-0 grow rounded-md text-xs'>
-        <span>{{ calculator?.output.type }}</span>
+        <span>{{ operator?.output.type }}</span>
       </div>
     </div>
   </div>
   <!-- <div v-else>
     <div class="py-1 w-60 text-text-secondary text-xs">
-      {{ t('workflow.nodes.calculator.noCalculator') }}
+      {{ t('workflow.nodes.operator.noCalculator') }}
     </div>
   </div> -->
 </template>
@@ -47,20 +47,20 @@ import ReadonlyInputWithSelectVar from '@/components/workflow/nodes/_base/readon
 import type { NodeProps } from '@/types'
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { CalculatorNodeType } from './types'
-import { calculators } from './constant/calculators'
+import { operators } from './constant/operators'
 import { RiInformation2Fill } from '@remixicon/vue'
 import { useI18n } from 'vue-i18n'
 import { variableTransformer } from '../../utils/variable'
 import { cloneDeep } from 'lodash-es'
 
-const i18nPrefix = 'workflow.nodes.calculator'
+const i18nPrefix = 'workflow.nodes.operator'
 
 const { t } = useI18n()
 
 const props = defineProps<NodeProps<CalculatorNodeType>>();
 
 const input = computed(() => props.data.variables)
-const calculator = computed(() => cloneDeep(calculators.find((calculator) => calculator.name === props.data.calculator)))
+const operator = computed(() => cloneDeep(operators.find((operator) => operator.name === props.data.operator)))
 
 const formatVariableValue = (value: string | number | boolean | null | string[]) => {
   if (value === true) {

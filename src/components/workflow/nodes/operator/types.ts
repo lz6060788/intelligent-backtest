@@ -1,5 +1,5 @@
 import type { CommonNodeType, ValueSelector } from "@/types";
-import { calculators } from "./constant/calculators";
+import { operators } from "./constant/operators";
 import type {
   CalculatorArgumentTypeEnum,
   CalculatorArgumentValueTypeEnum,
@@ -49,10 +49,10 @@ export type CalculatorType = {
   };
 }
 
-export type CalculatorItem = typeof calculators[number]['name'];
+export type CalculatorItem = typeof operators[number]['name'];
 
 export type CalculatorNodeType = CommonNodeType & {
-  calculator: CalculatorItem | null;
+  operator: CalculatorItem | null;
   alias: string;
   variables: CalculatorVariable[];
 }

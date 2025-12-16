@@ -50,7 +50,7 @@
         <template #node-custom="customNodeProps">
           <customNode
             v-bind="customNodeProps"
-            @edit-calculator-detail="(id: string, title: string, data: any) => emit('edit-calculator-detail', id, title, data)"
+            @edit-operator-detail="(id: string, title: string, data: any) => emit('edit-operator-detail', id, title, data)"
           />
         </template>
         <template #node-custom-loop-start="customLoopStartNodeProps">
@@ -103,7 +103,7 @@ const workflowContainerRef = ref<HTMLDivElement>();
 const props = withDefaults(defineProps<WorkflowProps>(), {
   nodes: () => [],
   edges: () => [],
-  isCalculator: false,
+  isOperator: false,
   viewport: () => ({
     x: 0,
     y: 0,
@@ -112,13 +112,13 @@ const props = withDefaults(defineProps<WorkflowProps>(), {
 });
 
 const { instanceId,  instance: workflowStore, cleanInstance } = useWorkflowInstance(props.id)
-workflowStore.setWorkflowIsCalculator(props.isCalculator)
+workflowStore.setWorkflowIsCalculator(props.isOperator)
 
 const store = useVueFlow(instanceId)
 const { setNodes, setEdges } = store
 
 const emit = defineEmits<{
-  'edit-calculator-detail': [id: string, title: string, data: any]
+  'edit-operator-detail': [id: string, title: string, data: any]
 }>()
 
 const {
@@ -204,10 +204,10 @@ onMounted(() => {
     setEdges(props.edges)
   } else {
     // TODO 临时代码
-    if (props.isCalculator) {
-      handleIsolatedNodeAdd(BlockEnum.CalculatorStart, { x: 200, y: 800 })
+    if (props.isOperator) {
+      handleIsolatedNodeAdd(BlockEnum.OperatorStart, { x: 200, y: 800 })
       setTimeout(() => {
-        handleIsolatedNodeAdd(BlockEnum.CalculatorBacktest, { x: 1000, y: 800 })
+        handleIsolatedNodeAdd(BlockEnum.Backtest, { x: 1000, y: 800 })
       }, 500)
     }
     else {

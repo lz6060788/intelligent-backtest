@@ -4,12 +4,12 @@ import { BlockEnum, type WorkflowGraph } from '@/types';
 import { MAIN_WORKFLOW_APP_ID } from '@/components/workflow-app/constant';
 import { useVueFlow } from '@vue-flow/core';
 import { transformGraphNodesToNodes, transformGraphEdgesToEdges } from '@/components/workflow/utils';
-import type { CalculatorOverviewNodeType } from '@/components/workflow/nodes/calculator-overview/types';
+import type { OperatorOverviewNodeType } from '@/components/workflow/nodes/operator-overview/types';
 import { ElNotification } from 'element-plus';
 
 export type WorkflowItem = {
   id: string;
-  isCalculator: boolean;
+  isOperator: boolean;
   name: string;
   graph: WorkflowGraph;
 }
@@ -32,7 +32,7 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
       id: MAIN_WORKFLOW_APP_ID,
       name: '主流程图',
       graph: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 0.4 } },
-      isCalculator: false,
+      isOperator: false,
     },
   ]);
   const removeWorkflow = (id: string) => {
@@ -53,15 +53,15 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
     if (!node) {
       ElNotification.error('节点不存在');
       throw new Error('节点不存在');
-    } else if (node.data.type !== BlockEnum.CalculatorOverview) {
+    } else if (node.data.type !== BlockEnum.OperatorOverview) {
       ElNotification.error('该节点不是算子概览节点，无法展开');
       throw new Error('该节点不是算子概览节点，无法展开');
     }
     const workflow = {
       id,
       name: name || node.data.title,
-      graph: (node.data as CalculatorOverviewNodeType).graph,
-      isCalculator: true,
+      graph: (node.data as OperatorOverviewNodeType).graph,
+      isOperator: true,
     }
     workflowList.value.push(workflow);
     changeActiveWorkflowId(id);
@@ -75,7 +75,7 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
     if (workflow) {
       workflow.graph = { nodes: nodes.value, edges: edges.value, viewport: viewport.value };
       // 当算子工作流切换时，需要将工作流数据同步至主流程图中
-      if (workflow.isCalculator) {
+      if (workflow.isOperator) {
         const graph = {
           nodes: transformGraphNodesToNodes(nodes.value),
           edges: transformGraphEdgesToEdges(edges.value),

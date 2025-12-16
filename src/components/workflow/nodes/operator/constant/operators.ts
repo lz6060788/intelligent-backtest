@@ -1,7 +1,7 @@
 import { type CalculatorType } from '../types';
 import { CalculatorArgumentValueTypeEnum, CalculatorArgumentTypeEnum, CalculatorOutputValueTypeEnum, CalculatorTypeEnum } from './enums';
 
-export const calculators = [
+export const operators = [
   {
     name: 'add',
     description: '对两个或多个数值进行逐元素算术加法。',

@@ -18,7 +18,7 @@
         :id="id"
         :data="data"
         trigger-class-name="!w-5 !h-5"
-        @edit-calculator-detail="emit('edit-calculator-detail')"
+        @edit-operator-detail="emit('edit-operator-detail')"
       />
     </div>
   </div>
@@ -38,7 +38,7 @@ interface NodeControlProps {
 
 const props = defineProps<NodeControlProps>()
 const emit = defineEmits<{
-  'edit-calculator-detail': []
+  'edit-operator-detail': []
 }>()
 
 // 响应式状态

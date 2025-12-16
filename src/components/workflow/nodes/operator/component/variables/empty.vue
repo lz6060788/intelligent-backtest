@@ -1,6 +1,6 @@
 <template>
   <div class="text-xs flex h-10 items-center justify-center rounded-[10px] bg-background-section text-text-tertiary">
-    {{ t('workflow.nodes.calculator.setVariables') }}
+    {{ t('workflow.nodes.operator.setVariables') }}
   </div>
 </template>
 

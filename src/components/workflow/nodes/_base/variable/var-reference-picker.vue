@@ -358,7 +358,7 @@ watch([() => props.nodeId, () => props.onlyLeafNodeVar, () => props.availableNod
 const availableVars = computed(() => availableData.value.availableVars)
 const availableNodes = computed(() => availableData.value.availableNodesWithParent)
 
-const startNode = availableNodes.value.find((node: Node) => node.data!.type === BlockEnum.Start || node.data!.type === BlockEnum.CalculatorStart)
+const startNode = availableNodes.value.find((node: Node) => node.data!.type === BlockEnum.Start || node.data!.type === BlockEnum.OperatorStart)
 
 const node = computed(() => nodes.value.find(n => n.id === props.nodeId))
 const isInIteration = computed(() => !!(node.value?.data as any)?.isInIteration)

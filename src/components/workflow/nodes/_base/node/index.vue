@@ -25,7 +25,7 @@
     <slot></slot>
     <targetHandle v-if="showTargetHandle" handle-id="target" v-bind="props"></targetHandle>
     <sourceHandle v-if="showSourceHandle" handle-id="source" v-bind="props"></sourceHandle>
-    <node-control v-bind="props" @edit-calculator-detail="emit('edit-calculator-detail')"></node-control>
+    <node-control v-bind="props" @edit-operator-detail="emit('edit-operator-detail')"></node-control>
   </div>
 </template>
 
@@ -47,7 +47,7 @@ const nodeRef = ref(null)
 const props = withDefaults(defineProps<NodeProps>(), {})
 
 const emit = defineEmits<{
-  'edit-calculator-detail': []
+  'edit-operator-detail': []
 }>()
 
 watchEffect((onCleanup) => {
@@ -83,8 +83,8 @@ const borderStatus = computed(() => {
   }
 })
 
-const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End, BlockEnum.CalculatorBacktest].includes(props.data.type))
-const showTargetHandle = computed(() => ![BlockEnum.Start, BlockEnum.CalculatorStart].includes(props.data.type))
+const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End, BlockEnum.Backtest].includes(props.data.type))
+const showTargetHandle = computed(() => ![BlockEnum.Start, BlockEnum.OperatorStart].includes(props.data.type))
 </script>
 
 <style scoped>

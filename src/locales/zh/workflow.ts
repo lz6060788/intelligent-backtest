@@ -273,10 +273,10 @@ const translation = {
     'loop-end': '退出循环',
     'knowledge-index': '知识库',
     'datasource': '数据源',
-    'calculator': '算子',
-    'calculator-start': '开始',
-    'calculator-backtest': '回测',
-    'calculator-overview': '算子概览',
+    'operator': '算子',
+    'operator-start': '开始',
+    'backtest': '回测',
+    'operator-overview': '算子概览',
   },
   blocksAbout: {
     'start': '定义一个 workflow 流程启动的初始参数',
@@ -302,10 +302,10 @@ const translation = {
     'agent': '调用大型语言模型回答问题或处理自然语言',
     'knowledge-index': '知识库节点',
     'datasource': '数据源节点',
-    'calculator': '算子节点',
-    'calculator-start': '算子开始节点',
-    'calculator-overview': '算子概览节点',
-    'calculator-backtest': '算子回测节点',
+    'operator': '算子节点',
+    'operator-start': '算子开始节点',
+    'operator-overview': '算子概览节点',
+    'backtest': '算子回测节点',
   },
   operator: {
     zoomIn: '放大',
@@ -975,19 +975,19 @@ const translation = {
       retrievalSettingIsRequired: '检索设置是必需的',
       rerankingModelIsRequired: 'Reranking 模型是必需的',
     },
-    calculator: {
+    operator: {
       input: '输入',
       output: '输出',
       params: '参数',
       setVariables: '请设置变量',
-      calculator: '算子',
+      operator: '算子',
       alias: '别名',
       noCalculator: '请选择一个算子',
       outputVars: {
         result: '算子结果',
       },
     },
-    calculatorStart: {
+    operatorStart: {
       setOutputVariable: '设置输出变量',
       outputVars: {
         hight: '高',

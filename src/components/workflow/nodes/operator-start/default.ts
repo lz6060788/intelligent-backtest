@@ -1,11 +1,11 @@
 import type { NodeDefault } from '@/types'
-import type { CalculatorStartNodeType } from './types'
+import type { OperatorStartNodeType } from './types'
 import { genNodeMetaData } from '@/components/workflow/utils'
 import { BlockEnum } from '@/types'
 
 const metaData = genNodeMetaData({
   sort: 0.1,
-  type: BlockEnum.CalculatorStart,
+  type: BlockEnum.OperatorStart,
   isStart: false,
   isRequired: true,
   isUndeletable: true,
@@ -13,7 +13,7 @@ const metaData = genNodeMetaData({
   isTypeFixed: true,
   _isBelongToCalculator: true,
 })
-const nodeDefault: NodeDefault<CalculatorStartNodeType> = {
+const nodeDefault: NodeDefault<OperatorStartNodeType> = {
   metaData,
   defaultValue: {
     variables: [],

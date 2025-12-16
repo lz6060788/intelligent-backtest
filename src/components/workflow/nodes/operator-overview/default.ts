@@ -1,17 +1,17 @@
 import type { NodeDefault } from '@/types'
-import type { CalculatorBacktestNodeType } from './types.ts'
+import type { OperatorOverviewNodeType } from './types.ts'
 import { genNodeMetaData } from '@/components/workflow/utils'
 import { BlockEnum } from '@/types'
 
 const metaData = genNodeMetaData({
   sort: 2.1,
-  type: BlockEnum.CalculatorBacktest,
+  type: BlockEnum.OperatorOverview,
   isRequired: false,
-  _isBelongToCalculator: true,
 })
-const nodeDefault: NodeDefault<CalculatorBacktestNodeType> = {
+const nodeDefault: NodeDefault<OperatorOverviewNodeType> = {
   metaData,
   defaultValue: {
+    graph: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 0.25 } },
   },
   checkValid() {
     return {
