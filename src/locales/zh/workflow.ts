@@ -196,6 +196,7 @@ const translation = {
     noteChange: '注释已更改',
     noteDelete: '注释已删除',
     edgeDelete: '块已断开连接',
+    edgeReplace: '块连接已更改',
     stepForward: '{count} 步前进',
     stepBackward: '{count} 步后退',
   },

@@ -1020,10 +1020,11 @@ export const useNodesInteractions = (id?: string) => {
       saveStateToHistory(WorkflowHistoryEvent.NodeAdd, { nodeId: newNode.id })
   }
 
-  const handleIsolatedNodeAdd = (nodeType: BlockEnum, position: XYPosition) => {
+  const handleIsolatedNodeAdd = (nodeType: BlockEnum, position?: XYPosition) => {
     if (getNodesReadOnly()) return
 
-    const { nodes, setNodes, edges, setEdges } = store
+    const { nodes, setNodes, edges, setEdges, viewport } = store
+    const { x, y } = viewport.value
     const nodesWithSameType = nodes.value.filter(
       node => node.data.type === nodeType,
     )
@@ -1038,15 +1039,11 @@ export const useNodesInteractions = (id?: string) => {
               ? `${defaultValue.title} ${nodesWithSameType.length + 1}`
               : defaultValue.title,
           selected: false,
-          // _showAddVariablePopup:
-          //   (nodeType === BlockEnum.VariableAssigner
-          //     || nodeType === BlockEnum.VariableAggregator)
-          //   && !!prevNodeId,
           _holdAddVariablePopup: false,
         },
         position: {
-          x: position.x,
-          y: position.y,
+          x: position?.x || x,
+          y: position?.y || y,
         },
       })
     const newNodes = [...nodes.value, newNode]

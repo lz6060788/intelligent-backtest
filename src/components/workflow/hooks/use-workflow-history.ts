@@ -22,6 +22,7 @@ export const WorkflowHistoryEvent = {
   NoteChange: 'NoteChange',
   NoteDelete: 'NoteDelete',
   LayoutOrganize: 'LayoutOrganize',
+  EdgeReplace: 'EdgeReplace',
 } as const
 
 export type WorkflowHistoryEventT = keyof typeof WorkflowHistoryEvent
@@ -91,6 +92,7 @@ export const useWorkflowHistory = (id?: string) => {
       case WorkflowHistoryEvent.NoteAdd:
       case WorkflowHistoryEvent.LayoutOrganize:
       case WorkflowHistoryEvent.NoteDelete:
+      case WorkflowHistoryEvent.EdgeReplace:
         saveStateToHistoryRef(event, meta)
         break
       default:
@@ -131,6 +133,8 @@ export const useWorkflowHistory = (id?: string) => {
         return t('workflow.changeHistory.noteChange')
       case WorkflowHistoryEvent.NoteDelete:
         return t('workflow.changeHistory.noteDelete')
+      case WorkflowHistoryEvent.EdgeReplace:
+        return t('workflow.changeHistory.edgeReplace')
       default:
         return 'Unknown Event'
     }

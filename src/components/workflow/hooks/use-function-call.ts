@@ -1,213 +1,296 @@
-import { storeToRefs } from 'pinia'
-import { useNodesInteractions, useAvailableBlocks, useWorkflowInstance, useEdgeInteractions } from '.'
-import { useVueFlow } from '@vue-flow/core'
-import type { CallExternalCapabilitiesTool, FunctionCallAction } from '@/components/aime/type'
-import { BlockEnum } from '@/types'
-import { unref, type Ref } from 'vue'
-import { MAIN_WORKFLOW_APP_ID } from '@/components/workflow-app/constant'
-import { useWorkflowAppStore } from '@/components/workflow-app/store'
+import { storeToRefs } from "pinia";
+import {
+  useNodesInteractions,
+  useAvailableBlocks,
+  useEdgeInteractions,
+  useWorkflowStartRun,
+  useWorkflowOrganize,
+} from ".";
+import { useVueFlow, type Connection } from "@vue-flow/core";
+import type {
+  CallExternalCapabilitiesTool,
+  FunctionCallContext,
+} from "@/components/aime/type";
+import { BlockEnum } from "@/types";
+import { unref, type Ref } from "vue";
+import { MAIN_WORKFLOW_APP_ID } from "@/components/workflow-app/constant";
+import { useWorkflowAppStore } from "@/components/workflow-app/store";
+import {
+  transformGraphNodesToNodes,
+  transformGraphEdgesToEdges,
+} from "../utils";
+import { ElNotification } from "element-plus";
 
 export const enum FunctionCallName {
-  GetWorkflowInfo = 'getWorkflowInfo',
-  AddNode = 'addNode',
-  DeleteNode = 'deleteNode',
-  EditNode = 'editNode',
-  ConnectNode = 'connectNode',
-  SwitchWorkflow = 'switchWorkflow',
-  CloseWorkflow = 'closeWorkflow',
-  DeleteEdge = 'DeleteEdge',
+  GetWorkflowInfo = "get_workflow_info",
+  GetNodesInfo = "get_node_info",
+  UpdateNodeConfig = "update_node_config",
+  SetNodeConnections = "set_node_connections",
+  DeleteNodes = "delete_nodes",
+  CreateNodes = "create_nodes",
+  WorkflowTabAction = "workflow_tab_action",
+  RunWorkflow = "run_workflow",
+  BeautifyWorkflow = "beautify_workflow",
+  // ConnectNode = 'connectNode',
+  // DeleteEdge = 'DeleteEdge',
 }
 
-export const useFunctionCall = (payload: Ref<{ isCalculator: boolean, workflowId: string }>) => {
-  const { availableNodesType } = useAvailableBlocks()
+export const useFunctionCall = (
+  payload: Ref<{ isCalculator: boolean; workflowId: string }>
+) => {
+  const { availableNodesType } = useAvailableBlocks();
 
   const callExternalCapabilitiesTools = [
-    // 数据查询
+    // get_workflow_info
     {
-      type: 'function',
+      type: "function",
       function: {
         name: FunctionCallName.GetWorkflowInfo,
-        description: '获取当前工作流数据，包含节点数据、边数据',
+        description: "用于获取当前工作流完整的nodes和edges的关系",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {},
           required: [],
         },
       },
-      tool_id: '456'
+      tool_id: "456",
     },
-    // 节点添加
+    // get_node_info
     {
-      type: 'function',
+      type: "function",
       function: {
-        name: FunctionCallName.AddNode,
-        description: '添加节点',
+        name: FunctionCallName.GetNodesInfo,
+        description: "用于获取指定工作流节点的完整信息，如连接关系，配置等",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {
-            nodeType: {
-              type: 'string',
-              description: '节点类型',
-              enum: availableNodesType,
-            },
-            prevNodeId: {
-              type: 'string',
-              description: '前一个节点ID',
-            },
-            prevNodeSourceHandle: {
-              type: 'string',
-              description: '前一个节点连线起点ID',
-            },
-            nextNodeId: {
-              type: 'string',
-              description: '下一个节点ID',
-            },
-            nextNodeTargetHandle: {
-              type: 'string',
-              description: '下一个节点连线终点ID',
+            nodeIds: {
+              type: "array",
+              description: "节点ID列表",
+              items: {
+                type: "string",
+                description: "节点ID",
+                minItems: 1,
+              },
             },
           },
-          required: ['nodeType'],
+          required: ["nodeIds"],
         },
       },
-      tool_id: '456'
+      tool_id: "456",
     },
-    // 节点删除
+    // update_node_config
     {
-      type: 'function',
+      type: "function",
       function: {
-        name: FunctionCallName.DeleteNode,
-        description: '删除节点',
+        name: FunctionCallName.UpdateNodeConfig,
+        description: "用于更新具体节点的配置信息",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {
             nodeId: {
-              type: 'string',
-              description: '节点ID',
-            },
-          },
-          required: ['nodeId'],
-        },
-      },
-      tool_id: '456'
-    },
-    // 节点编辑
-    {
-      type: 'function',
-      function: {
-        name: FunctionCallName.EditNode,
-        description: '编辑节点，当需要编辑节点时，使用此能力',
-        parameters: {
-          type: 'object',
-          properties: {
-            nodeId: {
-              type: 'string',
-              description: '节点ID',
+              type: "string",
+              description: "节点ID",
             },
             data: {
-              type: 'object',
-              description: '更新后的节点数据',
+              type: "object",
+              description:
+                "根据从`get_node_template`中获取的`node schema`所推理出的完整的节点参数配置",
+              additionalProperties: true,
             },
           },
-          required: ['nodeId', 'data'],
+          required: ["nodeId", "data"],
         },
       },
-      tool_id: '456'
+      tool_id: "456",
     },
-    // 切换工作流
+    // set_node_connections
     {
-      type: 'function',
+      type: "function",
       function: {
-        name: FunctionCallName.SwitchWorkflow,
-        description: '打开或者切换工作流，当需要编辑其他工作流时，使用此能力，切换时会自动保存当前工作流数据',
+        name: FunctionCallName.SetNodeConnections,
+        description: "用于更新节点间的连接关系（edges），其支持部分与全局更新",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {
+            connections: {
+              type: "array",
+              description: "需要替换的连接关系列表",
+              items: {
+                type: "object",
+                description: "连接关系",
+                properties: {
+                  source: {
+                    type: "object",
+                    description: "source node",
+                    properties: {
+                      nodeId: {
+                        type: "string",
+                        description: "node id of source node",
+                      },
+                      handle: {
+                        type: "string",
+                        description: "handle id of source node",
+                      },
+                    },
+                    required: ["nodeId"],
+                    additionalProperties: false,
+                  },
+                  target: {
+                    type: "object",
+                    description: "target node",
+                    properties: {
+                      nodeId: {
+                        type: "string",
+                        description: "node id of target node",
+                      },
+                      handle: {
+                        type: "string",
+                        description: "handle id of target node",
+                      },
+                    },
+                    required: ["nodeId"],
+                    additionalProperties: false,
+                  },
+                },
+                required: ["source", "taeget"],
+                additionalProperties: false,
+              },
+              minItems: 1,
+            },
+          },
+          required: ["connections"],
+        },
+      },
+      tool_id: "456",
+    },
+    // delete_nodes
+    {
+      type: "function",
+      function: {
+        name: FunctionCallName.DeleteNodes,
+        description: "用于在workflow页面中删除节点",
+        parameters: {
+          type: "object",
+          properties: {
+            nodeIds: {
+              type: "array",
+              description: "节点ID列表",
+              items: {
+                type: "string",
+                description: "节点ID",
+                minItems: 1,
+              },
+            },
+          },
+          required: ["nodeIds"],
+        },
+      },
+      tool_id: "456",
+    },
+    // create_nodes
+    {
+      type: "function",
+      function: {
+        name: FunctionCallName.CreateNodes,
+        description: "用于在workflow页面中添加节点",
+        parameters: {
+          type: "object",
+          properties: {
+            nodes: {
+              type: "array",
+              description: "节点列表",
+              items: {
+                type: "object",
+                description: "一个节点",
+                properties: {
+                  nodeType: {
+                    type: "string",
+                    description: "节点类型",
+                    enum: [
+                      "start",
+                      "if-else",
+                      "code",
+                      "http-request",
+                      "loop-start",
+                      "loop",
+                      "loop-end",
+                      "llm",
+                      "variable-aggregator",
+                      "end",
+                      "operator-overview",
+                    ],
+                  },
+                },
+                required: ["nodeType"],
+              },
+            },
+          },
+          required: ["nodes"],
+        },
+      },
+      tool_id: "456",
+    },
+    // workflow_tab_action
+    {
+      type: "function",
+      function: {
+        name: FunctionCallName.WorkflowTabAction,
+        description:
+          "用于对workflow studio的页面tab进行操作，即打开、切换、关闭工作流tab。当需要编辑某个工作流，如`主工作流`，`子工作流`时，在操作前应当切换至对应tab，以确保当前的focus页面正确，以确保对具体workflow页面function调用可以顺利执行",
+        parameters: {
+          type: "object",
+          properties: {
+            action: {
+              type: "string",
+              description: "操作类型",
+              enum: ["open", "switch", "close"],
+            },
             id: {
-              type: 'string',
-              description: `若为算子工作流，则传入所属算子概览节点的节点id，若为主工作流，则传入${MAIN_WORKFLOW_APP_ID}`,
+              type: "string",
+              description:
+                "若为算子工作流，则传入所属算子概览节点的节点id，若为主工作流，则传入`main-workflow-app`",
             },
           },
-          required: ['id'],
+          required: ["action", "id"],
         },
       },
-      tool_id: '456'
+      tool_id: "456",
     },
-    // 关闭工作流
+    // run_workflow
     {
-      type: 'function',
+      type: "function",
       function: {
-        name: FunctionCallName.CloseWorkflow,
-        description: '关闭工作流，当需要关闭工作流时，使用此能力，主工作流无法关闭',
+        name: FunctionCallName.RunWorkflow,
+        description: "运行当前所打开工作流",
         parameters: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'string',
-              description: '传入所属算子概览节点的节点id',
-            },
-          },
-          required: ['id'],
+          type: "object",
+          properties: {},
+          required: [],
         },
       },
-      tool_id: '456'
+      tool_id: "456",
     },
-    // 连接节点
+    // beautify_workflow
     {
-      type: 'function',
+      type: "function",
       function: {
-        name: FunctionCallName.ConnectNode,
-        description: '连接节点',
+        name: FunctionCallName.BeautifyWorkflow,
+        description: "用于对workflow进行美化，即自动调整节点位置",
         parameters: {
-          type: 'object',
-          properties: {
-            source: {
-              type: 'string',
-              description: '源节点ID',
-            },
-            sourceHandle: {
-              type: 'string',
-              description: '源节点连线起点ID，默认值为source',
-            },
-            target: {
-              type: 'string',
-              description: '目标节点ID',
-            },
-            targetHandle: {
-              type: 'string',
-              description: '目标节点连线终点ID，默认值为target',
-            },
-          },
-          required: ['source', 'sourceHandle', 'target', 'targetHandle'],
+          type: "object",
+          properties: {},
+          required: [],
         },
       },
-      tool_id: '456'
+      tool_id: "456",
     },
-    // 断开节点
-    {
-      type: 'function',
-      function: {
-        name: FunctionCallName.DeleteEdge,
-        description: '删除连线',
-        parameters: {
-          type: 'object',
-          properties: {
-            edgeId: {
-              type: 'string',
-              description: '连线ID',
-            },
-          },
-          required: ['edgeId'],
-        },
-      },
-      tool_id: '456'
-    },
-  ] as const satisfies CallExternalCapabilitiesTool[]
+  ] as const satisfies CallExternalCapabilitiesTool[];
 
   /** 查询画布数据具体方法，会过滤算子概览节点数据 */
   const callGetWorkflowInfo = () => {
-    const store = useVueFlow(payload.value.workflowId)
-    const { nodes, edges } = store
+    const store = useVueFlow(payload.value.workflowId);
+    const { nodes, edges } = store;
     return {
       nodes: unref(nodes).map((node) => ({
         id: node.id,
@@ -218,7 +301,7 @@ export const useFunctionCall = (payload: Ref<{ isCalculator: boolean, workflowId
         width: node.width,
         height: node.height,
       })),
-      edges: unref(edges).map((edge)  => ({
+      edges: unref(edges).map((edge) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
@@ -227,69 +310,138 @@ export const useFunctionCall = (payload: Ref<{ isCalculator: boolean, workflowId
         type: edge.type,
         data: edge.data,
       })),
-    }
-  }
+    };
+  };
 
-  const callAddNode = (data: {nodeType: BlockEnum, prevNodeId?: string, prevNodeSourceHandle?: string, nextNodeId?: string, nextNodeTargetHandle?: string}) => {
-    const { handleNodeAdd } = useNodesInteractions(payload.value.workflowId)
-    const { nodeType, prevNodeId, prevNodeSourceHandle, nextNodeId, nextNodeTargetHandle } = data
-    return handleNodeAdd(
-      {
+  const callGetNodesInfo = ({ nodeIds }: { nodeIds: string[] }) => {
+    const store = useVueFlow(payload.value.workflowId);
+    const { nodes } = store;
+    return unref(nodes)
+      .filter((node) => nodeIds.includes(node.id))
+      .map((node) => ({
+        id: node.id,
+        data: node.type === BlockEnum.CalculatorOverview ? null : node.data,
+      }));
+  };
+
+  const callUpdateNodeConfig = ({
+    nodeId,
+    data,
+  }: {
+    nodeId: string;
+    data: any;
+  }) => {
+    const { updateNodeData } = useVueFlow(payload.value.workflowId);
+    return updateNodeData(nodeId, { data });
+  };
+
+  const callSetNodeConnections = ({
+    connections,
+  }: {
+    connections: Connection[];
+  }) => {
+    const { replaceEdges } = useEdgeInteractions(payload.value.workflowId);
+    return replaceEdges(connections);
+  };
+
+  const callCreateNodes = (
+    nodes: {
+      nodeType: BlockEnum;
+    }[]
+  ) => {
+    const { handleIsolatedNodeAdd } = useNodesInteractions(payload.value.workflowId);
+    return nodes.forEach((node) => {
+      const {
         nodeType,
+      } = node;
+      return handleIsolatedNodeAdd(nodeType);
+    });
+  };
+
+  const callDeleteNodes = ({ nodeIds }: { nodeIds: string[] }) => {
+    const { handleNodeDelete } = useNodesInteractions(payload.value.workflowId);
+    return nodeIds.forEach((nodeId) => handleNodeDelete(nodeId));
+  };
+
+  const callWorkflowTabAction = ({
+    action,
+    id,
+  }: {
+    action: "open" | "switch" | "close";
+    id: string;
+  }) => {
+    const { openNewWorkflow, removeWorkflow } = useWorkflowAppStore();
+    return action === "close" ? removeWorkflow(id) : openNewWorkflow(id);
+  };
+
+  const callRunWorkflow = async (_: any, context: FunctionCallContext) => {
+    const instanceId = payload.value.workflowId;
+    const { handleWorkflowStartRun } = useWorkflowStartRun(instanceId);
+    const store = useVueFlow(instanceId);
+    const { nodes, edges, viewport } = store;
+    const res = await handleWorkflowStartRun({
+      id: instanceId,
+      inputs: {},
+      graph: {
+        nodes: transformGraphNodesToNodes(nodes.value),
+        edges: transformGraphEdgesToEdges(edges.value),
+        viewport: viewport.value,
       },
-      {
-        prevNodeId,
-        prevNodeSourceHandle,
-        nextNodeId,
-        nextNodeTargetHandle,
-      },
-    )
-  }
+    });
+    context.respFunction(true, JSON.stringify(res));
+  };
 
-  const callDeleteNode = ({ nodeId }: { nodeId: string }) => {
-    const { handleNodeDelete } = useNodesInteractions(payload.value.workflowId)
-    return handleNodeDelete(nodeId)
-  }
-
-  const callEditNode = ({ nodeId, data }: { nodeId: string, data: any }) => {
-    const { updateNodeData } = useVueFlow(payload.value.workflowId)
-    return updateNodeData(nodeId, { data })
-  }
-
-  const callConnectNode = ({ source, sourceHandle, target, targetHandle }: { source: string, sourceHandle: string, target: string, targetHandle: string }) => {
-    const { handleNodeConnect } = useNodesInteractions(payload.value.workflowId)
-    return handleNodeConnect({ source, sourceHandle, target, targetHandle })
-  }
-
-  const callSwitchWorkflow = ({ id }: { id: string }) => {
-    const { openNewWorkflow } = useWorkflowAppStore()
-    return openNewWorkflow(id)
-  }
-
-  const callCloseWorkflow = ({ id }: { id: string }) => {
-    const { removeWorkflow } = useWorkflowAppStore()
-    return removeWorkflow(id)
-  }
+  const callConnectNode = ({
+    source,
+    sourceHandle,
+    target,
+    targetHandle,
+  }: {
+    source: string;
+    sourceHandle: string;
+    target: string;
+    targetHandle: string;
+  }) => {
+    const { handleNodeConnect } = useNodesInteractions(
+      payload.value.workflowId
+    );
+    return handleNodeConnect({ source, sourceHandle, target, targetHandle });
+  };
 
   const callDeleteEdge = ({ edgeId }: { edgeId: string }) => {
-    const { handleEdgeDelete } = useEdgeInteractions(payload.value.workflowId)
-    return handleEdgeDelete(edgeId)
-  }
+    const { handleEdgeDelete } = useEdgeInteractions(payload.value.workflowId);
+    return handleEdgeDelete(edgeId);
+  };
+
+  const callBeautifyWorkflow = () => {
+    const { handleLayout } = useWorkflowOrganize(payload.value.workflowId);
+    return handleLayout();
+  };
 
   const functionCallMap = {
     [FunctionCallName.GetWorkflowInfo]: callGetWorkflowInfo,
-    [FunctionCallName.AddNode]: callAddNode,
-    [FunctionCallName.DeleteNode]: callDeleteNode,
-    [FunctionCallName.SwitchWorkflow]: callSwitchWorkflow,
-    [FunctionCallName.CloseWorkflow]: callCloseWorkflow,
-    [FunctionCallName.EditNode]: callEditNode,
-    [FunctionCallName.ConnectNode]: callConnectNode,
-    [FunctionCallName.DeleteEdge]: callDeleteEdge,
-  } as const satisfies Record<FunctionCallName, (...args: any[]) => any>
+    [FunctionCallName.GetNodesInfo]: callGetNodesInfo,
+    [FunctionCallName.UpdateNodeConfig]: callUpdateNodeConfig,
+    [FunctionCallName.SetNodeConnections]: callSetNodeConnections,
+    [FunctionCallName.DeleteNodes]: callDeleteNodes,
+    [FunctionCallName.CreateNodes]: callCreateNodes,
+    [FunctionCallName.WorkflowTabAction]: callWorkflowTabAction,
+    [FunctionCallName.RunWorkflow]: callRunWorkflow,
+    [FunctionCallName.BeautifyWorkflow]: callBeautifyWorkflow,
+    // [FunctionCallName.ConnectNode]: callConnectNode,
+    // [FunctionCallName.DeleteEdge]: callDeleteEdge,
+  } as const satisfies Record<
+    FunctionCallName,
+    (args: any, context: FunctionCallContext) => any
+  >;
+
+  // 异步方法（需要用户操作后才有结果）
+  const asyncFunctionCalls: FunctionCallName[] = [FunctionCallName.RunWorkflow];
 
   return {
     callExternalCapabilitiesTools,
     callGetWorkflowInfo,
     functionCallMap,
-  }
-}
+    asyncFunctionCalls,
+  };
+};

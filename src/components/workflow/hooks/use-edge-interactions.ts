@@ -1,9 +1,12 @@
-import type { EdgeMouseEvent, EdgeChange } from "@vue-flow/core"
+import type { EdgeMouseEvent, EdgeChange, Connection } from "@vue-flow/core"
 import { useVueFlow } from "@vue-flow/core"
 import { WorkflowHistoryEvent, useWorkflowHistory } from './use-workflow-history'
 import { getNodesConnectedSourceOrTargetHandleIdsMap } from "../utils";
 import { useNodesReadOnly } from './use-workflow'
 import { useWorkflowInstance } from './use-workflow-instance'
+import { BlockEnum, type Edge } from "@/types";
+import { useNodesInteractions } from "./use-node-interactions";
+import { CUSTOM_EDGE, LOOP_CHILDREN_Z_INDEX } from "../constant";
 
 
 export const useEdgeInteractions = (id?: string) => {
@@ -11,6 +14,7 @@ export const useEdgeInteractions = (id?: string) => {
   const store = useVueFlow(instanceId);
   const { saveStateToHistory } = useWorkflowHistory(instanceId)
   const { getNodesReadOnly } = useNodesReadOnly(instanceId)
+  const { handleNodeConnect } = useNodesInteractions(instanceId)
 
   const handleEdgeMouseEnter = (e: EdgeMouseEvent) => {
     if (getNodesReadOnly())
@@ -108,11 +112,76 @@ export const useEdgeInteractions = (id?: string) => {
     saveStateToHistory(WorkflowHistoryEvent.EdgeDelete)
   }
 
+  const replaceEdges = (edges: Connection[]) => {
+    const { edges: currentEdges, nodes } = store
+
+    const newEdges = [] as Edge[]
+    edges.forEach((edge) => {
+      const { source, sourceHandle = 'source', target, targetHandle = 'target' } = edge
+      const targetNode = nodes.value.find(node => node.id === target!)
+      const sourceNode = nodes.value.find(node => node.id === source!)
+
+      if (targetNode?.parentNode !== sourceNode?.parentNode) return
+
+      if (
+        newEdges.find(
+          edge =>
+            edge.source === source
+            && edge.sourceHandle === sourceHandle
+            && edge.target === target
+            && edge.targetHandle === targetHandle,
+        )
+      )
+        return
+
+      const parendNode = nodes.value.find(node => node.id === targetNode?.parentNode)
+      // const isInIteration
+      //   = parendNode && parendNode.data.type === BlockEnum.Iteration
+      const isInLoop = !!parendNode && parendNode.data.type === BlockEnum.Loop
+
+      const newEdge = {
+        id: `${source}-${sourceHandle}-${target}-${targetHandle}`,
+        type: CUSTOM_EDGE,
+        source: source!,
+        target: target!,
+        sourceHandle,
+        targetHandle,
+        data: {
+          sourceType: nodes.value.find(node => node.id === source)!.data.type,
+          targetType: nodes.value.find(node => node.id === target)!.data.type,
+          // isInIteration,
+          // iteration_id: isInIteration ? targetNode?.parentNode : undefined,
+          isInLoop,
+          loop_id: isInLoop ? targetNode?.parentNode : undefined,
+        },
+        zIndex: targetNode?.parentNode
+          ? LOOP_CHILDREN_Z_INDEX
+          : 0,
+      }
+      newEdges.push(newEdge)
+    })
+
+    const nodesConnectedSourceOrTargetHandleIdsMap = getNodesConnectedSourceOrTargetHandleIdsMap(
+      [...currentEdges.value.map(edge => ({ type: 'remove', edge })), ...newEdges.map(edge => ({ type: 'add', edge }))],
+      nodes.value,
+    )
+    nodes.value.forEach((node) => {
+      if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
+        node.data = {
+          ...node.data,
+          ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
+        }
+      }
+    })
+    saveStateToHistory(WorkflowHistoryEvent.EdgeReplace)
+  }
+
   return {
     handleEdgeMouseEnter,
     handleEdgeMouseLeave,
     handleEdgeChange,
     handleEdgeDeleteByDeleteBranch,
-    handleEdgeDelete
+    handleEdgeDelete,
+    replaceEdges,
   }
 }

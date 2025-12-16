@@ -18,15 +18,25 @@ const props = defineProps<{
 const aimeRef = ref<InstanceType<typeof Aime>>()
 
 const payload = computed(() => ({ isCalculator: props.isCalculator, workflowId: props.workflowId }))
-const { callExternalCapabilitiesTools, functionCallMap } = useFunctionCall(payload)
+const { callExternalCapabilitiesTools, functionCallMap, asyncFunctionCalls } = useFunctionCall(payload)
 
-const handleCallExternalCapabilities = (data: { functionCallAction: FunctionCallAction[] }) => {
+const handleCallExternalCapabilities = async (data: { functionCallAction: FunctionCallAction[] }) => {
   for (const action of data.functionCallAction) {
     try {
-      const result = functionCallMap[action.function.name as keyof typeof functionCallMap](action.function.arguments as any)
-      aimeRef.value?.respFunctionCall(action.uuid, true, {
-        data: JSON.stringify(result)
-      })
+      const context = {
+        aime: aimeRef.value,
+        respFunction: (status: boolean, message: string) => {
+          aimeRef.value?.respFunctionCall(action.uuid, status, {
+            data: message
+          })
+        }
+      }
+      const result = await functionCallMap[action.function.name as keyof typeof functionCallMap](action.function.arguments as any, context)
+      if (!asyncFunctionCalls.includes(action.function.name as keyof typeof functionCallMap)) {
+        aimeRef.value?.respFunctionCall(action.uuid, true, {
+          data: JSON.stringify(result)
+        })
+      }
     } catch (error) {
       console.log('aime调用外部能力报错：', error)
       aimeRef.value?.respFunctionCall(action.uuid, false, (error as Error).message)

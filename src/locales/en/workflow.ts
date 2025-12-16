@@ -193,6 +193,7 @@ const translation = {
     noteChange: 'Note changed',
     noteDelete: 'Note deleted',
     edgeDelete: 'Node disconnected',
+    edgeReplace: 'Node connections changed',
     stepForward: '{count, plural, one{{count} step forward} other{{count} steps forward}}',
     stepBackward: '{count, plural, one{{count} step backward} other{{count} steps backward}}',
   },
