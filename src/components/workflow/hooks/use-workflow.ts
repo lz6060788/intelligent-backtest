@@ -8,7 +8,7 @@ import type { LoopNodeType } from "../nodes/loop/type"
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { computed } from "vue"
 import { findUsedVarNodes, getNodeOutputVars, updateNodeVars } from "../nodes/_base/variable/utils"
-import type { CalculatorNodeType } from "../nodes/operator/types"
+import type { OperatorNodeType } from "../nodes/operator/types"
 
 export const useWorkflow = (id?: string) => {
   const { instanceId } = useWorkflowInstance(id)
@@ -132,7 +132,7 @@ export const useWorkflow = (id?: string) => {
     const node = allNodes.value.find(n => n.id === nodeId)
     // 对于算子节点至于前置有别名节点或相邻前置节点相关联
     if (node?.data?.type === BlockEnum.Operator) {
-      return [...nodes.filter(item => (item.data as CalculatorNodeType)!.alias), ...getIncomers(nodeId).filter(item => !(item.data as CalculatorNodeType)!.alias)]
+      return [...nodes.filter(item => (item.data as OperatorNodeType)!.alias), ...getIncomers(nodeId).filter(item => !(item.data as OperatorNodeType)!.alias)]
     }
     const parentNodeId = node?.parentNode
     const parentNode = allNodes.value.find(n => n.id === parentNodeId)

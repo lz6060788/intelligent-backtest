@@ -19,7 +19,7 @@
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center flex-1">
         <block-icon :type="data.type"></block-icon>
-        <div class="flex-1 ellipsis ml-2">{{ data.title }}-{{ id }}</div>
+        <div class="flex-1 ellipsis ml-2">{{ data.title }}-{{ id?.slice(0, 8) }}</div>
       </div>
     </div>
     <slot></slot>
@@ -83,7 +83,7 @@ const borderStatus = computed(() => {
   }
 })
 
-const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End, BlockEnum.Backtest].includes(props.data.type))
+const showSourceHandle = computed(() => ![BlockEnum.IfElse, BlockEnum.End, BlockEnum.OperatorEnd].includes(props.data.type))
 const showTargetHandle = computed(() => ![BlockEnum.Start, BlockEnum.OperatorStart].includes(props.data.type))
 </script>
 

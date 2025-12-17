@@ -101,15 +101,14 @@ const handleVarNameInput = (index: number, value: string) => {
       const newKey = inputElement.value
       validateVarInput(cloneDeep(list.value).splice(index, 1), newKey)
       const newOutputs = cloneDeep(props.outputs)
+      emit('change', newOutputs, index, newKey)
       newOutputs[newKey] = newOutputs[oldKey]!
       delete newOutputs[oldKey]
-      emit('change', newOutputs, index, newKey)
     }
   }
 }
 
 const handleVarTypeChange = (index: number, value: string) => {
-  console.log('handleVarTypeChange', index, value)
   const key = list.value[index]!.variable
   const newOutputs = cloneDeep(props.outputs)
   newOutputs[key]!.type = value as VarType

@@ -205,7 +205,7 @@ onMounted(() => {
   } else {
     if (props.isOperator) {
       handleIsolatedNodeAdd(BlockEnum.OperatorStart, { x: 200, y: 800 })
-      handleIsolatedNodeAdd(BlockEnum.Backtest, { x: 1000, y: 800 })
+      handleIsolatedNodeAdd(BlockEnum.OperatorEnd, { x: 1000, y: 800 })
     }
     else {
       handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })

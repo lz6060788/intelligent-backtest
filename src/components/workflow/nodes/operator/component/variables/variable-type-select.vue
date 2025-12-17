@@ -11,17 +11,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { CalculatorArgumentValueTypeEnum } from '../../constant/enums'
-import type { CalculatorArgument } from '../../types';
+import { OperatorArgumentValueTypeEnum } from '../../constant/enums'
+import type { OperatorArgument } from '../../types';
 
 
 interface VariableTypeSelectProps {
   value?: string
-  template: CalculatorArgument
+  template: OperatorArgument
 }
 
 const emit = defineEmits<{
-  (e: 'change', value: CalculatorArgumentValueTypeEnum): void
+  (e: 'change', value: OperatorArgumentValueTypeEnum): void
 }>()
 
 const props = defineProps<VariableTypeSelectProps>()

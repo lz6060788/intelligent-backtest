@@ -19,11 +19,13 @@ import HttpNode from './http/index.vue';
 import LoopNode from './loop/index.vue';
 import LLMNode from './llm/index.vue';
 import VariableAssignerNode from './variable-assigner/index.vue';
-import CalculatorNode from './operator/index.vue';
+import OperatorNode from './operator/index.vue';
+import OperatorStartNode from './operator-start/index.vue';
+import OperatorEndNode from './operator-end/index.vue';
+import OperatorOverviewNode from './operator-overview/index.vue';
+import BacktestNode from './backtest/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BaseNode from './_base/node/index.vue'
-import type { WorkflowGraph } from '@/types';
-import type { OperatorOverviewNodeType } from './operator-overview/types';
 
 // 定义节点组件映射关系
 const NodeComponentMap = {
@@ -35,7 +37,11 @@ const NodeComponentMap = {
   [BlockEnum.Loop]: LoopNode,
   [BlockEnum.LLM]: LLMNode,
   [BlockEnum.VariableAggregator]: VariableAssignerNode,
-  [BlockEnum.Operator]: CalculatorNode,
+  [BlockEnum.Operator]: OperatorNode,
+  [BlockEnum.OperatorStart]: OperatorStartNode,
+  [BlockEnum.OperatorEnd]: OperatorEndNode,
+  [BlockEnum.OperatorOverview]: OperatorOverviewNode,
+  [BlockEnum.Backtest]: BacktestNode
 } as const
 
 // 声明组件接收的 props

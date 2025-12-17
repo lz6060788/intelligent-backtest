@@ -18,6 +18,7 @@ import CalculatorPanel from './operator/panel.vue';
 import OperatorStartPanel from './operator-start/panel.vue';
 import BacktestPanel from './backtest/panel.vue';
 import OperatorOverviewPanel from './operator-overview/panel.vue';
+import OperatorEndPanel from './operator-end/panel.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BasePanel from './_base/workflow-panel/index.vue'
 
@@ -35,6 +36,7 @@ const NodeComponentMap = {
   [BlockEnum.OperatorStart]: OperatorStartPanel,
   [BlockEnum.Backtest]: BacktestPanel,
   [BlockEnum.OperatorOverview]: OperatorOverviewPanel,
+  [BlockEnum.OperatorEnd]: OperatorEndPanel,
 } as const
 
 // 声明组件接收的 props

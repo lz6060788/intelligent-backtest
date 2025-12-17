@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { CalculatorArgumentTypeEnum, type CalculatorArgument } from '../../types'
+import { OperatorArgumentTypeEnum, type OperatorArgument } from '../../types'
 import { computed } from 'vue';
 
 /**
@@ -19,7 +19,7 @@ import { computed } from 'vue';
  */
 interface InputModeSelectProps {
   value?: boolean
-  template: CalculatorArgument
+  template: OperatorArgument
 }
 
 const emit = defineEmits<{
@@ -31,14 +31,14 @@ const props = defineProps<InputModeSelectProps>()
 const { t } = useI18n()
 
 const options = computed(() => {
-  if (props.template.type === CalculatorArgumentTypeEnum.CONSTANT) {
+  if (props.template.type === OperatorArgumentTypeEnum.CONSTANT) {
     return [
       {
         label: 'Constant',
         value: true,
       },
     ]
-  } else if (props.template.type === CalculatorArgumentTypeEnum.VARIABLE) {
+  } else if (props.template.type === OperatorArgumentTypeEnum.VARIABLE) {
     return [
       {
         label: 'Variable',

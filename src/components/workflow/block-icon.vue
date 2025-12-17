@@ -80,6 +80,7 @@ const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
   [BlockEnum.OperatorStart]: 'bg-blue-4',
   [BlockEnum.Backtest]: 'bg-blue-4',
   [BlockEnum.OperatorOverview]: 'bg-blue-4',
+  [BlockEnum.OperatorEnd]: 'bg-blue-4',
 }
 
 const iconComponentMap = {
@@ -98,6 +99,7 @@ const iconComponentMap = {
   [BlockEnum.OperatorStart]: Home,
   [BlockEnum.Backtest]: End,
   [BlockEnum.OperatorOverview]: VariableX,
+  [BlockEnum.OperatorEnd]: End,
 }
 
 // 计算属性

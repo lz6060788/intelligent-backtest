@@ -41,10 +41,18 @@ const nodeDefault: NodeDefault<LLMNodeType> = {
         // temperature: 0.7,
       },
     },
-    prompt_template: [{
-      role: PromptRole.system,
-      text: 'You are a helpful AI assistant.',
-    }],
+    prompt_template: [
+      {
+        id: 'system',
+        role: PromptRole.system,
+        text: 'You are a helpful AI assistant.',
+      },
+      {
+        id: 'user',
+        role: PromptRole.user,
+        text: 'Hello, how are you?',
+      },
+    ],
     context: {
       enabled: false,
       variable_selector: [],

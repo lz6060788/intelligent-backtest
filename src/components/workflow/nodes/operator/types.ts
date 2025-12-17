@@ -1,58 +1,58 @@
 import type { CommonNodeType, ValueSelector } from "@/types";
 import { operators } from "./constant/operators";
 import type {
-  CalculatorArgumentTypeEnum,
-  CalculatorArgumentValueTypeEnum,
-  CalculatorOutputValueTypeEnum,
-  CalculatorTypeEnum,
+  OperatorArgumentTypeEnum,
+  OperatorArgumentValueTypeEnum,
+  OperatorOutputValueTypeEnum,
+  OperatorTypeEnum,
 } from "./constant/enums";
 
 export {
-  CalculatorArgumentTypeEnum,
-  CalculatorArgumentValueTypeEnum,
-  CalculatorOutputValueTypeEnum,
-  CalculatorTypeEnum,
+  OperatorArgumentTypeEnum,
+  OperatorArgumentValueTypeEnum,
+  OperatorOutputValueTypeEnum,
+  OperatorTypeEnum,
 } from "./constant/enums";
 
-export type CalculatorVariable = {
+export type OperatorVariable = {
   id: string;
   name: string;
   isConst: boolean;
   isRest: boolean;
-  type: CalculatorArgumentValueTypeEnum;
+  type: OperatorArgumentValueTypeEnum;
   value: number | string | boolean | null | ValueSelector;
 }
 
-export type CalculatorArgument = {
+export type OperatorArgument = {
   name: string;
-  valueType: CalculatorArgumentValueTypeEnum[];
-  type: CalculatorArgumentTypeEnum;
+  valueType: OperatorArgumentValueTypeEnum[];
+  type: OperatorArgumentTypeEnum;
   defaultValue?: number | string | boolean | null;
 }
 
-export type CalculatorType = {
+export type OperatorType = {
   name: string;
   description: string;
   functionSignature: string;
   keywords: string[];
-  type: CalculatorTypeEnum;
+  type: OperatorTypeEnum;
   inputs: {
-    fixedArguments: CalculatorArgument[];
+    fixedArguments: OperatorArgument[];
     // 虽然不定长参数当前类型定义可以支持多个，但需要在panel处进行一定的适配，当前只会以第一个进行处理
-    restArguments: CalculatorArgument[];
+    restArguments: OperatorArgument[];
     maxArguments: number;
     minArguments: number;
   },
   output: {
     name: string;
-    type: CalculatorOutputValueTypeEnum;
+    type: OperatorOutputValueTypeEnum;
   };
 }
 
-export type CalculatorItem = typeof operators[number]['name'];
+export type OperatorItem = typeof operators[number]['name'];
 
-export type CalculatorNodeType = CommonNodeType & {
-  operator: CalculatorItem | null;
+export type OperatorNodeType = CommonNodeType & {
+  operator: OperatorItem | null;
   alias: string;
-  variables: CalculatorVariable[];
+  variables: OperatorVariable[];
 }

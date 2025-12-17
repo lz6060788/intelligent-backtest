@@ -40,8 +40,6 @@ const useConfig = (id: string, inputs: Ref<CodeNodeType>) => {
     outputKeyOrders.value = Object.keys(outputs);
   };
 
-
-
   onMounted(() => {
     if (inputs.value.outputs && Object.keys(inputs.value.outputs).length > 0) {
       syncOutputKeyOrders(inputs.value.outputs);

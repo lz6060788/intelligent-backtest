@@ -21,11 +21,12 @@ export const enum BlockEnum {
   LoopStart = 'loop-start',
   LoopEnd = 'loop-end',
   DataSource = 'DataSource',
-  Operator = 'operator',
-  Tool = 'tool',
-  OperatorStart = 'operator-start',
   Backtest = 'backtest',
+  Operator = 'operator',
+  OperatorStart = 'operator-start',
   OperatorOverview = 'operator-overview',
+  OperatorEnd = 'operator-end',
+  Tool = 'tool',
 }
 
 export type Branch = {

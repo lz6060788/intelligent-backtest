@@ -277,6 +277,7 @@ const translation = {
     'operator-start': '开始',
     'backtest': '回测',
     'operator-overview': '算子概览',
+    'operator-end': '结束',
   },
   blocksAbout: {
     'start': '定义一个 workflow 流程启动的初始参数',
@@ -306,6 +307,7 @@ const translation = {
     'operator-start': '算子开始节点',
     'operator-overview': '算子概览节点',
     'backtest': '算子回测节点',
+    'operator-end': '结束节点',
   },
   operator: {
     zoomIn: '放大',
@@ -996,6 +998,14 @@ const translation = {
         close: '收',
         volume: '成',
       },
+    },
+    operatorEnd: {
+      output: '输出',
+      noOutputVars: '暂未设置输出',
+    },
+    operatorOverview: {
+      output: '输出',
+      noOutputVars: '暂未设置输出',
     },
   },
   tracing: {

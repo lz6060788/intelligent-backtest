@@ -69,8 +69,6 @@ const useConfig = (id: string, payload: Ref<StartNodeType>) => {
 
 
     const newInputs = cloneDeep(inputs.value)
-    newInputs.variables = newList
-    setInputs(newInputs)
     if (moreInfo?.payload?.type === ChangeType.changeVarName) {
       const changedVar = newList[moreInfo.index]
       handleOutVarRenameChange(id, [id, newInputs.variables![moreInfo.index]?.variable || ''], [id, changedVar!.variable])
@@ -79,6 +77,8 @@ const useConfig = (id: string, payload: Ref<StartNodeType>) => {
     else if(moreInfo?.payload?.type !== ChangeType.remove) { // edit var type
       // deleteNodeInspectorVars(id)
     }
+    newInputs.variables = newList
+    setInputs(newInputs)
   }
 
   const removeVarInNode = () => {

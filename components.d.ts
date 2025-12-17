@@ -360,6 +360,7 @@ declare module 'vue' {
     Openllm: typeof import('./src/components/base/icons/src/public/llm/Openllm.vue')['default']
     OpenllmText: typeof import('./src/components/base/icons/src/public/llm/OpenllmText.vue')['default']
     Operator: typeof import('./src/components/workflow/nodes/operator/index.vue')['default']
+    OperatorEnd: typeof import('./src/components/workflow/nodes/operator-end/index.vue')['default']
     OperatorOverview: typeof import('./src/components/workflow/nodes/operator-overview/index.vue')['default']
     OperatorStart: typeof import('./src/components/workflow/nodes/operator-start/index.vue')['default']
     OpikIcon: typeof import('./src/components/base/icons/src/public/tracing/OpikIcon.vue')['default']

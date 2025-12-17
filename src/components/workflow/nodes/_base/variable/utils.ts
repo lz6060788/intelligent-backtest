@@ -47,8 +47,11 @@ import type { LoopNodeType } from '../../loop/type'
 import type { VariableAssignerNodeType } from '../../variable-assigner/types'
 import type { HttpNodeType } from '../../http/types'
 import { operators } from '../../operator/constant/operators' 
-import type { CalculatorNodeType } from '../../operator/types'
+import type { OperatorNodeType } from '../../operator/types'
 import type { OperatorStartNodeType } from '../../operator-start/types'
+import type { EndNodeType } from '../../end/types'
+import type { OperatorOverviewNodeType } from '../../operator-overview/types'
+import { getOutputVars, transformVarType } from '../../operator-end/utils'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
@@ -487,19 +490,6 @@ const formatItem = (
     //   break
     // }
 
-    // case BlockEnum.DataSource: {
-    //   const payload = data as DataSourceNodeType
-    //   const dataSourceVars
-    //     = DataSourceNodeDefault.getOutputVars?.(
-    //       payload,
-    //       allPluginInfoList,
-    //       ragVars,
-    //       { schemaTypeDefinitions },
-    //     ) || []
-    //   res.vars = dataSourceVars
-    //   break
-    // }
-
     case BlockEnum.Operator: {
       const template = operators.find((operator) => operator.name === data.operator)
       if (!template || !data.operator) res.vars = []
@@ -515,6 +505,15 @@ const formatItem = (
     case BlockEnum.OperatorStart: {
       const { variables } = data as OperatorStartNodeType
       res.vars = variables
+      break
+    }
+
+    case BlockEnum.OperatorOverview: {
+      const { graph } = data as OperatorOverviewNodeType
+      res.vars = getOutputVars(graph.nodes, graph.edges).map(item => ({
+        variable: item.alias,
+        type: transformVarType(item.type!),
+      }))
       break
     }
 
@@ -1228,8 +1227,15 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       break
     }
 
+    case BlockEnum.End: {
+      res = (data as EndNodeType).outputs?.map((output) => {
+        return output.value_selector
+      })
+      break
+    }
+
     case BlockEnum.Operator: {
-      res = (data as CalculatorNodeType).variables?.filter(v => !v.isConst).map((v) => {
+      res = (data as OperatorNodeType).variables?.filter(v => !v.isConst).map((v) => {
         return v.value as ValueSelector
       })
       break
@@ -1521,8 +1527,18 @@ export const updateNodeVars = (
       }
       break
     }
+    case BlockEnum.End: {
+      const payload = data as EndNodeType
+      if (payload.outputs) {
+        payload.outputs = payload.outputs.map((v) => {
+          if (v.value_selector.join('.') === oldVarSelector.join('.')) v.value_selector = newVarSelector
+          return v
+        })
+      }
+      break
+    }
     case BlockEnum.Operator: {
-      const payload = data as CalculatorNodeType
+      const payload = data as OperatorNodeType
       if (payload.variables) {
         payload.variables = payload.variables.map((v) => {
           if (!v.isConst && Array.isArray(v.value) && (v.value as ValueSelector).join('.') === oldVarSelector.join('.')) (v.value as ValueSelector) = newVarSelector
@@ -1672,6 +1688,12 @@ export const getNodeOutputVars = (
       res = variables.map((v) => {
         return [id, v.variable]
       })
+      break
+    }
+
+    case BlockEnum.OperatorOverview: {
+      const { graph } = data as OperatorOverviewNodeType
+      res = getOutputVars(graph.nodes, graph.edges).map(item => [id, item.alias])
       break
     }
   }

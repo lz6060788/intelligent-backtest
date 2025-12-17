@@ -18,16 +18,16 @@
 import Empty from './empty.vue'
 import Item from './item.vue'
 import type {
-  CalculatorVariable,
+  OperatorVariable,
 } from '../../types'
-import type { CalculatorArgument } from '../../types'
+import type { OperatorArgument } from '../../types'
 
 interface Props {
   nodeId: string;
   isFixed: boolean;
-  argumentsTemplate: CalculatorArgument[];
+  argumentsTemplate: OperatorArgument[];
   /** 变量列表 */
-  variables?: CalculatorVariable[]
+  variables?: OperatorVariable[]
 }
 
 
@@ -37,14 +37,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'remove-variable', id: string): void
-  (e: 'update-variable', id: string, updateData: Partial<CalculatorVariable>): void
+  (e: 'update-variable', id: string, updateData: Partial<OperatorVariable>): void
 }>()
 
 const handleRemoveVariable = (id: string) => {
   emit('remove-variable', id)
 }
 
-const handleUpdateVariable = (id: string, updateData: Partial<CalculatorVariable>) => {
+const handleUpdateVariable = (id: string, updateData: Partial<OperatorVariable>) => {
   emit('update-variable', id, updateData)
 }
 </script>

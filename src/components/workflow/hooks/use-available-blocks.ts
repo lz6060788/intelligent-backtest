@@ -23,17 +23,17 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean, 
 
     if (nodeType === BlockEnum.Operator)
       return [BlockEnum.Operator]
-    if (nodeType === BlockEnum.Backtest)
+    if (nodeType === BlockEnum.OperatorEnd)
       return [BlockEnum.Operator]
 
     return availableNodesType.filter(nType => nType !== BlockEnum.Operator)
   }
   const availableNextBlocks = () => {
-    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.Backtest)
+    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.OperatorEnd)
       return []
 
     if (nodeType === BlockEnum.Operator)
-      return [BlockEnum.Operator, BlockEnum.Backtest]
+      return [BlockEnum.Operator, BlockEnum.OperatorEnd]
     if (nodeType === BlockEnum.OperatorStart)
       return [BlockEnum.Operator]
 
@@ -46,17 +46,17 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, inContainer?: boolean, 
       availablePrevBlocks = []
 
     let availableNextBlocks = availableNodesType
-    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.Backtest)
+    if (!nodeType || nodeType === BlockEnum.End || nodeType === BlockEnum.LoopEnd || nodeType === BlockEnum.OperatorEnd)
       availableNextBlocks = []
 
     if (nodeType === BlockEnum.Operator)
-      availableNextBlocks = [BlockEnum.Operator, BlockEnum.Backtest]
+      availableNextBlocks = [BlockEnum.Operator, BlockEnum.OperatorEnd]
     if (nodeType === BlockEnum.OperatorStart)
       availableNextBlocks = [BlockEnum.Operator]
 
     if (nodeType === BlockEnum.Operator)
       availablePrevBlocks = [BlockEnum.Operator]
-    if (nodeType === BlockEnum.Backtest)
+    if (nodeType === BlockEnum.OperatorEnd)
       availablePrevBlocks = [BlockEnum.Operator]
 
     return {

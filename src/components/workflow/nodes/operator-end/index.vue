@@ -13,22 +13,26 @@
 </template>
 
 <script setup lang="ts">
-import { VarType, type NodePanelProps } from '@/types';
-import type { OperatorOverviewNodeType } from './types';
+import type { NodePanelProps } from '@/types';
+import type { OperatorEndNodeType } from './types';
 import { computed } from 'vue';
-import { getOutputVars, transformVarType } from '@/components/workflow/nodes/operator-end/utils';
+import { getOutputVars } from './utils';
+import { useWorkflowInstance } from '@/components/workflow/hooks/index'
+import { useVueFlow } from '@vue-flow/core'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const i18nPrefix = 'workflow.nodes.operatorOverview'
+const i18nPrefix = 'workflow.nodes.operatorEnd'
 
-const props = defineProps<NodePanelProps<OperatorOverviewNodeType>>()
+const { instanceId } = useWorkflowInstance()
+const store = useVueFlow(instanceId)
+const { nodes, edges } = store
+const props = defineProps<NodePanelProps<OperatorEndNodeType>>()
 
 const payload = computed(() => props.data)
 
-const outputVars = computed(() => getOutputVars(payload.value.graph.nodes, payload.value.graph.edges).map(item => ({
-  ...item,
-  type: transformVarType(item.type!),
-})))
+const outputVars = computed(() => getOutputVars(nodes.value, edges.value))
+interface Props {
+}
 </script>

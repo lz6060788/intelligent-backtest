@@ -1,6 +1,6 @@
 import { type NodeDefault, VarType } from '@/types'
-import { type CalculatorNodeType } from './types'
-import { CalculatorArgumentValueTypeEnum, CalculatorOutputValueTypeEnum } from './constant/enums'
+import { type OperatorNodeType } from './types'
+import { OperatorArgumentValueTypeEnum, OperatorOutputValueTypeEnum } from './constant/enums'
 import { genNodeMetaData } from '@/components/workflow/utils'
 import { BlockEnum } from '@/types'
 import { BlockClassificationEnum } from '@/types'
@@ -13,14 +13,14 @@ const metaData = genNodeMetaData({
   helpLinkUri: 'operator',
   _isBelongToCalculator: true,
 })
-const nodeDefault: NodeDefault<CalculatorNodeType> = {
+const nodeDefault: NodeDefault<OperatorNodeType> = {
   metaData,
   defaultValue: {
     operator: '',
     alias: '',
     variables: []
   },
-  checkValid(payload: CalculatorNodeType, t: any) {
+  checkValid(payload: OperatorNodeType, t: any) {
     let errorMessages = ''
     return {
       isValid: !errorMessages,

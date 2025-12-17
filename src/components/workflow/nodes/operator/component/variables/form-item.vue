@@ -11,7 +11,7 @@
       :placeholder="t('workflow.nodes.assigner.setParameter') as string"
     />
     <el-input
-      v-if="isConst && type === CalculatorArgumentValueTypeEnum.STRING"
+      v-if="isConst && type === OperatorArgumentValueTypeEnum.STRING"
       :model-value="value"
       type="textarea"
       @input="handleInputChange"
@@ -19,7 +19,7 @@
       max-length="64"
     />
     <el-input-number
-      v-if="isConst && type === CalculatorArgumentValueTypeEnum.INT"
+      v-if="isConst && type === OperatorArgumentValueTypeEnum.INT"
       :model-value="value"
       @input="handleInputChange"
       class="w-full"
@@ -29,7 +29,7 @@
       max-length="12"
     />
     <el-input-number
-      v-if="isConst && type === CalculatorArgumentValueTypeEnum.FLOAT"
+      v-if="isConst && type === OperatorArgumentValueTypeEnum.FLOAT"
       :model-value="value"
       @input="handleInputChange"
       class="w-full"
@@ -38,7 +38,7 @@
       max-length="12"
     />
     <el-select
-      v-if="isConst && type === CalculatorArgumentValueTypeEnum.BOOL"
+      v-if="isConst && type === OperatorArgumentValueTypeEnum.BOOL"
       :model-value="value"
       @change="handleChange"
       class="w-full"
@@ -60,9 +60,9 @@ import {
   type ValueSelector,
   type Var,
 } from '@/types'
-import { CalculatorArgumentValueTypeEnum } from '../../constant/enums'
+import { OperatorArgumentValueTypeEnum } from '../../constant/enums'
 import type {
-  CalculatorVariable,
+  OperatorVariable,
 } from '../../types'
 
 
@@ -73,7 +73,7 @@ interface FormItemProps {
   /** 节点ID */
   nodeId: string
   /** 循环变量项 */
-  item: CalculatorVariable
+  item: OperatorVariable
 }
 
 const emit = defineEmits<{
@@ -99,7 +99,7 @@ const handleChange = (value: any) => {
 const filterVar = (variable: Var) => {
   if (variable.type === VarType.any) {
     return true
-  } else if (variable.type === VarType.number && [CalculatorArgumentValueTypeEnum.INT, CalculatorArgumentValueTypeEnum.FLOAT].includes(type.value)) {
+  } else if (variable.type === VarType.number && [OperatorArgumentValueTypeEnum.INT, OperatorArgumentValueTypeEnum.FLOAT].includes(type.value)) {
     return true
   } else if (variable.type === VarType[type.value]) {
     return true

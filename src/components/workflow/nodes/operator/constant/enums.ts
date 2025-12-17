@@ -7,14 +7,14 @@ export const enum CalculatorInputsEnum {
 }
 
 /** 计算器参数类型枚举 */
-export const enum CalculatorArgumentTypeEnum {
+export const enum OperatorArgumentTypeEnum {
   CONSTANT = 'CONSTANT',
   VARIABLE = 'VARIABLE',
   BOTH = 'BOTH',
 }
 
 /** 计算器参数值类型枚举 */
-export const enum CalculatorArgumentValueTypeEnum {
+export const enum OperatorArgumentValueTypeEnum {
   BOOL = VarType.boolean,
   FLOAT = VarType.float,
   INT = VarType.integer,
@@ -23,7 +23,7 @@ export const enum CalculatorArgumentValueTypeEnum {
 }
 
 /** 计算器输出值类型枚举 */
-export const enum CalculatorOutputValueTypeEnum {
+export const enum OperatorOutputValueTypeEnum {
   BOOL = VarType.boolean,
   FLOAT = VarType.float,
   INT = VarType.integer,
@@ -33,7 +33,7 @@ export const enum CalculatorOutputValueTypeEnum {
 }
 
 /** 计算器类型枚举 */
-export const enum CalculatorTypeEnum {
+export const enum OperatorTypeEnum {
   MATH_LOGIC = 'math-Logic',
   TIME_SERIES_OPERATIONS = 'Time-Series-Operations',
   CROSS_SECTIONAL_OR_GROUPED_OPERATIONS = 'Cross-Sectional-OR-Grouped-Operaions',

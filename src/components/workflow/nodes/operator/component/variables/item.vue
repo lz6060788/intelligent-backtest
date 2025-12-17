@@ -35,10 +35,10 @@ import InputModeSelect from './input-mode-selec.vue'
 import VariableTypeSelect from './variable-type-select.vue'
 import FormItem from './form-item.vue'
 import RemoveButton from '@/components/base/remove-button/index.vue'
-import { CalculatorArgumentValueTypeEnum } from '../../constant/enums'
+import { OperatorArgumentValueTypeEnum } from '../../constant/enums'
 import type {
-  CalculatorVariable,
-  CalculatorArgument,
+  OperatorVariable,
+  OperatorArgument,
 } from '../../types'
 import { computed } from 'vue'
 
@@ -49,36 +49,36 @@ interface ItemProps {
   nodeId: string;
   isFixed: boolean;
   /** 循环变量项 */
-  item: CalculatorVariable
-  argumentsTemplate: CalculatorArgument[];
+  item: OperatorVariable
+  argumentsTemplate: OperatorArgument[];
 }
 
 const props = defineProps<ItemProps>()
 const emit = defineEmits<{
   (e: 'remove-variable', id: string): void
-  (e: 'update-variable', id: string, updateData: Partial<CalculatorVariable>): void
+  (e: 'update-variable', id: string, updateData: Partial<OperatorVariable>): void
 }>()
 
 const handleRemoveVariable = (id: string) => {
   emit('remove-variable', id)
 }
 
-const handleUpdateVariable = (id: string, updateData: Partial<CalculatorVariable>) => {
+const handleUpdateVariable = (id: string, updateData: Partial<OperatorVariable>) => {
   emit('update-variable', id, updateData)
 }
 
-const getDefaultValue = (varType: CalculatorArgumentValueTypeEnum, isConst: boolean) => {
+const getDefaultValue = (varType: OperatorArgumentValueTypeEnum, isConst: boolean) => {
   if (!isConst)
     return undefined
   switch (varType) {
-    case CalculatorArgumentValueTypeEnum.BOOL:
+    case OperatorArgumentValueTypeEnum.BOOL:
       return false
     default:
       return undefined
   }
 }
 
-const handleUpdateItemVarType = (value: CalculatorArgumentValueTypeEnum) => {
+const handleUpdateItemVarType = (value: OperatorArgumentValueTypeEnum) => {
   handleUpdateVariable(props.item.id, { type: value, value: getDefaultValue(value, props.item.isConst) })
 }
 

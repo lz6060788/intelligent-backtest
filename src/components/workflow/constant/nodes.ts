@@ -12,6 +12,7 @@ import operatorDefault from '@/components/workflow/nodes/operator/default';
 import operatorStartDefault from '@/components/workflow/nodes/operator-start/default';
 import backtestDefault from '@/components/workflow/nodes/backtest/default';
 import operatorOverviewDefault from '@/components/workflow/nodes/operator-overview/default';
+import operatorEndDefault from '@/components/workflow/nodes/operator-end/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -32,6 +33,7 @@ export const WORKFLOW_COMMON_NODES = [
   operatorStartDefault,
   backtestDefault,
   operatorOverviewDefault,
+  operatorEndDefault,
 ] as NodeDefault[]
 
 
@@ -114,6 +116,7 @@ export const SUPPORT_OUTPUT_VARS_NODE = [
   BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code, BlockEnum.Operator,
   BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
   BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource, BlockEnum.OperatorStart,
+  BlockEnum.OperatorOverview,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [

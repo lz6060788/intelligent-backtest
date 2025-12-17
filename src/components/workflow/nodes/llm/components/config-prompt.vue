@@ -3,13 +3,43 @@
     <template v-if="isChatModel && Array.isArray(payload)">
       <div>
         <div class="space-y-2">
+          <!-- <div
+            v-for="(itemWrapper, index) in payloadWithIds"
+            :key="itemWrapper.id"
+            class="group relative"
+          >
+            <ConfigPromptItem
+              :instance-id="itemWrapper.p.role === PromptRole.system ? `${nodeId}-chat-workflow-llm-prompt-editor` : `${nodeId}-chat-workflow-llm-prompt-editor-${index}`"
+              :class-name="cn(canDrag(index, itemWrapper.p) && 'handle')"
+              :header-class-name="cn(canDrag(index, itemWrapper.p) && 'cursor-grab')"
+              :can-not-choose-system-role="!canChooseSystemRole"
+              :can-remove="false"
+              :read-only="readOnly"
+              :id="itemWrapper.p.id!"
+              :node-id="nodeId"
+              @chat-mode-message-role-change="(role: PromptRole) => handleChatModeMessageRoleChange(index, role)"
+              :is-chat-model="isChatModel"
+              :payload="itemWrapper.p"
+              @prompt-change="(prompt: string) => handleChatModePromptChange(index, prompt)"
+              @edition-type-change="(editionType: EditionType) => handleChatModeEditionTypeChange(index, editionType)"
+              @remove="handleRemove(index)"
+              :is-show-context="isShowContext"
+              :has-set-block-status="hasSetBlockStatus"
+              :available-vars="availableVars"
+              :available-nodes="availableNodesWithParent"
+              :var-list="varList"
+              @add-variable="emit('addVariable', $event)"
+              :model-config="modelConfig"
+            />
+          </div> -->
+          <!-- 当前工坊不支持多轮，先禁用，实现简单system+user的propmt -->
           <Draggable
             v-model="payloadWithIds"
             class="space-y-1"
             :handle="'.handle'"
             :ghost-class="'opacity-50'"
             :animation="150"
-            :disabled="readOnly"
+            :disabled="true"
             item-key="id"
           >
             <div
@@ -25,7 +55,7 @@
                 :class-name="cn(canDrag(index, itemWrapper.p) && 'handle')"
                 :header-class-name="cn(canDrag(index, itemWrapper.p) && 'cursor-grab')"
                 :can-not-choose-system-role="!canChooseSystemRole"
-                :can-remove="payload.length > 1 && !(index === 0 && itemWrapper.p.role === PromptRole.system)"
+                :can-remove="false"
                 :read-only="readOnly"
                 :id="itemWrapper.p.id!"
                 :node-id="nodeId"
@@ -46,7 +76,6 @@
             </div>
           </Draggable>
         </div>
-        <!-- 原 AddButton 组件不支持 text 属性，使用 el-button 替代 -->
         <el-button
           class="mt-2"
           size="small"

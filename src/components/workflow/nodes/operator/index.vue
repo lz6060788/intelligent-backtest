@@ -46,7 +46,7 @@
 import ReadonlyInputWithSelectVar from '@/components/workflow/nodes/_base/readonly-input-with-select-var/index.vue'
 import type { NodeProps } from '@/types'
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import type { CalculatorNodeType } from './types'
+import type { OperatorNodeType } from './types'
 import { operators } from './constant/operators'
 import { RiInformation2Fill } from '@remixicon/vue'
 import { useI18n } from 'vue-i18n'
@@ -57,7 +57,7 @@ const i18nPrefix = 'workflow.nodes.operator'
 
 const { t } = useI18n()
 
-const props = defineProps<NodeProps<CalculatorNodeType>>();
+const props = defineProps<NodeProps<OperatorNodeType>>();
 
 const input = computed(() => props.data.variables)
 const operator = computed(() => cloneDeep(operators.find((operator) => operator.name === props.data.operator)))

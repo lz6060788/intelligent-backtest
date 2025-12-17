@@ -10,9 +10,9 @@ import type { Var } from '@/types'
 import { toNodeOutputVars } from '@/components/workflow/nodes/_base/variable/utils'
 import { operators } from './constant/operators'
 import {
-  CalculatorArgumentTypeEnum,
-  CalculatorArgumentValueTypeEnum,
-  type CalculatorNodeType,
+  OperatorArgumentTypeEnum,
+  OperatorArgumentValueTypeEnum,
+  type OperatorNodeType,
 } from './types'
 import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 import { useNodeCrud } from '../_base/hooks'
@@ -23,12 +23,12 @@ import { cloneDeep } from 'lodash-es'
  * @param id 节点ID
  * @param payload 循环节点类型数据
  */
-const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
+const useConfig = (id: string, payload: Ref<OperatorNodeType>) => {
   const { instanceId } = useWorkflowInstance()
 
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
 
-  const { setInputs } = useNodeCrud<CalculatorNodeType>(id)
+  const { setInputs } = useNodeCrud<OperatorNodeType>(id)
 
   const filterInputVar = (varPayload: Var) => {
     return [VarType.array, VarType.arrayString, VarType.arrayNumber, VarType.arrayObject, VarType.arrayFile].includes(varPayload.type)
@@ -51,8 +51,8 @@ const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
         id: uuid4(),
         name: item.name || '',
         isRest: false,
-        isConst: item?.type === CalculatorArgumentTypeEnum.CONSTANT,
-        type: item?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
+        isConst: item?.type === OperatorArgumentTypeEnum.CONSTANT,
+        type: item?.valueType[0] || OperatorArgumentValueTypeEnum.FLOAT,
         value: '',
       })
     })
@@ -63,8 +63,8 @@ const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
           id: uuid4(),
           name: '',
           isRest: true,
-          isConst: restTemplateVariables[0]?.type === CalculatorArgumentTypeEnum.CONSTANT || false,
-          type: restTemplateVariables[0]?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
+          isConst: restTemplateVariables[0]?.type === OperatorArgumentTypeEnum.CONSTANT || false,
+          type: restTemplateVariables[0]?.valueType[0] || OperatorArgumentValueTypeEnum.FLOAT,
           value: '',
         })
       }
@@ -99,8 +99,8 @@ const useConfig = (id: string, payload: Ref<CalculatorNodeType>) => {
       id: uuid4(),
       name: '',
       isRest: true,
-      isConst: restArgumentTemplate?.type === CalculatorArgumentTypeEnum.CONSTANT || false,
-      type: restArgumentTemplate?.valueType[0] || CalculatorArgumentValueTypeEnum.FLOAT,
+      isConst: restArgumentTemplate?.type === OperatorArgumentTypeEnum.CONSTANT || false,
+      type: restArgumentTemplate?.valueType[0] || OperatorArgumentValueTypeEnum.FLOAT,
       value: '',
     })
     setInputs(draft)

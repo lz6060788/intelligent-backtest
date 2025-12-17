@@ -1,6 +1,6 @@
 import { ref, computed, watch, onMounted, onUnmounted, type Ref } from 'vue'
 import { useWorkflow } from '@/components/workflow/hooks'
-import { ErrorHandleTypeEnum, VarType, type ValueSelector } from '@/types'
+import { BlockEnum, ErrorHandleTypeEnum, VarType, type ValueSelector } from '@/types'
 import { getDefaultValue } from '@/components/workflow/nodes/_base/error-handle/utils'
 import type { OutputVar } from '../../code/types'
 import { cloneDeep } from 'lodash-es'
@@ -50,20 +50,21 @@ function useOutputVarList<T>({
   const handleVarsChange = (newVars: OutputVar, changedIndex?: number, newKey?: string) => {
     const newInputs = cloneDeep(inputs.value) as any
     newInputs[varKey] = newVars
-    if ((inputs.value as any).type === 'BlockEnum.Code' && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
-      newInputs.default_value = getDefaultValue(newInputs as any)
-    setInputs(newInputs)
-    if (changedIndex !== undefined) {
-      outputKeyOrders.value[changedIndex] = newKey!
-      onOutputKeyOrdersChange(outputKeyOrders.value)
-    }
 
-
+    // 这里需要较dify前置，是因为响应式的问题
     if (newKey) {
       handleOutVarRenameChange(id, [id, outputKeyOrders.value[changedIndex!]!], [id, newKey])
       if (!(id in oldNameRecord.value))
         oldNameRecord.value[id] = outputKeyOrders.value[changedIndex!]!
       renameInspectNameWithDebounce(id, newKey)
+    }
+
+    if ((inputs.value as any).type === BlockEnum.Code && (inputs.value as any).error_strategy === ErrorHandleTypeEnum.defaultValue && varKey === 'outputs')
+      newInputs.default_value = getDefaultValue(newInputs as any)
+    setInputs(newInputs)
+    if (changedIndex !== undefined) {
+      outputKeyOrders.value[changedIndex] = newKey!
+      onOutputKeyOrdersChange(outputKeyOrders.value)
     }
     // else if (changedIndex === undefined) {
     //   const varId = nodesWithInspectVars.value.find(node => node.nodeId === id)?.vars.find((varItem) => {

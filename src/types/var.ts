@@ -164,6 +164,7 @@ export enum VarType {
   arrayFile = 'array[file]',
   any = 'any',
   arrayAny = 'array[any]',
+  // 以下为适配算子的特殊类型，目前没有在主工作流实际适配使用（仅作为了类型显示的作用），通过类型转换做的兼容
   float = 'float',
   group = 'group',
 }

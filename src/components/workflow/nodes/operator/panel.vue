@@ -91,7 +91,7 @@ import { useI18n } from 'vue-i18n'
 import { RiAddLine, RiInformation2Fill } from '@remixicon/vue'
 import Split from '@/components/base/split.vue'
 // import InputNumberWithSlider from '@/components/base/input-number-with-slider.vue'
-import type { CalculatorNodeType } from './types'
+import type { OperatorNodeType } from './types'
 import useConfig from './use-config'
 import Variable from './component/variables/index.vue'
 import type { NodePanelProps } from '@/types'
@@ -104,7 +104,7 @@ import { computed } from 'vue'
 
 const i18nPrefix = 'workflow.nodes.operator'
 
-const props = defineProps<NodePanelProps<CalculatorNodeType>>()
+const props = defineProps<NodePanelProps<OperatorNodeType>>()
 
 const payload = computed(() => props.data)
 

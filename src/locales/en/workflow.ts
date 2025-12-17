@@ -274,6 +274,7 @@ const translation = {
     'operator-start': 'Operator Start',
     'backtest': 'Backtest',
     'operator-overview': 'Operator Overview',
+    'operator-end': 'Operator End',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',
@@ -303,6 +304,7 @@ const translation = {
     'operator-start': 'Operator Start About',
     'operator-overview': 'Operator Overview About',
     'backtest': 'Operator Backtest About',
+    'operator-end': 'Operator End About',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -993,6 +995,14 @@ const translation = {
         close: 'Close',
         volume: 'Volume',
       },
+    },
+    operatorEnd: {
+      output: 'output',
+      noOutputVars: 'No output',
+    },
+    operatorOverview: {
+      output: 'output',
+      noOutputVars: 'No output',
     },
   },
   tracing: {

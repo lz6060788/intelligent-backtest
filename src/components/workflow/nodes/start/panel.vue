@@ -17,7 +17,7 @@
         <div class="mt-4 space-y-1">
           <!-- <Split class="my-2" /> -->
 
-          <VarItem
+          <!-- <VarItem
             v-if="isChatMode"
             readonly
             :payload="{ variable: 'sys.query' }"
@@ -27,9 +27,9 @@
                 String
               </div>
             </template>
-          </VarItem>
+          </VarItem> -->
 
-          <VarItem
+          <!-- <VarItem
             readonly
             :showLegacyBadge="!isChatMode"
             :payload="{ variable: 'sys.files' }"
@@ -39,9 +39,9 @@
                 Array[File]
               </div>
             </template>
-          </VarItem>
+          </VarItem> -->
 
-          <template v-if="isChatMode">
+          <!-- <template v-if="isChatMode">
             <VarItem
               readonly
               :payload="{ variable: 'sys.dialogue_count' }"
@@ -63,7 +63,7 @@
                 </div>
               </template>
             </VarItem>
-          </template>
+          </template> -->
 
           <VarItem
             readonly
