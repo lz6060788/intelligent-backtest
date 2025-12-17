@@ -141,4 +141,12 @@ export default {
     settingsLink: 'Model Provider Settings',
     capabilities: 'MultiModal Capabilities',
   },
+  priceType: {
+    open: 'Open',
+    close: 'Close',
+    high: 'High',
+    low: 'Low',
+    volume: 'Volume',
+    amount: 'Amount',
+  },
 }

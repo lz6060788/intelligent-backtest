@@ -116,7 +116,7 @@ export const SUPPORT_OUTPUT_VARS_NODE = [
   BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code, BlockEnum.Operator,
   BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
   BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource, BlockEnum.OperatorStart,
-  BlockEnum.OperatorOverview,
+  BlockEnum.OperatorOverview, BlockEnum.Backtest,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [
@@ -197,6 +197,13 @@ export const TOOL_OUTPUT_STRUCT: Var[] = [
   {
     variable: 'json',
     type: VarType.arrayObject,
+  },
+]
+
+export const BACKTEST_OUTPUT_STRUCT: Var[] = [
+  {
+    variable: 'result',
+    type: VarType.object,
   },
 ]
 

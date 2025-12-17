@@ -141,4 +141,12 @@ export default {
     settingsLink: 'Model Provider 設置',
     capabilities: '多模式功能',
   },
+  priceType: {
+    open: '开盘价',
+    close: '收盘价',
+    high: '最高价',
+    low: '最低价',
+    volume: '成交量',
+    amount: '成交额',
+  },
 }

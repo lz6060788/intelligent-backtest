@@ -34,6 +34,7 @@ import type { Field as StructField } from '@/components/workflow/nodes/llm/types
 // import type { RAGPipelineVariable } from '@/models/pipeline'
 
 import {
+  BACKTEST_OUTPUT_STRUCT,
   FILE_STRUCT,
   HTTP_REQUEST_OUTPUT_STRUCT,
   LLM_OUTPUT_STRUCT,
@@ -514,6 +515,11 @@ const formatItem = (
         variable: item.alias,
         type: transformVarType(item.type!),
       }))
+      break
+    }
+
+    case BlockEnum.Backtest: {
+      res.vars = BACKTEST_OUTPUT_STRUCT
       break
     }
 
@@ -1694,6 +1700,11 @@ export const getNodeOutputVars = (
     case BlockEnum.OperatorOverview: {
       const { graph } = data as OperatorOverviewNodeType
       res = getOutputVars(graph.nodes, graph.edges).map(item => [id, item.alias])
+      break
+    }
+
+    case BlockEnum.Backtest: {
+      varsToValueSelectorList(BACKTEST_OUTPUT_STRUCT, [id], res)
       break
     }
   }
