@@ -25,21 +25,22 @@ const handleCallExternalCapabilities = async (data: { functionCallAction: Functi
     try {
       const context = {
         aime: aimeRef.value,
-        respFunction: (status: boolean, message: string) => {
-          aimeRef.value?.respFunctionCall(action.uuid, status, {
-            data: message
-          })
+        respFunction: (status: boolean, data: any) => {
+          aimeRef.value?.respFunctionCall(action.uuid, status, data)
         }
       }
       const result = await functionCallMap[action.function.name as keyof typeof functionCallMap](action.function.arguments as any, context)
       if (!asyncFunctionCalls.includes(action.function.name as keyof typeof functionCallMap)) {
         aimeRef.value?.respFunctionCall(action.uuid, true, {
-          data: JSON.stringify(result)
+          data: JSON.stringify(result),
         })
       }
     } catch (error) {
       console.log('aime调用外部能力报错：', error)
-      aimeRef.value?.respFunctionCall(action.uuid, false, (error as Error).message)
+      aimeRef.value?.respFunctionCall(action.uuid, false, {
+        data: (error as Error).message,
+        error: error as Error
+      })
     }
   }
 }

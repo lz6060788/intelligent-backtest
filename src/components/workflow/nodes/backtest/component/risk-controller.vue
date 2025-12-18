@@ -92,6 +92,7 @@ import cn from '@/utils/classnames'
 import { RiAddLine } from '@remixicon/vue'
 import { ElNotification } from 'element-plus';
 import { VarType, type ValueSelector, type Var } from '@/types';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n()
 
@@ -196,10 +197,9 @@ const filterVar = (variable: Var) => {
 }
 
 const removeRiskControlItem = (key: RiskControlItemEnum) => {
-  emit('updateRiskControl', {
-    ...props.risk_control,
-    [key]: undefined,
-  })
+  const new_risk_control = cloneDeep(props.risk_control)
+  delete new_risk_control[key]
+  emit('updateRiskControl', new_risk_control)
 }
 
 // 悬浮样式

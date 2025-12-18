@@ -48,7 +48,6 @@
       </div>
     </Field>
     <SignalForm
-      v-if="!readOnly"
       :node-id="id"
       :payload="payload.execution_signals.open"
       :is-open="true"
@@ -56,7 +55,6 @@
       @change="(value) => updateExecutionSignals(PriceType.OPEN, value)"
     />
     <SignalForm
-      v-if="!readOnly"
       :node-id="id"
       :payload="payload.execution_signals.close"
       :is-open="false"
@@ -64,7 +62,6 @@
       @change="(value) => updateExecutionSignals(PriceType.CLOSE, value)"
     />
     <RiskController
-      v-if="!readOnly"
       :node-id="id"
       :risk_control="payload.risk_control"
       :read-only="readOnly"

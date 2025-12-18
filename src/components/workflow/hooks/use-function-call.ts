@@ -292,7 +292,7 @@ export const useFunctionCall = (
     return {
       nodes: unref(nodes).map((node) => ({
         id: node.id,
-        data: node.type === BlockEnum.OperatorOverview ? node.data : null,
+        data: node.type !== BlockEnum.OperatorOverview ? node.data : null,
         position: node.position,
         parentNode: node.parentNode,
         type: node.type,
