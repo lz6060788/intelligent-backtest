@@ -406,7 +406,7 @@ export const useFunctionCall = (
     }[];
   }) => {
     const { replaceEdges } = useEdgeInteractions(payload.value.workflowId);
-    return replaceEdges(
+    replaceEdges(
       connections.map((i) => ({
         source: i.source.nodeId,
         sourceHandle: i.source.handle,
@@ -414,6 +414,7 @@ export const useFunctionCall = (
         targetHandle: i.target.handle,
       })) as Connection[]
     );
+    callBeautifyWorkflow();
   };
 
   const callCreateNodes = ({
@@ -426,7 +427,7 @@ export const useFunctionCall = (
     const { handleIsolatedNodeAdd } = useNodesInteractions(
       payload.value.workflowId
     );
-    return nodes.forEach((node) => {
+    nodes.forEach((node) => {
       const { nodeType } = node;
       if (
         nodeType === BlockEnum.Start ||
@@ -436,6 +437,7 @@ export const useFunctionCall = (
       }
       return handleIsolatedNodeAdd(nodeType);
     });
+    callBeautifyWorkflow();
   };
 
   const callDeleteNodes = ({ nodeIds }: { nodeIds: string[] }) => {
@@ -458,6 +460,7 @@ export const useFunctionCall = (
       });
       handleNodeLoopRerender(scope.nodeId);
     });
+    callBeautifyWorkflow();
   }
 
   const callWorkflowTabAction = ({
