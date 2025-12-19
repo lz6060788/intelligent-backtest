@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash-es'
 import { BlockEnum, type Edge, type Node, type OnNodeAdd } from '@/types'
 import { CUSTOM_EDGE, CUSTOM_LOOP_START_NODE, LOOP_CHILDREN_Z_INDEX, NODE_WIDTH_X_OFFSET, X_OFFSET, Y_OFFSET } from '../nodes/_base/node/constant';
 import { getNodesConnectedSourceOrTargetHandleIdsMap } from '../utils/workflow';
-import { generateNewNode, genNewNodeTitleFromOld, getNestedNodePosition, getNodeCustomTypeByNodeDataType, getTopLeftNodePosition } from '../utils/node';
+import { generateNewNode, genNewNodeTitleFromOld, getBottomRightNodePosition, getNestedNodePosition, getNodeCustomTypeByNodeDataType, getTopLeftNodePosition } from '../utils/node';
 import type { LoopNodeType } from '../nodes/loop/type';
 import { useNodeLoopInteractions } from '@/components/workflow/nodes/loop/use-interactions'
 import { useNodesMetaData } from './use-nodes-meta-data';
@@ -1103,7 +1103,6 @@ export const useNodesInteractions = (id?: string) => {
     const nodesToPaste: Node[] = []
     const edgesToPaste: Edge[] = []
 
-    console.log('clipboardElements', clipboardElements.value)
     if (clipboardElements.value.length) {
       const { x, y } = getTopLeftNodePosition(clipboardElements.value)
       const currentPosition = project({
@@ -1347,6 +1346,41 @@ export const useNodesInteractions = (id?: string) => {
     }
   }
 
+  const handleMoveNodeToParent = (nodeId: string, parentNodeId: string) => {
+    if (getNodesReadOnly()) return
+    if (!nodeId || !parentNodeId) return
+
+    const { nodes, updateNode } = store
+
+    const parentNode = nodes.value.find(node => node.id === parentNodeId)!
+    if (!parentNode) return
+
+    const node = nodes.value.find(node => node.id === nodeId)!
+    if (!node) return
+
+    const brPosition = getBottomRightNodePosition(nodes.value.filter(node => node.parentNode === parentNodeId))
+    const tlPosition = getTopLeftNodePosition(nodes.value.filter(node => node.parentNode === parentNodeId))
+    updateNode(nodeId, {
+      data: {
+        ...node.data,
+        isInLoop: true,
+        loop_id: parentNodeId,
+      },
+      zIndex: LOOP_CHILDREN_Z_INDEX,
+      parentNode: parentNodeId,
+      position: {
+        x: brPosition.x + X_OFFSET,
+        y: tlPosition.y,
+      },
+    })
+    updateNode(parentNodeId, {
+      data: {
+        ...parentNode.data,
+        _children: [...parentNode.data._children, { nodeId, nodeType: node.data.type }],
+      },
+    })
+  }
+
   return {
     handleNodeClick,
     handleNodeDragStart,
@@ -1369,6 +1403,7 @@ export const useNodesInteractions = (id?: string) => {
     handleNodesDelete,
     handleNodeDisconnect,
     handleHistoryBack,
-    handleHistoryForward
+    handleHistoryForward,
+    handleMoveNodeToParent
   }
 }

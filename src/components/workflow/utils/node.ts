@@ -1,4 +1,4 @@
-import { BlockEnum, type Node } from '@/types'
+import { BlockEnum, type Edge, type Node } from '@/types'
 import { CUSTOM_NODE, ITERATION_NODE_Z_INDEX, LOOP_NODE_Z_INDEX, CUSTOM_LOOP_START_NODE, LOOP_CHILDREN_Z_INDEX } from '../nodes/_base/node/constant'
 import { Position, type GraphNode } from '@vue-flow/core'
 import type { LoopNodeType } from '../nodes/loop/type'
@@ -62,6 +62,24 @@ export const getTopLeftNodePosition = (nodes: Node[]) => {
   return {
     x: minX,
     y: minY,
+  }
+}
+
+export const getBottomRightNodePosition = (nodes: GraphNode[]) => {
+  let maxX = -Infinity
+  let maxY = -Infinity
+
+  nodes.forEach((node) => {
+    if (node.position.x + (node.width as number || node.dimensions.width as number || 0) > maxX)
+      maxX = node.position.x + (node.width as number || node.dimensions.width as number || 0)
+
+    if (node.position.y + (node.height as number || node.dimensions.height as number || 0) > maxY)
+      maxY = node.position.y + (node.height as number || node.dimensions.height as number || 0)
+  })
+
+  return {
+    x: maxX,
+    y: maxY,
   }
 }
 

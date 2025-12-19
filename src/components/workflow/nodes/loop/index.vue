@@ -11,11 +11,11 @@
       :size="2 / zoom"
       pattern-color="#fff"
     />
-    <LoopStartNodeDumb v-if="data._isCandidate" />
+    <LoopStartNodeDumb v-if="payload._isCandidate" />
     <AddBlock
-      v-if="data._children!.length === 1"
+      v-if="payload._children!.length === 1"
       :loop-node-id="id"
-      :loop-node-data="data"
+      :loop-node-data="payload"
     />
   </div>
 </template>
@@ -34,11 +34,12 @@ import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-in
 
 const props = defineProps<NodeProps<LoopNodeType>>()
 
-const { id, data } = props
+const { id } = props
 const { instanceId } = useWorkflowInstance()
 const { viewport } = useVueFlow(instanceId)
 const { handleNodeLoopRerender } = useNodeLoopInteractions()
 const nodesInitialized = useNodesInitialized();
+const payload = computed(() => props.data)
 
 const zoom = computed(() => viewport.value.zoom)
 

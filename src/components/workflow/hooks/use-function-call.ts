@@ -6,7 +6,7 @@ import {
   useWorkflowStartRun,
   useWorkflowOrganize,
 } from ".";
-import { useVueFlow, type Connection } from "@vue-flow/core";
+import { getConnectedEdges, useVueFlow, type Connection } from "@vue-flow/core";
 import type {
   CallExternalCapabilitiesTool,
   FunctionCallContext,
@@ -19,6 +19,7 @@ import {
   transformGraphNodesToNodes,
   transformGraphEdgesToEdges,
 } from "../utils";
+import { useNodeLoopInteractions } from "../nodes/loop/use-interactions";
 
 export const enum FunctionCallName {
   GetWorkflowInfo = "get_workflow_info",
@@ -27,6 +28,7 @@ export const enum FunctionCallName {
   SetNodeConnections = "set_node_connections",
   DeleteNodes = "delete_nodes",
   CreateNodes = "create_nodes",
+  SetNodeScopes = "set_node_scopes",
   WorkflowTabAction = "workflow_tab_action",
   RunWorkflow = "run_workflow",
   BeautifyWorkflow = "beautify_workflow",
@@ -37,7 +39,6 @@ export const enum FunctionCallName {
 export const useFunctionCall = (
   payload: Ref<{ isOperator: boolean; workflowId: string }>
 ) => {
-
   const callExternalCapabilitiesTools = [
     // get_workflow_info
     {
@@ -229,6 +230,63 @@ export const useFunctionCall = (
       },
       tool_id: "456",
     },
+    // set_node_scopes
+    {
+      type: "function",
+      function: {
+        name: "set_node_scopes",
+        description:
+          "用于设定节点的作用域（Scope），如置于工作流主图中，或至于带有body的节点中",
+        parameters: {
+          type: "object",
+          properties: {
+            assignments: {
+              type: "array",
+              description: "待分配节点列表",
+              items: {
+                type: "object",
+                description: "一个待分配节点",
+                properties: {
+                  nodeIds: {
+                    type: "array",
+                    description: "待分配节点ID列表",
+                    items: {
+                      type: "string",
+                      description: "待分配节点ID",
+                    },
+                    minItems: 1,
+                  },
+                  scope: {
+                    type: "object",
+                    description: "作用域类别",
+                    properties: {
+                      type: {
+                        type: "string",
+                        description: "作用域类别",
+                        enum: ["workflow", "loop"],
+                      },
+                      nodeId: {
+                        type: "string",
+                        description:
+                          "当作用域为`workflow`时，无须该信息；当为非`workflow`时，需要提供具体的作用域的node_id",
+                      },
+                    },
+                    required: ["type"],
+                    additionalProperties: false,
+                  },
+                },
+                required: ["nodeIds", "scope"],
+                additionalProperties: false,
+              },
+              minItems: 1,
+            },
+          },
+          required: ["assignments"],
+          additionalProperties: false,
+        },
+      },
+      tool_id: "456",
+    },
     // workflow_tab_action
     {
       type: "function",
@@ -334,41 +392,46 @@ export const useFunctionCall = (
   };
 
   const callSetNodeConnections = ({
-    connections
+    connections,
   }: {
     connections: {
       source: {
         nodeId: string;
         handle: string;
-      },
+      };
       target: {
         nodeId: string;
         handle: string;
-      }
-    }[]
+      };
+    }[];
   }) => {
     const { replaceEdges } = useEdgeInteractions(payload.value.workflowId);
-    return replaceEdges(connections.map(i => ({
-      source: i.source.nodeId,
-      sourceHandle: i.source.handle,
-      target: i.target.nodeId,
-      targetHandle: i.target.handle,
-    })) as Connection[]);
+    return replaceEdges(
+      connections.map((i) => ({
+        source: i.source.nodeId,
+        sourceHandle: i.source.handle,
+        target: i.target.nodeId,
+        targetHandle: i.target.handle,
+      })) as Connection[]
+    );
   };
 
   const callCreateNodes = ({
-    nodes
+    nodes,
   }: {
     nodes: {
       nodeType: BlockEnum;
-    }[]
+    }[];
   }) => {
-    const { handleIsolatedNodeAdd } = useNodesInteractions(payload.value.workflowId);
+    const { handleIsolatedNodeAdd } = useNodesInteractions(
+      payload.value.workflowId
+    );
     return nodes.forEach((node) => {
-      const {
-        nodeType,
-      } = node;
-      if (nodeType === BlockEnum.Start || nodeType === BlockEnum.OperatorStart) {
+      const { nodeType } = node;
+      if (
+        nodeType === BlockEnum.Start ||
+        nodeType === BlockEnum.OperatorStart
+      ) {
         return;
       }
       return handleIsolatedNodeAdd(nodeType);
@@ -379,6 +442,23 @@ export const useFunctionCall = (
     const { handleNodeDelete } = useNodesInteractions(payload.value.workflowId);
     return nodeIds.forEach((nodeId) => handleNodeDelete(nodeId));
   };
+
+  const callSetNodeScopes = ({ assignments }: { assignments: { nodeIds: string[]; scope: { type: "workflow" | "loop"; nodeId: string; } }[] }) => {
+    const store = useVueFlow(payload.value.workflowId);
+    const { handleNodeLoopRerender } = useNodeLoopInteractions(payload.value.workflowId)
+    const { edges } = store;
+    assignments.forEach((assignment) => {
+      const { nodeIds, scope } = assignment;
+      const { handleEdgeDelete } = useEdgeInteractions(payload.value.workflowId);
+      const { handleMoveNodeToParent } = useNodesInteractions(payload.value.workflowId);
+      nodeIds.forEach((nodeId) => {
+        const connectedEdges = getConnectedEdges(nodeId, edges.value)
+        connectedEdges.forEach((edge) => handleEdgeDelete(edge.id));
+        handleMoveNodeToParent(nodeId, scope.nodeId);
+      });
+      handleNodeLoopRerender(scope.nodeId);
+    });
+  }
 
   const callWorkflowTabAction = ({
     action,
@@ -442,6 +522,7 @@ export const useFunctionCall = (
     [FunctionCallName.SetNodeConnections]: callSetNodeConnections,
     [FunctionCallName.DeleteNodes]: callDeleteNodes,
     [FunctionCallName.CreateNodes]: callCreateNodes,
+    [FunctionCallName.SetNodeScopes]: callSetNodeScopes,
     [FunctionCallName.WorkflowTabAction]: callWorkflowTabAction,
     [FunctionCallName.RunWorkflow]: callRunWorkflow,
     [FunctionCallName.BeautifyWorkflow]: callBeautifyWorkflow,
