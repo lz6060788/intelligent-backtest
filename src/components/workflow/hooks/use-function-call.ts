@@ -386,8 +386,15 @@ export const useFunctionCall = (
     nodeId: string;
     data: string;
   }) => {
-    const { updateNodeData } = useVueFlow(payload.value.workflowId);
-    return updateNodeData(nodeId, { data: JSON.parse(data) });
+    const { nodes } = useVueFlow(payload.value.workflowId);
+    const targetNode = nodes.value.find((node) => node.id === nodeId);
+    if (targetNode) {
+      targetNode.data = {
+        ...targetNode.data,
+        ...JSON.parse(data),
+      };
+    }
+    return true;
   };
 
   const callSetNodeConnections = ({
@@ -413,7 +420,9 @@ export const useFunctionCall = (
         targetHandle: i.target.handle,
       })) as Connection[]
     );
-    // callBeautifyWorkflow();
+    setTimeout(() => {
+      callBeautifyWorkflow();
+    }, 1000);
   };
 
   const callCreateNodes = ({
