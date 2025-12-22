@@ -519,6 +519,7 @@ declare module 'vue' {
     VariableX: typeof import('./src/components/base/icons/src/vender/workflow/VariableX.vue')['default']
     VarItem: typeof import('./src/components/workflow/nodes/start/components/var-item.vue')['default']
     VarList: typeof import('./src/components/workflow/nodes/start/components/var-list.vue')['default']
+    VarModal: typeof import('./src/components/workflow/nodes/operator-start/components/var-modal.vue')['default']
     VarReferencePicker: typeof import('./src/components/workflow/nodes/_base/variable/var-reference-picker.vue')['default']
     VarReferencePopup: typeof import('./src/components/workflow/nodes/_base/variable/var-reference-popup.vue')['default']
     VarReferenceVars: typeof import('./src/components/workflow/nodes/_base/variable/var-reference-vars/index.vue')['default']

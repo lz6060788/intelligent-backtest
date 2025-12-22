@@ -2,6 +2,7 @@
   <workflowProvider
     v-bind="props"
     @edit-operator-detail="(id: string, title: string, data: any) => emit('edit-operator-detail', id, title, data)"
+    @nodes-change="(nodes: GraphNode[]) => emit('nodes-change', nodes)"
   ></workflowProvider>
 </template>
 
@@ -9,6 +10,7 @@
 import { provide, ref } from 'vue'
 import type { WorkflowProps } from '@/types/workflow'
 import workflowProvider from './provider.vue'
+import type { GraphNode } from '@/types'
 
 const props = withDefaults(defineProps<WorkflowProps>(), {});
 
@@ -18,6 +20,7 @@ provide('workflowInstanceId', props.id);
 
 const emit = defineEmits<{
   'edit-operator-detail': [id: string, title: string, data: any]
+  'nodes-change': [nodes: GraphNode[]]
 }>()
 </script>
 

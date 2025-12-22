@@ -33,6 +33,7 @@
             :edges="activeWorkflow!.graph.edges"
             :viewport="activeWorkflow!.graph.viewport || { x: 0, y: 0, zoom: 1 }"
             @edit-operator-detail="openNewWorkflow"
+            @nodes-change="handleNodeChange"
           />
         </transition>
       </div>
@@ -49,6 +50,7 @@ import type { WorkflowGraph } from '@/types/workflow'
 import { storeToRefs } from 'pinia'
 import RemoveButton from '@/components/base/remove-button/index.vue'
 import aime from '@/components/workflow/aime/index.vue';
+import type { GraphNode } from '@vue-flow/core'
 
 interface TabItem {
   /** Tab的唯一标识 */
@@ -73,6 +75,16 @@ const {
   removeWorkflow,
   openNewWorkflow,
 } = workflowStore
+
+const handleNodeChange = (nodes: GraphNode[]) => {
+  if (activeWorkflow.value?.id === MAIN_WORKFLOW_APP_ID) {
+    tabs.value.forEach(tab => {
+      if (!nodes.some(node => node.id === tab.id) && tab.id !== MAIN_WORKFLOW_APP_ID) {
+        removeWorkflow(tab.id)
+      }
+    })
+  }
+}
 
 const isProd = import.meta.env.PROD;
 </script>

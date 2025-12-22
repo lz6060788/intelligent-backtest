@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, provide, ref, toRefs, watch } from 'vue'
-import { useVueFlow, VueFlow, SelectionMode } from '@vue-flow/core'
+import { useVueFlow, VueFlow, SelectionMode, type NodeChange } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 // import { Controls as VueFlowControls } from '@vue-flow/controls'
 import Operator from './operator/index.vue'
@@ -96,7 +96,7 @@ import type { WorkflowProps, WorkflowGraph } from '@/types/workflow'
 import Controller from './operator/controller.vue'
 import hotkeys from 'hotkeys-js';
 import { useWorkflowInstance } from './hooks/use-workflow-instance'
-import { BlockEnum, ControlMode } from '@/types';
+import { BlockEnum, ControlMode, type GraphNode } from '@/types';
 
 const workflowContainerRef = ref<HTMLDivElement>();
 
@@ -115,10 +115,11 @@ const { instanceId,  instance: workflowStore, cleanInstance } = useWorkflowInsta
 workflowStore.setWorkflowIsCalculator(props.isOperator)
 
 const store = useVueFlow(instanceId)
-const { setNodes, setEdges } = store
+const { nodes, setNodes, setEdges } = store
 
 const emit = defineEmits<{
   'edit-operator-detail': [id: string, title: string, data: any]
+  'nodes-change': [nodes: GraphNode[]]
 }>()
 
 const {
@@ -183,7 +184,10 @@ const controlHeight = computed(() => {
 const { workflowReadOnly } = useWorkflowReadOnly()
 const { nodesReadOnly } = useNodesReadOnly()
 
-
+const nodeList = computed(() => nodes.value.map(node => node.id))
+watch(nodeList, () => {
+  emit('nodes-change', nodes.value)
+})
 
 onMounted(() => {
   workflowContainerRef.value?.addEventListener('mousemove', (e) => {

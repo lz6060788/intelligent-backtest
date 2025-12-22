@@ -92,10 +92,9 @@ export const useFunctionCall = (
               description: "节点ID",
             },
             data: {
-              type: "object",
+              type: "string",
               description:
-                "根据从`get_node_template`中获取的`node schema`所推理出的完整的节点参数配置",
-              additionalProperties: true,
+                "stringified config reasoned according to the `node config schema` collect via `get_node_template`",
             },
           },
           required: ["nodeId", "data"],
@@ -385,10 +384,10 @@ export const useFunctionCall = (
     data,
   }: {
     nodeId: string;
-    data: any;
+    data: string;
   }) => {
     const { updateNodeData } = useVueFlow(payload.value.workflowId);
-    return updateNodeData(nodeId, { data });
+    return updateNodeData(nodeId, { data: JSON.parse(data) });
   };
 
   const callSetNodeConnections = ({
@@ -414,7 +413,7 @@ export const useFunctionCall = (
         targetHandle: i.target.handle,
       })) as Connection[]
     );
-    callBeautifyWorkflow();
+    // callBeautifyWorkflow();
   };
 
   const callCreateNodes = ({
@@ -437,7 +436,7 @@ export const useFunctionCall = (
       }
       return handleIsolatedNodeAdd(nodeType);
     });
-    callBeautifyWorkflow();
+    // callBeautifyWorkflow();
   };
 
   const callDeleteNodes = ({ nodeIds }: { nodeIds: string[] }) => {
@@ -460,7 +459,7 @@ export const useFunctionCall = (
       });
       handleNodeLoopRerender(scope.nodeId);
     });
-    callBeautifyWorkflow();
+    // callBeautifyWorkflow();
   }
 
   const callWorkflowTabAction = ({

@@ -1,5 +1,6 @@
-import type { CommonNodeType, Var } from '@/types'
+import type { CommonNodeType, Var, InputVar } from '@/types'
 
 export type OperatorStartNodeType = CommonNodeType & {
+  inputs: InputVar[],
   variables: Var[]
 }

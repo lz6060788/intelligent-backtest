@@ -1,40 +1,22 @@
 <template>
   <div class="mt-2">
-    <div class="px-4 pb-2">
-      <el-dropdown
-        :disabled="readOnly"
-        trigger="click"
-        :show-arrow="false"
-        class="w-full"
-        :offset="0"
-        :popper-class="cn('z-[1000]', 'min-w-[368px] max-w-[400px]')"
-      >
-        <el-button class="w-full">
-          {{ t(`${i18nPrefix}.setOutputVariable`) }}
-        </el-button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item v-for="item in unusedVariables" :key="item.variable" @click="addVariable(item)">
-              {{ t(`${i18nPrefix}.outputVars.${item.variable}`) }}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </div>
-    <div class="px-4">
-      <div v-for="item in payload.variables" :key="item.variable" class="mb-2">
-        <div class="flex items-center space-x-2">
-          <div class="w-full bg-gray-700 rounded-md px-2 py-1 flex-1">
-            <span>
-              {{ t(`${i18nPrefix}.outputVars.${item.variable}`) }}
-            </span>
-            <span class="text-xs text-gray-400 ml-2">
-              {{ item.type }}
-            </span>
-          </div>
-          <RemoveButton @click="beforeRemoveVar(item)" />
-        </div>
-      </div>
+
+    <div class="space-y-4 px-4 pb-4">
+      <Inputs
+        :payload="payload.inputs"
+        :node-id="id"
+        :read-only="readOnly"
+        @show-add-var-modal="showAddVarModal"
+        @var-list-change="handleInputVarListChange"
+      />
+      <Variable
+        :payload="payload"
+        :node-id="id"
+        :read-only="readOnly"
+        :unused-variables="unusedVariables"
+        @before-remove-var="beforeRemoveVar"
+        @add-variable="addVariable"
+      />
     </div>
     <Split />
     <div>
@@ -53,6 +35,17 @@
       @cancel="hideRemoveVarConfirm"
       @confirm="onRemoveVarConfirm"
     />
+
+    <ConfigVarModal
+      v-if="isShowAddVarModal"
+      :is-create="true"
+      :support-file="false"
+      :is-show="isShowAddVarModal"
+      :support-types="[InputVarType.textInput, InputVarType.number]"
+      @close="hideAddVarModal"
+      @confirm="handleAddVarConfirm"
+      :var-keys="payload.inputs.map(v => v.variable)"
+    />
   </div>
 </template>
 
@@ -64,10 +57,11 @@ import OutputVars from '@/components/workflow/nodes/_base/output-var/index.vue';
 import useConfig from './use-config'
 import type { OperatorStartNodeType } from './types'
 import Split from '@/components/base/split.vue'
-import type { NodePanelProps } from '@/types'
+import { InputVarType, type InputVar, type NodePanelProps } from '@/types'
 import { computed } from 'vue'
-import cn from '@/utils/classnames';
-import RemoveButton from '@/components/base/remove-button/index.vue';
+import Variable from './components/variable.vue'
+import Inputs from './components/inputs.vue'
+import ConfigVarModal from '@/components/configuration/config-var/config-modal/index.vue'
 
 const i18nPrefix = 'workflow.nodes.operatorStart'
 
@@ -84,5 +78,17 @@ const {
   beforeRemoveVar,
   hideRemoveVarConfirm,
   onRemoveVarConfirm,
+  handleInputVarListChange,
+  handleAddInputVariable,
+  isShowAddVarModal,
+  showAddVarModal,
+  hideAddVarModal,
 } = useConfig(props.id, payload)
+
+
+const handleAddVarConfirm = (payload: InputVar) => {
+  const isValid = handleAddInputVariable(payload)
+  if (!isValid) return
+  hideAddVarModal()
+}
 </script>

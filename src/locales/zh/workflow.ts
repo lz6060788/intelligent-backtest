@@ -991,6 +991,8 @@ const translation = {
     },
     operatorStart: {
       setOutputVariable: '设置输出变量',
+      inputs: '输入',
+      outputs: '输出',
       outputVars: {
         hight: '高',
         open: '开',
@@ -1006,6 +1008,8 @@ const translation = {
     operatorOverview: {
       output: '输出',
       noOutputVars: '暂未设置输出',
+      inputVars: '输入变量',
+      noInputVars: '暂未设置输入变量',
     },
     backtest: {
       ticker: '股票代码',

@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, withDefaults } from 'vue';
 import { ElTooltip } from 'element-plus';
 import { RiRefreshLine } from '@remixicon/vue'
 import cn from '@/utils/classnames';

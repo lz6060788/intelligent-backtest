@@ -1,6 +1,7 @@
 import useNodeInfo from './use-node-info.ts'
 import {
   useWorkflow,
+  useWorkflowInstance,
   useWorkflowVariables,
 } from '@/components/workflow/hooks'
 import type { NodeOutPutVar } from '@/types'
@@ -23,14 +24,15 @@ const useAvailableVarList = (nodeId: string, {
 }: Params = {
   onlyLeafNodeVar: false,
   filterVar: () => true,
-}) => {
-  const { getTreeLeafNodes, getNodeById, getBeforeNodesInSameBranchIncludeParent } = useWorkflow()
-  const { getNodeAvailableVars } = useWorkflowVariables()
+}, workflowInstanceId?: string) => {
+  const { instanceId } = useWorkflowInstance(workflowInstanceId)
+  const { getTreeLeafNodes, getNodeById, getBeforeNodesInSameBranchIncludeParent } = useWorkflow(instanceId)
+  const { getNodeAvailableVars } = useWorkflowVariables(instanceId)
   const isChatMode = false
   const availableNodes = passedInAvailableNodes || (onlyLeafNodeVar ? getTreeLeafNodes(nodeId) : getBeforeNodesInSameBranchIncludeParent(nodeId))
   const {
     parentNode: parentNode,
-  } = useNodeInfo(nodeId)
+  } = useNodeInfo(nodeId, instanceId)
 
   const currNode = getNodeById(nodeId)
   const isDataSourceNode = currNode?.data?.type === BlockEnum.DataSource

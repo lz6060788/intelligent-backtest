@@ -169,7 +169,7 @@
     </div>
     <template #footer>
       <div className='flex justify-end gap-2'>
-        <el-button @click="onClose">{{t('common.operation.cancel')}}</el-button>
+        <el-button @click="emit('close')">{{t('common.operation.cancel')}}</el-button>
         <el-button variant='primary' @click="handleConfirm">{{t('common.operation.save')}}</el-button>
       </div>
     </template>
@@ -227,12 +227,10 @@ interface ConfigModalProps {
   isShow: boolean
   /** 变量键列表 */
   varKeys?: string[]
-  /** 关闭回调 */
-  onClose: () => void
-  /** 确认回调 */
-  onConfirm: (newValue: InputVar, moreInfo?: MoreInfo) => void
   /** 是否支持文件 */
   supportFile?: boolean
+  /** 支持类型 */
+  supportTypes?: InputVarType[]
 }
 
 const props = withDefaults(defineProps<ConfigModalProps>(), {
@@ -240,6 +238,7 @@ const props = withDefaults(defineProps<ConfigModalProps>(), {
   payload: undefined,
   varKeys: () => [],
   supportFile: false,
+  supportTypes: () => []
 })
 
 const emit = defineEmits(['close', 'confirm'])
@@ -263,7 +262,7 @@ watch(() => props.isShow, (newVal) => {
 // 监听 dialogVisible 变化，触发关闭事件
 watch(dialogVisible, (newVal) => {
   if (!newVal) {
-    props.onClose()
+    emit('close')
   }
 })
 
@@ -379,6 +378,10 @@ const selectOptions = computed<SelectItem[]>(() => {
       value: InputVarType.checkbox,
     },
   ]
+
+  if (props.supportTypes.length > 0) {
+    return baseOptions.filter(item => props.supportTypes.includes(item.value as InputVarType))
+  }
 
   // if (props.supportFile) {
   //   baseOptions.push(

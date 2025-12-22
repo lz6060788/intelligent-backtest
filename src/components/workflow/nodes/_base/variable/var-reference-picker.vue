@@ -352,7 +352,7 @@ watch([() => props.nodeId, () => props.onlyLeafNodeVar, () => props.availableNod
     onlyLeafNodeVar: props.onlyLeafNodeVar,
     passedInAvailableNodes: props.availableNodes,
     filterVar: props.filterVar,
-  })
+  }, instanceId)
 }, { deep: true })
 
 const availableVars = computed(() => availableData.value.availableVars)

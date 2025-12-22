@@ -988,6 +988,8 @@ const translation = {
     },
     operatorStart: {
       setOutputVariable: 'Set output variable',
+      inputs: 'Inputs',
+      outputs: 'Outputs',
       outputVars: {
         hight: 'Hight',
         open: 'Open',
@@ -1003,6 +1005,8 @@ const translation = {
     operatorOverview: {
       output: 'output',
       noOutputVars: 'No output',
+      inputVars: 'Input Variables',
+      noInputVars: 'No input variables',
     },
     backtest: {
       ticker: 'Ticker',

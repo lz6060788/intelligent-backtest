@@ -1,8 +1,8 @@
 import { useVueFlow } from '@vue-flow/core'
 import { useWorkflowInstance } from '@/components/workflow/hooks/use-workflow-instance'
 
-const useNodeInfo = (nodeId: string) => {
-  const { instanceId } = useWorkflowInstance()
+const useNodeInfo = (nodeId: string, workflowInstanceId?: string) => {
+  const { instanceId } = useWorkflowInstance(workflowInstanceId)
   const store = useVueFlow(instanceId)
   const {
     getNodes: allNodes,

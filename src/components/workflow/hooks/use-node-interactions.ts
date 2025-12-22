@@ -20,7 +20,9 @@ import {
   useWorkflowHistory,
 } from './use-workflow-history'
 
-export const useNodesInteractions = (id?: string) => {
+export const useNodesInteractions = (
+  id?: string,
+) => {
   const { instance: workflowStore, instanceId } = useWorkflowInstance(id);
   const store = useVueFlow(instanceId);
   const { getNodesReadOnly } = useNodesReadOnly(instanceId)
@@ -383,7 +385,6 @@ export const useNodesInteractions = (id?: string) => {
       const currentNodeIndex = nodes.value.findIndex(node => node.id === nodeId)
       const currentNode = nodes.value[currentNodeIndex]
 
-      console.log('currentNode', currentNode, nodes.value, nodeId)
       if (!currentNode) return
 
       if (
@@ -444,7 +445,7 @@ export const useNodesInteractions = (id?: string) => {
               handleNodeDelete(child.id)
             })
             return handleNodeDelete(nodeId)
-          }
+          } 
           else {
             if (loopChildren.length === 1) {
               handleNodeDelete(loopChildren[0]!.id)
@@ -1273,7 +1274,6 @@ export const useNodesInteractions = (id?: string) => {
 
     if (bundledNodes.length) {
       bundledNodes.forEach(node => handleNodeDelete(node.id))
-
       return
     }
 

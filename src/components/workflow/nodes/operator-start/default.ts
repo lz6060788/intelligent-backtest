@@ -16,6 +16,7 @@ const metaData = genNodeMetaData({
 const nodeDefault: NodeDefault<OperatorStartNodeType> = {
   metaData,
   defaultValue: {
+    inputs: [],
     variables: [],
   },
   checkValid() {
