@@ -107,16 +107,16 @@ export const useFunctionCall = (
       type: "function",
       function: {
         name: FunctionCallName.SetNodeConnections,
-        description: "用于更新节点间的连接关系（edges），其支持部分与全局更新",
+        description: "用于更新节点间的连接关系（edges），仅支持全局更新，即全部节点的连接关系，必须一次性输入",
         parameters: {
           type: "object",
           properties: {
             connections: {
               type: "array",
-              description: "需要替换的连接关系列表",
+              description: "全量节点间连接关系列表",
               items: {
                 type: "object",
-                description: "连接关系",
+                description: "节点间连接关系",
                 properties: {
                   source: {
                     type: "object",
