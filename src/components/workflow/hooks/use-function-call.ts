@@ -455,18 +455,12 @@ export const useFunctionCall = (
 
   const callSetNodeScopes = ({ assignments }: { assignments: { nodeIds: string[]; scope: { type: "workflow" | "loop"; nodeId: string; } }[] }) => {
     const store = useVueFlow(payload.value.workflowId);
-    const { handleNodeLoopRerender } = useNodeLoopInteractions(payload.value.workflowId)
-    const { edges } = store;
     assignments.forEach((assignment) => {
       const { nodeIds, scope } = assignment;
-      const { handleEdgeDelete } = useEdgeInteractions(payload.value.workflowId);
       const { handleMoveNodeToParent } = useNodesInteractions(payload.value.workflowId);
       nodeIds.forEach((nodeId) => {
-        const connectedEdges = getConnectedEdges(nodeId, edges.value)
-        connectedEdges.forEach((edge) => handleEdgeDelete(edge.id));
         handleMoveNodeToParent(nodeId, scope.nodeId);
       });
-      handleNodeLoopRerender(scope.nodeId);
     });
     // callBeautifyWorkflow();
   }

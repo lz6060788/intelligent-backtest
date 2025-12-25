@@ -12,7 +12,7 @@ const nodeDefault: NodeDefault<OperatorOverviewNodeType> = {
   metaData,
   defaultValue: {
     inputs: {},
-    graph: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 0.25 } },
+    graph: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
   },
   checkValid() {
     return {

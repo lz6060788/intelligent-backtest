@@ -1,264 +1,325 @@
-import { getOutgoers, type Connection, type GraphEdge, type NodeDragEvent, type NodeMouseEvent, type OnConnectStartParams, type XYPosition } from '@vue-flow/core';
-import { reactive, unref } from 'vue';
-import { useVueFlow, getConnectedEdges } from '@vue-flow/core'
-import { useWorkflowInstance } from '../hooks/use-workflow-instance'
-import { cloneDeep } from 'lodash-es'
-import { BlockEnum, type Edge, type Node, type OnNodeAdd } from '@/types'
-import { CUSTOM_EDGE, CUSTOM_LOOP_START_NODE, LOOP_CHILDREN_Z_INDEX, NODE_WIDTH_X_OFFSET, X_OFFSET, Y_OFFSET } from '../nodes/_base/node/constant';
-import { getNodesConnectedSourceOrTargetHandleIdsMap } from '../utils/workflow';
-import { generateNewNode, genNewNodeTitleFromOld, getBottomRightNodePosition, getNestedNodePosition, getNodeCustomTypeByNodeDataType, getTopLeftNodePosition } from '../utils/node';
-import type { LoopNodeType } from '../nodes/loop/type';
-import { useNodeLoopInteractions } from '@/components/workflow/nodes/loop/use-interactions'
-import { useNodesMetaData } from './use-nodes-meta-data';
-import i18n from "@/locales"
+import {
+  getOutgoers,
+  pointToRendererPoint,
+  type Connection,
+  type GraphEdge,
+  type NodeDragEvent,
+  type NodeMouseEvent,
+  type OnConnectStartParams,
+  type XYPosition,
+} from "@vue-flow/core";
+import { reactive, unref } from "vue";
+import { useVueFlow, getConnectedEdges } from "@vue-flow/core";
+import { useWorkflowInstance } from "../hooks/use-workflow-instance";
+import { cloneDeep } from "lodash-es";
+import { BlockEnum, type Edge, type Node, type OnNodeAdd } from "@/types";
+import {
+  CUSTOM_EDGE,
+  CUSTOM_LOOP_START_NODE,
+  LOOP_CHILDREN_Z_INDEX,
+  NODE_WIDTH_X_OFFSET,
+  X_OFFSET,
+  Y_OFFSET,
+} from "../nodes/_base/node/constant";
+import { getNodesConnectedSourceOrTargetHandleIdsMap } from "../utils/workflow";
+import {
+  findNodesByPosition,
+  generateNewNode,
+  genNewNodeTitleFromOld,
+  getBottomRightNodePosition,
+  getNestedNodePosition,
+  getNodeCustomTypeByNodeDataType,
+  getTopLeftNodePosition,
+} from "../utils/node";
+import type { LoopNodeType } from "../nodes/loop/type";
+import { useNodeLoopInteractions } from "@/components/workflow/nodes/loop/use-interactions";
+import { useNodesMetaData } from "./use-nodes-meta-data";
+import i18n from "@/locales";
 import {
   useNodesReadOnly,
   useWorkflow,
   useWorkflowReadOnly,
-} from './use-workflow'
+} from "./use-workflow";
 import {
   WorkflowHistoryEvent,
   useWorkflowHistory,
-} from './use-workflow-history'
-import { CUSTOM_ITERATION_START_NODE } from '../nodes/iteration-start/constants';
-import { useNodeIterationInteractions } from '../nodes/iteration/use-interactions';
-import type { IterationNodeType } from '../nodes/iteration/types';
+} from "./use-workflow-history";
+import { CUSTOM_ITERATION_START_NODE } from "../nodes/iteration-start/constants";
+import { useNodeIterationInteractions } from "../nodes/iteration/use-interactions";
+import type { IterationNodeType } from "../nodes/iteration/types";
+import { useEdgeInteractions } from ".";
+import { VALID_NODE_IN_LOOP_OR_ITERATION } from "../constant";
 
-export const useNodesInteractions = (
-  id?: string,
-) => {
-  const t = i18n.global.t
+export const useNodesInteractions = (id?: string) => {
+  const t = i18n.global.t;
   const { instance: workflowStore, instanceId } = useWorkflowInstance(id);
   const store = useVueFlow(instanceId);
-  const { getNodesReadOnly } = useNodesReadOnly(instanceId)
-  const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId)
-  const { handleNodeIterationChildDrag, handleNodeIterationChildrenCopy }
-    = useNodeIterationInteractions(instanceId)
-  const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy }
-    = useNodeLoopInteractions(instanceId)
-  const { nodesMap: nodesMetaDataMap } = useNodesMetaData(instanceId)
-  const { getAfterNodesInSameBranch } = useWorkflow(instanceId)
-  const { store: workflowHistoryStore, saveStateToHistory, undo, redo } = useWorkflowHistory(instanceId)
+  const { getNodesReadOnly } = useNodesReadOnly(instanceId);
+  const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId);
+  const { handleNodeIterationChildDrag, handleNodeIterationChildrenCopy } =
+    useNodeIterationInteractions(instanceId);
+  const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy } =
+    useNodeLoopInteractions(instanceId);
+  const { nodesMap: nodesMetaDataMap } = useNodesMetaData(instanceId);
+  const { getAfterNodesInSameBranch } = useWorkflow(instanceId);
+  const {
+    store: workflowHistoryStore,
+    saveStateToHistory,
+    undo,
+    redo,
+  } = useWorkflowHistory(instanceId);
+  const { handleEdgeDelete } = useEdgeInteractions(instanceId);
+  const { handleNodeLoopRerender } = useNodeLoopInteractions(instanceId)
+  const { handleNodeIterationRerender } = useNodeIterationInteractions(instanceId)
 
   const dragNodeStartPosition = reactive({ x: 0, y: 0 } as {
     x: number;
     y: number;
-  })
+  });
 
   const handleNodeDragStart = (e: NodeDragEvent) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
     const node = e.node;
 
     if (
-      node.type === CUSTOM_ITERATION_START_NODE
-      || node.type === CUSTOM_LOOP_START_NODE
+      node.type === CUSTOM_ITERATION_START_NODE ||
+      node.type === CUSTOM_LOOP_START_NODE
     )
-      return
+      return;
 
     dragNodeStartPosition.x = node.position.x;
     dragNodeStartPosition.y = node.position.y;
-  }
+  };
 
   const handleNodeDrag = (e: NodeDragEvent) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
     const { node, event } = e;
 
-    if (node.type === CUSTOM_ITERATION_START_NODE) return
+    if (node.type === CUSTOM_ITERATION_START_NODE) return;
 
-    if (node.type === CUSTOM_LOOP_START_NODE) return
+    if (node.type === CUSTOM_LOOP_START_NODE) return;
 
-    const { nodes } = store;
+    const { nodes, project } = store;
     event.stopPropagation();
 
-    const { restrictPosition } = handleNodeIterationChildDrag(node)
-    const { restrictPosition: restrictLoopPosition }
-      = handleNodeLoopChildDrag(node)
+    const { restrictPosition } = handleNodeIterationChildDrag(node);
+    const { restrictPosition: restrictLoopPosition } =
+      handleNodeLoopChildDrag(node);
 
-    const currentNode = nodes.value.find(n => n.id === node.id)!
+    const currentNode = nodes.value.find((n) => n.id === node.id)!;
 
     if (restrictLoopPosition.x !== undefined)
-      currentNode.position.x = restrictLoopPosition.x
+      currentNode.position.x = restrictLoopPosition.x;
     else if (restrictPosition.x !== undefined)
-      currentNode.position.x = restrictPosition.x
-    else currentNode.position.x = node.position.x
+      currentNode.position.x = restrictPosition.x;
+    else currentNode.position.x = node.position.x;
 
     if (restrictLoopPosition.y !== undefined)
-      currentNode.position.y = restrictLoopPosition.y
+      currentNode.position.y = restrictLoopPosition.y;
     else if (restrictPosition.y !== undefined)
-      currentNode.position.y = restrictPosition.y
-    else currentNode.position.y = node.position.y
-  }
+      currentNode.position.y = restrictPosition.y;
+    else currentNode.position.y = node.position.y;
+
+    // 节点移入到其他节点时，高亮对应的节点
+    if (node.parentNode || !VALID_NODE_IN_LOOP_OR_ITERATION.includes(node.data.type)) {
+      return;
+    }
+    const container = document.getElementById('workflow-container')!
+    const rect = container.getBoundingClientRect()
+    const { x: mouseX, y: mouseY } = project(
+      {
+        x: (event as MouseEvent).clientX - rect.left,
+        y: (event as MouseEvent).clientY - rect.top,
+      }
+    );
+    const overlapNodes = findNodesByPosition(
+      nodes.value.filter((n) => n.id !== node.id),
+      mouseX,
+      mouseY
+    );
+    const targetNode = overlapNodes.find(
+      (node) =>
+        node.data.type === BlockEnum.Iteration ||
+        node.data.type === BlockEnum.Loop
+    );
+    nodes.value.forEach((n) => (n.data._isWillDragEnter = false));
+    if (targetNode) {
+      targetNode.data._isWillDragEnter = true;
+    }
+  };
 
   const handleNodeDragStop = (e: NodeDragEvent) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
     const node = e.node;
-    const { x, y } = dragNodeStartPosition
-    console.log(x, y)
+    const { x, y } = dragNodeStartPosition;
+    const { nodes } = store;
     if (!(x === node.position.x && y === node.position.y)) {
       // handleSyncWorkflowDraft()
+      const willDragEnterNode = nodes.value.find((n) => n.data._isWillDragEnter);
+      nodes.value.forEach((n) => (n.data._isWillDragEnter = false));
+      if (willDragEnterNode) {
+        handleMoveNodeToParent(node.id, willDragEnterNode.id);
+        return
+      }
 
       if (x !== 0 && y !== 0) {
         // selecting a note will trigger a drag stop event with x and y as 0
         saveStateToHistory(WorkflowHistoryEvent.NodeDragStop, {
           nodeId: node.id,
-        })
+        });
       }
     }
-  }
+  };
 
   const handleNodeMouseEnter = (e: NodeMouseEvent) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
     if (
-      e.node.type === CUSTOM_ITERATION_START_NODE
-      || e.node.type === CUSTOM_LOOP_START_NODE
+      e.node.type === CUSTOM_ITERATION_START_NODE ||
+      e.node.type === CUSTOM_LOOP_START_NODE
     )
-      return
+      return;
 
     const node = e.node;
     const { nodes, edges } = store;
-    const { connectingNodePayload, setEnteringNodePayload }
-      = workflowStore;
+    const { connectingNodePayload, setEnteringNodePayload } = workflowStore;
 
     // 连接到特殊节点时高亮对应的节点
     if (connectingNodePayload.value) {
-      if (connectingNodePayload.value?.nodeId === node.id) return
+      if (connectingNodePayload.value?.nodeId === node.id) return;
       const connectingNode: Node = nodes.value.find(
-        n => n.id === connectingNodePayload.value?.nodeId,
-      )!
-      const sameLevel = connectingNode?.parentNode === node?.parentNode
+        (n) => n.id === connectingNodePayload.value?.nodeId
+      )!;
+      const sameLevel = connectingNode?.parentNode === node?.parentNode;
 
       if (sameLevel) {
         setEnteringNodePayload({
           nodeId: node.id,
           nodeData: node.data,
-        })
+        });
         // 特殊节点 - 可能无需使用
-        const fromType = connectingNodePayload.value?.handleType
+        const fromType = connectingNodePayload.value?.handleType;
 
         nodes.value.map((n) => {
           if (
-            n.id === node.id
-            && fromType === 'source'
-            && (node.data.type === BlockEnum.VariableAggregator)
+            n.id === node.id &&
+            fromType === "source" &&
+            node.data.type === BlockEnum.VariableAggregator
           ) {
             if (!node.data.advanced_settings?.group_enabled)
-              n.data._isEntering = true
+              n.data._isEntering = true;
           }
           if (
-            n.id === node.id
-            && fromType === 'target'
-            && (connectingNode.data?.type === BlockEnum.VariableAggregator)
-            && node.data.type !== BlockEnum.IfElse
+            n.id === node.id &&
+            fromType === "target" &&
+            connectingNode.data?.type === BlockEnum.VariableAggregator &&
+            node.data.type !== BlockEnum.IfElse
           )
             n.data._isEntering = true;
-          return n
-        })
+          return n;
+        });
       }
     }
-    const connectedEdges = getConnectedEdges([node], edges.value)
+    const connectedEdges = getConnectedEdges([node], edges.value);
     connectedEdges.forEach((edge) => {
-      const currentEdge = edges.value.find(e => e.id === edge.id)
-      if (currentEdge) currentEdge.data._connectedNodeIsHovering = true
-    })
-  }
+      const currentEdge = edges.value.find((e) => e.id === edge.id);
+      if (currentEdge) currentEdge.data._connectedNodeIsHovering = true;
+    });
+  };
 
   const handleNodeMouseLeave = (e: NodeMouseEvent) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
     if (
-      e.node.type === CUSTOM_ITERATION_START_NODE
-      || e.node.type === CUSTOM_LOOP_START_NODE
+      e.node.type === CUSTOM_ITERATION_START_NODE ||
+      e.node.type === CUSTOM_LOOP_START_NODE
     )
-      return
+      return;
 
-    const { setEnteringNodePayload } = workflowStore
-    setEnteringNodePayload(undefined)
-    const { nodes, edges } = store
+    const { setEnteringNodePayload } = workflowStore;
+    setEnteringNodePayload(undefined);
+    const { nodes, edges } = store;
     nodes.value.forEach((node) => {
-      node.data._isEntering = false
-    })
+      node.data._isEntering = false;
+    });
     edges.value.forEach((edge) => {
-      edge.data._connectedNodeIsHovering = false
-    })
-  }
+      edge.data._connectedNodeIsHovering = false;
+    });
+  };
 
-  const handleNodeSelect = (
-    nodeId: string,
-    cancelSelection?: boolean,
-  ) => {
+  const handleNodeSelect = (nodeId: string, cancelSelection?: boolean) => {
     const { nodes, edges } = store;
 
-    const selectedNode = nodes.value.find(node => node.data.selected)
+    const selectedNode = nodes.value.find((node) => node.data.selected);
 
-    if (!cancelSelection && selectedNode?.id === nodeId) return
+    if (!cancelSelection && selectedNode?.id === nodeId) return;
 
     nodes.value.forEach((node) => {
-      if (node.id === nodeId) node.data.selected = !cancelSelection
-      else node.data.selected = false
-    })
+      if (node.id === nodeId) node.data.selected = !cancelSelection;
+      else node.data.selected = false;
+    });
 
     const connectedEdges = getConnectedEdges(
       [{ id: nodeId } as Node],
-      edges.value,
-    ).map(edge => edge.id)
+      edges.value
+    ).map((edge) => edge.id);
     edges.value.forEach((edge) => {
       if (connectedEdges.includes(edge.id)) {
         edge.data = {
           ...edge.data,
           _connectedNodeIsSelected: !cancelSelection,
-        }
-      }
-      else {
+        };
+      } else {
         edge.data = {
           ...edge.data,
           _connectedNodeIsSelected: false,
-        }
+        };
       }
-    })
+    });
 
     // handleSyncWorkflowDraft()
-  }
+  };
 
   const handleNodesCancelSelected = () => {
-    const { nodes } = store
+    const { nodes } = store;
 
     nodes.value.forEach((node) => {
-      node.data.selected = false
-    })
-  }
+      node.data.selected = false;
+    });
+  };
 
   const handleNodeClick = (e: NodeMouseEvent) => {
-    if (e.node.type === CUSTOM_ITERATION_START_NODE) return
-    if (e.node.type === CUSTOM_LOOP_START_NODE) return
+    if (e.node.type === CUSTOM_ITERATION_START_NODE) return;
+    if (e.node.type === CUSTOM_LOOP_START_NODE) return;
     handleNodeSelect(e.node.id);
-  }
+  };
 
   const handleNodeContextMenu = (e: NodeMouseEvent) => {
-    if (e.node.type === CUSTOM_ITERATION_START_NODE) return
-    if (e.node.type === CUSTOM_LOOP_START_NODE)
-      return
-    e.event.preventDefault()
-    const container = document.querySelector('#workflow-container')
-    const { x, y } = container!.getBoundingClientRect()
-    const { setNodeMenu } = workflowStore
+    if (e.node.type === CUSTOM_ITERATION_START_NODE) return;
+    if (e.node.type === CUSTOM_LOOP_START_NODE) return;
+    e.event.preventDefault();
+    const container = document.querySelector("#workflow-container");
+    const { x, y } = container!.getBoundingClientRect();
+    const { setNodeMenu } = workflowStore;
     setNodeMenu({
       top: (e.event as MouseEvent).clientY - y,
       left: (e.event as MouseEvent).clientX - x,
       nodeId: e.node.id,
-    })
-    handleNodeSelect(e.node.id)
-  }
+    });
+    handleNodeSelect(e.node.id);
+  };
 
-  const handleNodeConnectStart = (e: { event?: MouseEvent } & OnConnectStartParams) => {
-    if (getNodesReadOnly()) return
-    const { nodeId, handleType, handleId } = e
+  const handleNodeConnectStart = (
+    e: { event?: MouseEvent } & OnConnectStartParams
+  ) => {
+    if (getNodesReadOnly()) return;
+    const { nodeId, handleType, handleId } = e;
 
-    console.log('handleNodeConnectStart:', e)
+    console.log("handleNodeConnectStart:", e);
     if (nodeId && handleType) {
-      const { setConnectingNodePayload } = workflowStore
-      const { nodes } = store
-      const node = nodes.value.find(n => n.id === nodeId)!
+      const { setConnectingNodePayload } = workflowStore;
+      const { nodes } = store;
+      const node = nodes.value.find((n) => n.id === nodeId)!;
 
       // if (
       //   node.data.type === BlockEnum.VariableAggregator
@@ -271,37 +332,43 @@ export const useNodesInteractions = (
         nodeType: node.data.type,
         handleType,
         handleId,
-      })
+      });
     }
-  }
+  };
 
-  const handleNodeConnect =
-  ({ source, sourceHandle, target, targetHandle }: Connection) => {
-    if (source === target) return
-    if (getNodesReadOnly()) return
+  const handleNodeConnect = ({
+    source,
+    sourceHandle,
+    target,
+    targetHandle,
+  }: Connection) => {
+    if (source === target) return;
+    if (getNodesReadOnly()) return;
 
-    const { nodes, edges, addEdges } = store
-    const targetNode = nodes.value.find(node => node.id === target!)
-    const sourceNode = nodes.value.find(node => node.id === source!)
+    const { nodes, edges, addEdges } = store;
+    const targetNode = nodes.value.find((node) => node.id === target!);
+    const sourceNode = nodes.value.find((node) => node.id === source!);
 
-    if (targetNode?.parentNode !== sourceNode?.parentNode) return
+    if (targetNode?.parentNode !== sourceNode?.parentNode) return;
 
     // 线已存在
     if (
       edges.value.find(
-        edge =>
-          edge.source === source
-          && edge.sourceHandle === sourceHandle
-          && edge.target === target
-          && edge.targetHandle === targetHandle,
+        (edge) =>
+          edge.source === source &&
+          edge.sourceHandle === sourceHandle &&
+          edge.target === target &&
+          edge.targetHandle === targetHandle
       )
     )
-      return
+      return;
 
-    const parendNode = nodes.value.find(node => node.id === targetNode?.parentNode)
-    const isInIteration
-    = parendNode && parendNode.data.type === BlockEnum.Iteration
-    const isInLoop = !!parendNode && parendNode.data.type === BlockEnum.Loop
+    const parendNode = nodes.value.find(
+      (node) => node.id === targetNode?.parentNode
+    );
+    const isInIteration =
+      parendNode && parendNode.data.type === BlockEnum.Iteration;
+    const isInLoop = !!parendNode && parendNode.data.type === BlockEnum.Loop;
 
     const newEdge = {
       id: `${source}-${sourceHandle}-${target}-${targetHandle}`,
@@ -311,727 +378,716 @@ export const useNodesInteractions = (
       sourceHandle,
       targetHandle,
       data: {
-        sourceType: nodes.value.find(node => node.id === source)!.data.type,
-        targetType: nodes.value.find(node => node.id === target)!.data.type,
+        sourceType: nodes.value.find((node) => node.id === source)!.data.type,
+        targetType: nodes.value.find((node) => node.id === target)!.data.type,
         isInIteration,
         iteration_id: isInIteration ? targetNode?.parentNode : undefined,
         isInLoop,
         loop_id: isInLoop ? targetNode?.parentNode : undefined,
       },
-      zIndex: targetNode?.parentNode
-        ? LOOP_CHILDREN_Z_INDEX
-        : 0,
-    }
-    const nodesConnectedSourceOrTargetHandleIdsMap
-      = getNodesConnectedSourceOrTargetHandleIdsMap(
-        [{ type: 'add', edge: newEdge }],
-        nodes.value,
-      )
+      zIndex: targetNode?.parentNode ? LOOP_CHILDREN_Z_INDEX : 0,
+    };
+    const nodesConnectedSourceOrTargetHandleIdsMap =
+      getNodesConnectedSourceOrTargetHandleIdsMap(
+        [{ type: "add", edge: newEdge }],
+        nodes.value
+      );
     nodes.value.forEach((node) => {
       if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
         node.data = {
           ...node.data,
           ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
-        }
+        };
       }
-    })
-    addEdges(newEdge)
+    });
+    addEdges(newEdge);
 
     // handleSyncWorkflowDraft()
     saveStateToHistory(WorkflowHistoryEvent.NodeConnect, {
       nodeId: targetNode?.id,
-    })
-  }
+    });
+  };
 
   const handleNodeConnectEnd = (e?: MouseEvent) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
-      const {
-        connectingNodePayload,
-        setConnectingNodePayload,
-        enteringNodePayload,
-        setEnteringNodePayload,
-      } = workflowStore
-      if (connectingNodePayload && enteringNodePayload) {
-        // const { setShowAssignVariablePopup, hoveringAssignVariableGroupId }
-        //   = workflowStore
-        const { project } = store
-        const { nodes } = store
-        const fromHandleType = connectingNodePayload.value?.handleType
-        const fromHandleId = connectingNodePayload.value?.handleId
-        const fromNode = nodes.value.find(
-          n => n.id === connectingNodePayload.value?.nodeId,
-        )!
-        const toNode = nodes.value.find(n => n.id === enteringNodePayload.value?.nodeId)
-        if (!toNode) return
-        const toParentNode = nodes.value.find(n => n.id === toNode?.parentNode)
+    const {
+      connectingNodePayload,
+      setConnectingNodePayload,
+      enteringNodePayload,
+      setEnteringNodePayload,
+    } = workflowStore;
+    if (connectingNodePayload && enteringNodePayload) {
+      // const { setShowAssignVariablePopup, hoveringAssignVariableGroupId }
+      //   = workflowStore
+      const { project } = store;
+      const { nodes } = store;
+      const fromHandleType = connectingNodePayload.value?.handleType;
+      const fromHandleId = connectingNodePayload.value?.handleId;
+      const fromNode = nodes.value.find(
+        (n) => n.id === connectingNodePayload.value?.nodeId
+      )!;
+      const toNode = nodes.value.find(
+        (n) => n.id === enteringNodePayload.value?.nodeId
+      );
+      if (!toNode) return;
+      const toParentNode = nodes.value.find((n) => n.id === toNode?.parentNode);
 
-        if (fromNode?.parentNode !== toNode?.parentNode) return
+      if (fromNode?.parentNode !== toNode?.parentNode) return;
 
-        // const { x, y } = project({ x: e?.x || 0, y: e?.y || 0 })
+      // const { x, y } = project({ x: e?.x || 0, y: e?.y || 0 })
 
-        // if (
-        //   fromHandleType === 'source'
-        //   && (toNode.data.type === BlockEnum.VariableAssigner
-        //     || toNode.data.type === BlockEnum.VariableAggregator)
-        // ) {
-        //   const groupEnabled = toNode.data.advanced_settings?.group_enabled
-        //   const firstGroupId = toNode.data.advanced_settings?.groups[0].groupId
-        //   let handleId = 'target'
+      // if (
+      //   fromHandleType === 'source'
+      //   && (toNode.data.type === BlockEnum.VariableAssigner
+      //     || toNode.data.type === BlockEnum.VariableAggregator)
+      // ) {
+      //   const groupEnabled = toNode.data.advanced_settings?.group_enabled
+      //   const firstGroupId = toNode.data.advanced_settings?.groups[0].groupId
+      //   let handleId = 'target'
 
-        //   if (groupEnabled) {
-        //     if (hoveringAssignVariableGroupId)
-        //       handleId = hoveringAssignVariableGroupId
-        //     else handleId = firstGroupId
-        //   }
-        //   nodes.value.forEach((node) => {
-        //     if (node.id === toNode.id) {
-        //       node.data._showAddVariablePopup = true
-        //       node.data._holdAddVariablePopup = true
-        //     }
-        //   })
-        //   setShowAssignVariablePopup({
-        //     nodeId: fromNode.id,
-        //     nodeData: fromNode.data,
-        //     variableAssignerNodeId: toNode.id,
-        //     variableAssignerNodeData: toNode.data,
-        //     variableAssignerNodeHandleId: handleId,
-        //     parentNode: toParentNode,
-        //     x: x - toNode.position!.x,
-        //     y: y - toNode.position!.y,
-        //   })
-        //   handleNodeConnect({
-        //     source: fromNode.id,
-        //     sourceHandle: fromHandleId,
-        //     target: toNode.id,
-        //     targetHandle: 'target',
-        //   })
-        // }
-      }
-      setConnectingNodePayload(undefined)
-      setEnteringNodePayload(undefined)
-  }
+      //   if (groupEnabled) {
+      //     if (hoveringAssignVariableGroupId)
+      //       handleId = hoveringAssignVariableGroupId
+      //     else handleId = firstGroupId
+      //   }
+      //   nodes.value.forEach((node) => {
+      //     if (node.id === toNode.id) {
+      //       node.data._showAddVariablePopup = true
+      //       node.data._holdAddVariablePopup = true
+      //     }
+      //   })
+      //   setShowAssignVariablePopup({
+      //     nodeId: fromNode.id,
+      //     nodeData: fromNode.data,
+      //     variableAssignerNodeId: toNode.id,
+      //     variableAssignerNodeData: toNode.data,
+      //     variableAssignerNodeHandleId: handleId,
+      //     parentNode: toParentNode,
+      //     x: x - toNode.position!.x,
+      //     y: y - toNode.position!.y,
+      //   })
+      //   handleNodeConnect({
+      //     source: fromNode.id,
+      //     sourceHandle: fromHandleId,
+      //     target: toNode.id,
+      //     targetHandle: 'target',
+      //   })
+      // }
+    }
+    setConnectingNodePayload(undefined);
+    setEnteringNodePayload(undefined);
+  };
 
   const handleNodeDelete = (nodeId: string) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
-      const { nodes, setNodes, edges, setEdges } = store
+    const { nodes, setNodes, edges, setEdges } = store;
 
-      const currentNodeIndex = nodes.value.findIndex(node => node.id === nodeId)
-      const currentNode = nodes.value[currentNodeIndex]
+    const currentNodeIndex = nodes.value.findIndex(
+      (node) => node.id === nodeId
+    );
+    const currentNode = nodes.value[currentNodeIndex];
 
-      if (!currentNode) return
+    if (!currentNode) return;
 
-      if (
-        nodesMetaDataMap?.[currentNode.data.type as BlockEnum]?.metaData
-          .isUndeletable
-      )
-        return
+    if (
+      nodesMetaDataMap?.[currentNode.data.type as BlockEnum]?.metaData
+        .isUndeletable
+    )
+      return;
 
-      // deleteNodeInspectorVars(nodeId)
-      if (currentNode.data.type === BlockEnum.Iteration) {
-        const iterationChildren = nodes.value.filter(
-          node => node.parentNode === currentNode.id,
-        )
+    // deleteNodeInspectorVars(nodeId)
+    if (currentNode.data.type === BlockEnum.Iteration) {
+      const iterationChildren = nodes.value.filter(
+        (node) => node.parentNode === currentNode.id
+      );
 
-        if (iterationChildren.length) {
-          if (currentNode.data._isBundled) {
-            iterationChildren.forEach((child) => {
-              handleNodeDelete(child.id)
-            })
-            return handleNodeDelete(nodeId)
+      if (iterationChildren.length) {
+        if (currentNode.data._isBundled) {
+          iterationChildren.forEach((child) => {
+            handleNodeDelete(child.id);
+          });
+          return handleNodeDelete(nodeId);
+        } else {
+          if (iterationChildren.length === 1) {
+            handleNodeDelete(iterationChildren[0]!.id);
+            handleNodeDelete(nodeId);
+
+            return;
           }
-          else {
-            if (iterationChildren.length === 1) {
-              handleNodeDelete(iterationChildren[0]!.id)
-              handleNodeDelete(nodeId)
+          const { setShowConfirm, showConfirm } = workflowStore;
 
-              return
-            }
-            const { setShowConfirm, showConfirm } = workflowStore
-
-            if (!showConfirm) {
-              setShowConfirm({
-                title: t('workflow.nodes.iteration.deleteTitle'),
-                desc: t('workflow.nodes.iteration.deleteDesc') || '',
-                onConfirm: () => {
-                  iterationChildren.forEach((child) => {
-                    handleNodeDelete(child.id)
-                  })
-                  handleNodeDelete(nodeId)
-                  // handleSyncWorkflowDraft()
-                  setShowConfirm(undefined)
-                },
-              })
-              return
-            }
-          }
-        }
-      }
-
-      if (currentNode.data.type === BlockEnum.Loop) {
-        const loopChildren = nodes.value.filter(
-          node => node.parentNode === currentNode.id,
-        )
-
-        if (loopChildren.length) {
-          if (currentNode.data._isBundled) {
-            loopChildren.forEach((child) => {
-              handleNodeDelete(child.id)
-            })
-            return handleNodeDelete(nodeId)
-          } 
-          else {
-            if (loopChildren.length === 1) {
-              handleNodeDelete(loopChildren[0]!.id)
-              handleNodeDelete(nodeId)
-
-              return
-            }
-            const { setShowConfirm, showConfirm } = workflowStore
-
-            if (!showConfirm) {
-              setShowConfirm({
-                title: '是否删除循环节点',
-                desc: '',
-                onConfirm: () => {
-                  loopChildren.forEach((child) => {
-                    handleNodeDelete(child.id)
-                  })
-                  handleNodeDelete(nodeId)
-                  // handleSyncWorkflowDraft()
-                  setShowConfirm(undefined)
-                },
-              })
-              return
-            }
+          if (!showConfirm) {
+            setShowConfirm({
+              title: t("workflow.nodes.iteration.deleteTitle"),
+              desc: t("workflow.nodes.iteration.deleteDesc") || "",
+              onConfirm: () => {
+                iterationChildren.forEach((child) => {
+                  handleNodeDelete(child.id);
+                });
+                handleNodeDelete(nodeId);
+                // handleSyncWorkflowDraft()
+                setShowConfirm(undefined);
+              },
+            });
+            return;
           }
         }
       }
+    }
 
-      const connectedEdges = getConnectedEdges([{ id: nodeId } as Node], edges.value)
-      const nodesConnectedSourceOrTargetHandleIdsMap
-        = getNodesConnectedSourceOrTargetHandleIdsMap(
-          connectedEdges.map(edge => ({ type: 'remove', edge })),
-          nodes.value,
-        )
-      const newNodes = cloneDeep(unref(nodes.value))
-      newNodes.forEach((node) => {
+    if (currentNode.data.type === BlockEnum.Loop) {
+      const loopChildren = nodes.value.filter(
+        (node) => node.parentNode === currentNode.id
+      );
+
+      if (loopChildren.length) {
+        if (currentNode.data._isBundled) {
+          loopChildren.forEach((child) => {
+            handleNodeDelete(child.id);
+          });
+          return handleNodeDelete(nodeId);
+        } else {
+          if (loopChildren.length === 1) {
+            handleNodeDelete(loopChildren[0]!.id);
+            handleNodeDelete(nodeId);
+
+            return;
+          }
+          const { setShowConfirm, showConfirm } = workflowStore;
+
+          if (!showConfirm) {
+            setShowConfirm({
+              title: "是否删除循环节点",
+              desc: "",
+              onConfirm: () => {
+                loopChildren.forEach((child) => {
+                  handleNodeDelete(child.id);
+                });
+                handleNodeDelete(nodeId);
+                // handleSyncWorkflowDraft()
+                setShowConfirm(undefined);
+              },
+            });
+            return;
+          }
+        }
+      }
+    }
+
+    const connectedEdges = getConnectedEdges(
+      [{ id: nodeId } as Node],
+      edges.value
+    );
+    const nodesConnectedSourceOrTargetHandleIdsMap =
+      getNodesConnectedSourceOrTargetHandleIdsMap(
+        connectedEdges.map((edge) => ({ type: "remove", edge })),
+        nodes.value
+      );
+    const newNodes = cloneDeep(unref(nodes.value));
+    newNodes.forEach((node) => {
+      if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
+        node.data = {
+          ...node.data,
+          ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
+        };
+      }
+
+      if (node.id === currentNode.parentNode) {
+        node.data._children = node.data._children?.filter(
+          (child: any) => child.nodeId !== nodeId
+        );
+      }
+    });
+    newNodes.splice(currentNodeIndex, 1);
+    setNodes(newNodes);
+    const newEdges = edges.value.filter(
+      (edge) =>
+        !connectedEdges.find((connectedEdge) => connectedEdge.id === edge.id)
+    );
+    setEdges(newEdges);
+    // handleSyncWorkflowDraft()
+
+    saveStateToHistory(WorkflowHistoryEvent.NodeDelete, {
+      nodeId: currentNode.id,
+    });
+  };
+
+  const handleNodeAdd: OnNodeAdd = (
+    { nodeType, sourceHandle = "source", targetHandle = "target" },
+    { prevNodeId, prevNodeSourceHandle, nextNodeId, nextNodeTargetHandle }
+  ) => {
+    if (getNodesReadOnly()) return;
+
+    const { nodes, setNodes, edges, setEdges } = store;
+    const nodesWithSameType = nodes.value.filter(
+      (node) => node.data.type === nodeType
+    );
+    const { defaultValue } = nodesMetaDataMap![nodeType];
+    const { newNode, newIterationStartNode, newLoopStartNode } =
+      generateNewNode({
+        type: getNodeCustomTypeByNodeDataType(nodeType),
+        data: {
+          ...(defaultValue as any),
+          title:
+            nodesWithSameType.length > 0
+              ? `${defaultValue.title} ${nodesWithSameType.length + 1}`
+              : defaultValue.title,
+          selected: true,
+          // _showAddVariablePopup:
+          //   (nodeType === BlockEnum.VariableAssigner
+          //     || nodeType === BlockEnum.VariableAggregator)
+          //   && !!prevNodeId,
+          _holdAddVariablePopup: false,
+        },
+        position: {
+          x: 0,
+          y: 0,
+        },
+      });
+    if (prevNodeId && !nextNodeId) {
+      const prevNodeIndex = nodes.value.findIndex(
+        (node) => node.id === prevNodeId
+      );
+      const prevNode = nodes.value[prevNodeIndex];
+      const outgoers = getOutgoers(prevNodeId, nodes.value, edges.value).sort(
+        (a, b) => a.position.y - b.position.y
+      );
+      const lastOutgoer = outgoers[outgoers.length - 1];
+
+      newNode.data!._connectedTargetHandleIds =
+        nodeType === BlockEnum.DataSource ? [] : [targetHandle];
+      newNode.data!._connectedSourceHandleIds = [];
+      newNode.position = {
+        x: lastOutgoer
+          ? lastOutgoer.position.x
+          : prevNode!.position.x + prevNode!.dimensions.width + X_OFFSET,
+        y: lastOutgoer
+          ? lastOutgoer!.position.y + lastOutgoer!.dimensions.height + Y_OFFSET
+          : prevNode!.position.y,
+      };
+      newNode.parentNode = prevNode!.parentNode;
+      newNode.extent = prevNode!.extent;
+
+      const parentNode =
+        nodes.value.find((node) => node.id === prevNode!.parentNode) || null;
+      const isInIteration =
+        !!parentNode && parentNode.data.type === BlockEnum.Iteration;
+      const isInLoop = !!parentNode && parentNode.data.type === BlockEnum.Loop;
+
+      if (prevNode!.parentNode) {
+        newNode.data!.isInIteration = isInIteration;
+        newNode.data!.isInLoop = isInLoop;
+        if (isInIteration) {
+          newNode.data!.iteration_id = parentNode.id;
+          newNode.zIndex = LOOP_CHILDREN_Z_INDEX;
+        }
+        if (isInLoop) {
+          newNode.data!.loop_id = parentNode.id;
+          newNode.zIndex = LOOP_CHILDREN_Z_INDEX;
+        }
+      }
+
+      let newEdge = null;
+      if (nodeType !== BlockEnum.DataSource) {
+        newEdge = {
+          id: `${prevNodeId}-${prevNodeSourceHandle}-${newNode.id}-${targetHandle}`,
+          type: CUSTOM_EDGE,
+          source: prevNodeId,
+          sourceHandle: prevNodeSourceHandle,
+          target: newNode.id,
+          targetHandle,
+          data: {
+            sourceType: prevNode!.data.type,
+            targetType: newNode.data!.type,
+            isInIteration,
+            isInLoop,
+            iteration_id: isInIteration ? prevNode!.parentNode : undefined,
+            loop_id: isInLoop ? prevNode!.parentNode : undefined,
+            _connectedNodeIsSelected: true,
+          },
+          zIndex: prevNode!.parentNode ? LOOP_CHILDREN_Z_INDEX : 0,
+        };
+      }
+
+      const nodesConnectedSourceOrTargetHandleIdsMap =
+        getNodesConnectedSourceOrTargetHandleIdsMap(
+          newEdge ? [{ type: "add", edge: newEdge }] : [],
+          nodes.value
+        );
+      nodes.value.forEach((node) => {
+        node.data.selected = false;
+
         if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
           node.data = {
             ...node.data,
             ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
-          }
+          };
         }
 
-        if (node.id === currentNode.parentNode) {
-          node.data._children = node.data._children?.filter(
-            (child: any) => child.nodeId !== nodeId,
-          )
+        if (
+          node.data.type === BlockEnum.Iteration &&
+          prevNode!.parentNode === node.id
+        ) {
+          node.data._children?.push({
+            nodeId: newNode.id,
+            nodeType: newNode.data!.type,
+          });
         }
-      })
-      newNodes.splice(currentNodeIndex, 1)
-      setNodes(newNodes)
-      const newEdges = edges.value.filter(
-        edge =>
-          !connectedEdges.find(
-            connectedEdge => connectedEdge.id === edge.id,
-          ),
-      )
-      setEdges(newEdges)
-      // handleSyncWorkflowDraft()
 
-      saveStateToHistory(WorkflowHistoryEvent.NodeDelete, {
-        nodeId: currentNode.id,
-      })
-  }
+        if (
+          node.data.type === BlockEnum.Loop &&
+          prevNode?.parentNode === node.id
+        ) {
+          node.data._children?.push({
+            nodeId: newNode.id,
+            nodeType: newNode.data!.type,
+          });
+        }
+      });
+      const newNodes = [...nodes.value, newNode];
 
-  const handleNodeAdd: OnNodeAdd = ({
-      nodeType,
-      sourceHandle = 'source',
-      targetHandle = 'target',
-    }, { prevNodeId, prevNodeSourceHandle, nextNodeId, nextNodeTargetHandle }) => {
-      if (getNodesReadOnly()) return
+      if (newIterationStartNode) newNodes.push(newIterationStartNode);
 
-      const { nodes, setNodes, edges, setEdges } = store
-      const nodesWithSameType = nodes.value.filter(
-        node => node.data.type === nodeType,
-      )
-      const { defaultValue } = nodesMetaDataMap![nodeType]
-      const { newNode, newIterationStartNode, newLoopStartNode }
-        = generateNewNode({
-          type: getNodeCustomTypeByNodeDataType(nodeType),
+      if (newLoopStartNode) newNodes.push(newLoopStartNode);
+
+      setNodes(newNodes);
+
+      edges.value.forEach((item) => {
+        item.data = {
+          ...item.data,
+          _connectedNodeIsSelected: false,
+        };
+      });
+      if (newEdge) setEdges([...edges.value, newEdge]);
+    }
+    if (!prevNodeId && nextNodeId) {
+      const nextNodeIndex = nodes.value.findIndex(
+        (node) => node.id === nextNodeId
+      );
+      const nextNode = nodes.value[nextNodeIndex]!;
+      if (nodeType !== BlockEnum.IfElse)
+        newNode.data!._connectedSourceHandleIds = [sourceHandle];
+      newNode.data!._connectedTargetHandleIds = [];
+      newNode.position = {
+        x: nextNode.position.x,
+        y: nextNode.position.y,
+      };
+      newNode.parentNode = nextNode.parentNode;
+      newNode.extent = nextNode.extent;
+
+      const parentNode =
+        nodes.value.find((node) => node.id === nextNode.parentNode) || null;
+      const isInIteration =
+        !!parentNode && parentNode.data.type === BlockEnum.Iteration;
+      const isInLoop = !!parentNode && parentNode.data.type === BlockEnum.Loop;
+
+      if (parentNode && nextNode.parentNode) {
+        newNode.data!.isInIteration = isInIteration;
+        newNode.data!.isInLoop = isInLoop;
+        if (isInIteration) {
+          newNode.data!.iteration_id = parentNode.id;
+          newNode.zIndex = LOOP_CHILDREN_Z_INDEX;
+        }
+        if (isInLoop) {
+          newNode.data!.loop_id = parentNode.id;
+          newNode.zIndex = LOOP_CHILDREN_Z_INDEX;
+        }
+      }
+
+      let newEdge;
+
+      if (nodeType !== BlockEnum.IfElse && nodeType !== BlockEnum.LoopEnd) {
+        newEdge = {
+          id: `${newNode.id}-${sourceHandle}-${nextNodeId}-${nextNodeTargetHandle}`,
+          type: CUSTOM_EDGE,
+          source: newNode.id,
+          sourceHandle,
+          target: nextNodeId,
+          targetHandle: nextNodeTargetHandle,
           data: {
-            ...(defaultValue as any),
-            title:
-              nodesWithSameType.length > 0
-                ? `${defaultValue.title} ${nodesWithSameType.length + 1}`
-                : defaultValue.title,
-            selected: true,
-            // _showAddVariablePopup:
-            //   (nodeType === BlockEnum.VariableAssigner
-            //     || nodeType === BlockEnum.VariableAggregator)
-            //   && !!prevNodeId,
-            _holdAddVariablePopup: false,
+            sourceType: newNode.data!.type,
+            targetType: nextNode.data.type,
+            isInIteration,
+            isInLoop,
+            iteration_id: isInIteration ? nextNode.parentNode : undefined,
+            loop_id: isInLoop ? nextNode.parentNode : undefined,
+            _connectedNodeIsSelected: true,
           },
-          position: {
-            x: 0,
-            y: 0,
-          },
-        })
-      if (prevNodeId && !nextNodeId) {
-        const prevNodeIndex = nodes.value.findIndex(node => node.id === prevNodeId)
-        const prevNode = nodes.value[prevNodeIndex]
-        const outgoers = getOutgoers(prevNodeId, nodes.value, edges.value).sort(
-          (a, b) => a.position.y - b.position.y,
-        )
-        const lastOutgoer = outgoers[outgoers.length - 1]
+          zIndex: nextNode.parentNode ? LOOP_CHILDREN_Z_INDEX : 0,
+        };
+      }
 
-        newNode.data!._connectedTargetHandleIds
-          = nodeType === BlockEnum.DataSource ? [] : [targetHandle]
-        newNode.data!._connectedSourceHandleIds = []
-        newNode.position = {
-          x: lastOutgoer
-            ? lastOutgoer.position.x
-            : prevNode!.position.x + prevNode!.dimensions.width + X_OFFSET,
-          y: lastOutgoer
-            ? lastOutgoer!.position.y + lastOutgoer!.dimensions.height + Y_OFFSET
-            : prevNode!.position.y,
-        }
-        newNode.parentNode = prevNode!.parentNode
-        newNode.extent = prevNode!.extent
+      let nodesConnectedSourceOrTargetHandleIdsMap: Record<string, any>;
+      if (newEdge) {
+        nodesConnectedSourceOrTargetHandleIdsMap =
+          getNodesConnectedSourceOrTargetHandleIdsMap(
+            [{ type: "add", edge: newEdge }],
+            nodes.value
+          );
+      }
 
-        const parentNode
-          = nodes.value.find(node => node.id === prevNode!.parentNode) || null
-        const isInIteration
-          = !!parentNode && parentNode.data.type === BlockEnum.Iteration
-        const isInLoop
-          = !!parentNode && parentNode.data.type === BlockEnum.Loop
+      const afterNodesInSameBranch = getAfterNodesInSameBranch(nextNodeId!);
+      const afterNodesInSameBranchIds = afterNodesInSameBranch.map(
+        (node) => node.id
+      );
+      nodes.value.forEach((node) => {
+        node.data.selected = false;
 
-        if (prevNode!.parentNode) {
-          newNode.data!.isInIteration = isInIteration
-          newNode.data!.isInLoop = isInLoop
-          if (isInIteration) {
-            newNode.data!.iteration_id = parentNode.id
-            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
-          }
-          if (isInLoop) {
-            newNode.data!.loop_id = parentNode.id
-            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
-          }
+        if (afterNodesInSameBranchIds.includes(node.id))
+          node.position.x += NODE_WIDTH_X_OFFSET;
+
+        if (nodesConnectedSourceOrTargetHandleIdsMap?.[node.id]) {
+          node.data = {
+            ...node.data,
+            ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
+          };
         }
 
-        let newEdge = null
-        if (nodeType !== BlockEnum.DataSource) {
-          newEdge = {
-            id: `${prevNodeId}-${prevNodeSourceHandle}-${newNode.id}-${targetHandle}`,
-            type: CUSTOM_EDGE,
-            source: prevNodeId,
-            sourceHandle: prevNodeSourceHandle,
-            target: newNode.id,
-            targetHandle,
-            data: {
-              sourceType: prevNode!.data.type,
-              targetType: newNode.data!.type,
-              isInIteration,
-              isInLoop,
-              iteration_id: isInIteration ? prevNode!.parentNode : undefined,
-              loop_id: isInLoop ? prevNode!.parentNode : undefined,
-              _connectedNodeIsSelected: true,
-            },
-            zIndex: prevNode!.parentNode
-              ? LOOP_CHILDREN_Z_INDEX
-              : 0,
-          }
+        if (
+          node.data.type === BlockEnum.Iteration &&
+          nextNode.parentNode === node.id
+        ) {
+          node.data._children?.push({
+            nodeId: newNode.id,
+            nodeType: newNode.data!.type,
+          });
         }
 
-        const nodesConnectedSourceOrTargetHandleIdsMap
-          = getNodesConnectedSourceOrTargetHandleIdsMap(
-            (newEdge ? [{ type: 'add', edge: newEdge }] : []),
-            nodes.value,
-          )
-        nodes.value.forEach((node) => {
-          node.data.selected = false
+        if (
+          node.data.type === BlockEnum.Iteration &&
+          node.data.start_node_id === nextNodeId
+        ) {
+          node.data.start_node_id = newNode.id;
+          node.data.startNodeType = newNode.data!.type;
+        }
 
-          if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
-            node.data = {
-              ...node.data,
-              ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
-            }
-          }
+        if (
+          node.data.type === BlockEnum.Loop &&
+          nextNode.parentNode === node.id
+        ) {
+          node.data._children?.push({
+            nodeId: newNode.id,
+            nodeType: newNode.data!.type,
+          });
+        }
 
-          if (
-            node.data.type === BlockEnum.Iteration
-            && prevNode!.parentNode === node.id
-          ) {
-            node.data._children?.push({
-              nodeId: newNode.id,
-              nodeType: newNode.data!.type,
-            })
-          }
-
-          if (
-            node.data.type === BlockEnum.Loop
-            && prevNode?.parentNode === node.id
-          ) {
-            node.data._children?.push({
-              nodeId: newNode.id,
-              nodeType: newNode.data!.type,
-            })
-          }
-        })
-        const newNodes = [...nodes.value, newNode]
-
-        if (newIterationStartNode) newNodes.push(newIterationStartNode)
-
-        if (newLoopStartNode) newNodes.push(newLoopStartNode)
-
-        setNodes(newNodes)
-
+        if (
+          node.data.type === BlockEnum.Loop &&
+          node.data.start_node_id === nextNodeId
+        ) {
+          node.data.start_node_id = newNode.id;
+          node.data.startNodeType = newNode.data!.type;
+        }
+      });
+      const newNodeList = [...nodes.value, newNode];
+      if (newIterationStartNode) newNodeList.push(newIterationStartNode);
+      if (newLoopStartNode) newNodeList.push(newLoopStartNode);
+      setNodes(newNodeList);
+      if (newEdge) {
         edges.value.forEach((item) => {
           item.data = {
             ...item.data,
             _connectedNodeIsSelected: false,
-          }
-        })
-        if (newEdge) setEdges([...edges.value, newEdge])
+          };
+        });
 
+        setEdges([...edges.value, newEdge]);
       }
-      if (!prevNodeId && nextNodeId) {
-        const nextNodeIndex = nodes.value.findIndex(node => node.id === nextNodeId)
-        const nextNode = nodes.value[nextNodeIndex]!
-        if (
-          nodeType !== BlockEnum.IfElse
-        )
-        newNode.data!._connectedSourceHandleIds = [sourceHandle]
-        newNode.data!._connectedTargetHandleIds = []
-        newNode.position = {
-          x: nextNode.position.x,
-          y: nextNode.position.y,
+    }
+    if (prevNodeId && nextNodeId) {
+      const prevNode = nodes.value.find((node) => node.id === prevNodeId)!;
+      const nextNode = nodes.value.find((node) => node.id === nextNodeId)!;
+
+      newNode.data!._connectedTargetHandleIds =
+        nodeType === BlockEnum.DataSource ? [] : [targetHandle];
+      newNode.data!._connectedSourceHandleIds = [sourceHandle];
+      newNode.position = {
+        x: nextNode.position.x,
+        y: nextNode.position.y,
+      };
+      newNode.parentNode = prevNode.parentNode;
+      newNode.extent = prevNode.extent;
+
+      const parentNode =
+        nodes.value.find((node) => node.id === prevNode.parentNode) || null;
+      const isInIteration =
+        !!parentNode && parentNode.data.type === BlockEnum.Iteration;
+      const isInLoop = !!parentNode && parentNode.data.type === BlockEnum.Loop;
+
+      if (parentNode && prevNode.parentNode) {
+        newNode.data!.isInIteration = isInIteration;
+        newNode.data!.isInLoop = isInLoop;
+        if (isInIteration) {
+          newNode.data!.iteration_id = parentNode.id;
+          newNode.zIndex = LOOP_CHILDREN_Z_INDEX;
         }
-        newNode.parentNode = nextNode.parentNode
-        newNode.extent = nextNode.extent
-
-        const parentNode
-          = nodes.value.find(node => node.id === nextNode.parentNode) || null
-        const isInIteration
-          = !!parentNode && parentNode.data.type === BlockEnum.Iteration
-        const isInLoop
-          = !!parentNode && parentNode.data.type === BlockEnum.Loop
-
-        if (parentNode && nextNode.parentNode) {
-          newNode.data!.isInIteration = isInIteration
-          newNode.data!.isInLoop = isInLoop
-          if (isInIteration) {
-            newNode.data!.iteration_id = parentNode.id
-            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
-          }
-          if (isInLoop) {
-            newNode.data!.loop_id = parentNode.id
-            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
-          }
+        if (isInLoop) {
+          newNode.data!.loop_id = parentNode.id;
+          newNode.zIndex = LOOP_CHILDREN_Z_INDEX;
         }
+      }
 
-        let newEdge
+      const currentEdgeIndex = edges.value.findIndex(
+        (edge) => edge.source === prevNodeId && edge.target === nextNodeId
+      );
+      let newPrevEdge = null;
+
+      if (nodeType !== BlockEnum.DataSource) {
+        newPrevEdge = {
+          id: `${prevNodeId}-${prevNodeSourceHandle}-${newNode.id}-${targetHandle}`,
+          type: CUSTOM_EDGE,
+          source: prevNodeId,
+          sourceHandle: prevNodeSourceHandle,
+          target: newNode.id,
+          targetHandle,
+          data: {
+            sourceType: prevNode.data.type,
+            targetType: newNode.data!.type,
+            isInIteration,
+            isInLoop,
+            iteration_id: isInIteration ? prevNode.parentNode : undefined,
+            loop_id: isInLoop ? prevNode.parentNode : undefined,
+            _connectedNodeIsSelected: true,
+          },
+          zIndex: prevNode.parentNode ? LOOP_CHILDREN_Z_INDEX : 0,
+        };
+      }
+
+      let newNextEdge: Edge | null = null;
+
+      const nextNodeParentNode =
+        nodes.value.find((node) => node.id === nextNode.parentNode) || null;
+      const isNextNodeInIteration =
+        !!nextNodeParentNode &&
+        nextNodeParentNode.data.type === BlockEnum.Iteration;
+      const isNextNodeInLoop =
+        !!nextNodeParentNode && nextNodeParentNode.data.type === BlockEnum.Loop;
+
+      if (
+        nodeType !== BlockEnum.IfElse &&
+        // && nodeType !== BlockEnum.QuestionClassifier
+        nodeType !== BlockEnum.LoopEnd
+      ) {
+        newNextEdge = {
+          id: `${newNode.id}-${sourceHandle}-${nextNodeId}-${nextNodeTargetHandle}`,
+          type: CUSTOM_EDGE,
+          source: newNode.id,
+          sourceHandle,
+          target: nextNodeId,
+          targetHandle: nextNodeTargetHandle,
+          data: {
+            sourceType: newNode.data!.type,
+            targetType: nextNode.data.type,
+            isInIteration: isNextNodeInIteration,
+            isInLoop: isNextNodeInLoop,
+            iteration_id: isNextNodeInIteration
+              ? nextNode.parentNode
+              : undefined,
+            loop_id: isNextNodeInLoop ? nextNode.parentNode : undefined,
+            _connectedNodeIsSelected: true,
+          },
+          zIndex: nextNode.parentNode ? LOOP_CHILDREN_Z_INDEX : 0,
+        };
+      }
+      const nodesConnectedSourceOrTargetHandleIdsMap =
+        getNodesConnectedSourceOrTargetHandleIdsMap(
+          [
+            { type: "remove", edge: edges.value[currentEdgeIndex]! },
+            ...(newPrevEdge ? [{ type: "add", edge: newPrevEdge }] : []),
+            ...(newNextEdge ? [{ type: "add", edge: newNextEdge }] : []),
+          ],
+          [...nodes.value, newNode]
+        );
+
+      const afterNodesInSameBranch = getAfterNodesInSameBranch(nextNodeId!);
+      const afterNodesInSameBranchIds = afterNodesInSameBranch.map(
+        (node) => node.id
+      );
+      nodes.value.forEach((node) => {
+        node.data.selected = false;
+
+        if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
+          node.data = {
+            ...node.data,
+            ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
+          };
+        }
+        if (afterNodesInSameBranchIds.includes(node.id))
+          node.position.x += NODE_WIDTH_X_OFFSET;
 
         if (
-          nodeType !== BlockEnum.IfElse
-          && nodeType !== BlockEnum.LoopEnd
+          node.data.type === BlockEnum.Iteration &&
+          prevNode.parentNode === node.id
         ) {
-          newEdge = {
-            id: `${newNode.id}-${sourceHandle}-${nextNodeId}-${nextNodeTargetHandle}`,
-            type: CUSTOM_EDGE,
-            source: newNode.id,
-            sourceHandle,
-            target: nextNodeId,
-            targetHandle: nextNodeTargetHandle,
-            data: {
-              sourceType: newNode.data!.type,
-              targetType: nextNode.data.type,
-              isInIteration,
-              isInLoop,
-              iteration_id: isInIteration ? nextNode.parentNode : undefined,
-              loop_id: isInLoop ? nextNode.parentNode : undefined,
-              _connectedNodeIsSelected: true,
-            },
-            zIndex: nextNode.parentNode
-              ? LOOP_CHILDREN_Z_INDEX
-              : 0,
-          }
+          node.data._children?.push({
+            nodeId: newNode.id,
+            nodeType: newNode.data!.type,
+          });
         }
-
-        let nodesConnectedSourceOrTargetHandleIdsMap: Record<string, any>
-        if (newEdge) {
-          nodesConnectedSourceOrTargetHandleIdsMap
-            = getNodesConnectedSourceOrTargetHandleIdsMap(
-              [{ type: 'add', edge: newEdge }],
-              nodes.value,
-            )
-        }
-
-        const afterNodesInSameBranch = getAfterNodesInSameBranch(nextNodeId!)
-        const afterNodesInSameBranchIds = afterNodesInSameBranch.map(
-          node => node.id,
-        )
-        nodes.value.forEach((node) => {
-          node.data.selected = false
-
-          if (afterNodesInSameBranchIds.includes(node.id))
-            node.position.x += NODE_WIDTH_X_OFFSET
-
-          if (nodesConnectedSourceOrTargetHandleIdsMap?.[node.id]) {
-            node.data = {
-              ...node.data,
-              ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
-            }
-          }
-
-          if (
-            node.data.type === BlockEnum.Iteration
-            && nextNode.parentNode === node.id
-          ) {
-            node.data._children?.push({
-              nodeId: newNode.id,
-              nodeType: newNode.data!.type,
-            })
-          }
-
-          if (
-            node.data.type === BlockEnum.Iteration
-            && node.data.start_node_id === nextNodeId
-          ) {
-            node.data.start_node_id = newNode.id
-            node.data.startNodeType = newNode.data!.type
-          }
-
-          if (
-            node.data.type === BlockEnum.Loop
-            && nextNode.parentNode === node.id
-          ) {
-            node.data._children?.push({
-              nodeId: newNode.id,
-              nodeType: newNode.data!.type,
-            })
-          }
-
-          if (
-            node.data.type === BlockEnum.Loop
-            && node.data.start_node_id === nextNodeId
-          ) {
-            node.data.start_node_id = newNode.id
-            node.data.startNodeType = newNode.data!.type
-          }
-        })
-        const newNodeList = [...nodes.value, newNode]
-        if (newIterationStartNode) newNodeList.push(newIterationStartNode)
-        if (newLoopStartNode) newNodeList.push(newLoopStartNode)
-        setNodes(newNodeList)
-        if (newEdge) {
-          edges.value.forEach((item) => {
-            item.data = {
-              ...item.data,
-              _connectedNodeIsSelected: false,
-            }
-          })
-
-          setEdges([...edges.value, newEdge])
-        }
-      }
-      if (prevNodeId && nextNodeId) {
-        const prevNode = nodes.value.find(node => node.id === prevNodeId)!
-        const nextNode = nodes.value.find(node => node.id === nextNodeId)!
-
-        newNode.data!._connectedTargetHandleIds
-          = nodeType === BlockEnum.DataSource ? [] : [targetHandle]
-        newNode.data!._connectedSourceHandleIds = [sourceHandle]
-        newNode.position = {
-          x: nextNode.position.x,
-          y: nextNode.position.y,
-        }
-        newNode.parentNode = prevNode.parentNode
-        newNode.extent = prevNode.extent
-
-        const parentNode
-          = nodes.value.find(node => node.id === prevNode.parentNode) || null
-        const isInIteration
-          = !!parentNode && parentNode.data.type === BlockEnum.Iteration
-        const isInLoop
-          = !!parentNode && parentNode.data.type === BlockEnum.Loop
-
-        if (parentNode && prevNode.parentNode) {
-          newNode.data!.isInIteration = isInIteration
-          newNode.data!.isInLoop = isInLoop
-          if (isInIteration) {
-            newNode.data!.iteration_id = parentNode.id
-            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
-          }
-          if (isInLoop) {
-            newNode.data!.loop_id = parentNode.id
-            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
-          }
-        }
-
-        const currentEdgeIndex = edges.value.findIndex(
-          edge => edge.source === prevNodeId && edge.target === nextNodeId,
-        )
-        let newPrevEdge = null
-
-        if (nodeType !== BlockEnum.DataSource) {
-          newPrevEdge = {
-            id: `${prevNodeId}-${prevNodeSourceHandle}-${newNode.id}-${targetHandle}`,
-            type: CUSTOM_EDGE,
-            source: prevNodeId,
-            sourceHandle: prevNodeSourceHandle,
-            target: newNode.id,
-            targetHandle,
-            data: {
-              sourceType: prevNode.data.type,
-              targetType: newNode.data!.type,
-              isInIteration,
-              isInLoop,
-              iteration_id: isInIteration ? prevNode.parentNode : undefined,
-              loop_id: isInLoop ? prevNode.parentNode : undefined,
-              _connectedNodeIsSelected: true,
-            },
-            zIndex: prevNode.parentNode
-              ? LOOP_CHILDREN_Z_INDEX
-              : 0,
-          }
-        }
-
-        let newNextEdge: Edge | null = null
-
-        const nextNodeParentNode
-          = nodes.value.find(node => node.id === nextNode.parentNode) || null
-        const isNextNodeInIteration
-          = !!nextNodeParentNode
-          && nextNodeParentNode.data.type === BlockEnum.Iteration
-        const isNextNodeInLoop
-          = !!nextNodeParentNode
-          && nextNodeParentNode.data.type === BlockEnum.Loop
-
         if (
-          nodeType !== BlockEnum.IfElse
-          // && nodeType !== BlockEnum.QuestionClassifier
-          && nodeType !== BlockEnum.LoopEnd
+          node.data.type === BlockEnum.Loop &&
+          prevNode.parentNode === node.id
         ) {
-          newNextEdge = {
-            id: `${newNode.id}-${sourceHandle}-${nextNodeId}-${nextNodeTargetHandle}`,
-            type: CUSTOM_EDGE,
-            source: newNode.id,
-            sourceHandle,
-            target: nextNodeId,
-            targetHandle: nextNodeTargetHandle,
-            data: {
-              sourceType: newNode.data!.type,
-              targetType: nextNode.data.type,
-              isInIteration: isNextNodeInIteration,
-              isInLoop: isNextNodeInLoop,
-              iteration_id: isNextNodeInIteration
-                ? nextNode.parentNode
-                : undefined,
-              loop_id: isNextNodeInLoop ? nextNode.parentNode : undefined,
-              _connectedNodeIsSelected: true,
-            },
-            zIndex: nextNode.parentNode
-              ? LOOP_CHILDREN_Z_INDEX
-              : 0,
-          }
+          node.data._children?.push({
+            nodeId: newNode.id,
+            nodeType: newNode.data!.type,
+          });
         }
-        const nodesConnectedSourceOrTargetHandleIdsMap
-          = getNodesConnectedSourceOrTargetHandleIdsMap(
-            [
-              { type: 'remove', edge: edges.value[currentEdgeIndex]! },
-              ...(newPrevEdge ? [{ type: 'add', edge: newPrevEdge }] : []),
-              ...(newNextEdge ? [{ type: 'add', edge: newNextEdge }] : []),
-            ],
-            [...nodes.value, newNode],
-          )
+      });
+      const newNodes = [...nodes.value, newNode];
+      if (newIterationStartNode) newNodes.push(newIterationStartNode);
+      if (newLoopStartNode) newNodes.push(newLoopStartNode);
+      setNodes(newNodes);
+      // if (
+      //   newNode.data.type === BlockEnum.VariableAssigner
+      //   || newNode.data.type === BlockEnum.VariableAggregator
+      // ) {
+      //   const { setShowAssignVariablePopup } = workflowStore.getState()
 
-        const afterNodesInSameBranch = getAfterNodesInSameBranch(nextNodeId!)
-        const afterNodesInSameBranchIds = afterNodesInSameBranch.map(
-          node => node.id,
-        )
-        nodes.value.forEach((node) => {
-          node.data.selected = false
+      //   setShowAssignVariablePopup({
+      //     nodeId: prevNode.id,
+      //     nodeData: prevNode.data,
+      //     variableAssignerNodeId: newNode.id,
+      //     variableAssignerNodeData: newNode.data as VariableAssignerNodeType,
+      //     variableAssignerNodeHandleId: targetHandle,
+      //     parentNode: nodes.find(node => node.id === newNode.parentNode),
+      //     x: -25,
+      //     y: 44,
+      //   })
+      // }
+      const newEdges: Array<GraphEdge | Edge> = edges.value;
+      newEdges.splice(currentEdgeIndex, 1);
+      newEdges.forEach((item) => {
+        item.data = {
+          ...item.data,
+          _connectedNodeIsSelected: false,
+        };
+      });
+      if (newPrevEdge) newEdges.push(newPrevEdge);
 
-          if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
-            node.data = {
-              ...node.data,
-              ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
-            }
-          }
-          if (afterNodesInSameBranchIds.includes(node.id))
-            node.position.x += NODE_WIDTH_X_OFFSET
+      if (newNextEdge) newEdges.push(newNextEdge);
+      setEdges(newEdges);
+    }
+    // handleSyncWorkflowDraft()
+    saveStateToHistory(WorkflowHistoryEvent.NodeAdd, { nodeId: newNode.id });
+  };
 
-          if (
-            node.data.type === BlockEnum.Iteration
-            && prevNode.parentNode === node.id
-          ) {
-            node.data._children?.push({
-              nodeId: newNode.id,
-              nodeType: newNode.data!.type,
-            })
-          }
-          if (
-            node.data.type === BlockEnum.Loop
-            && prevNode.parentNode === node.id
-          ) {
-            node.data._children?.push({
-              nodeId: newNode.id,
-              nodeType: newNode.data!.type,
-            })
-          }
-        })
-        const newNodes = [...nodes.value, newNode]
-        if (newIterationStartNode) newNodes.push(newIterationStartNode)
-        if (newLoopStartNode) newNodes.push(newLoopStartNode)
-        setNodes(newNodes)
-        // if (
-        //   newNode.data.type === BlockEnum.VariableAssigner
-        //   || newNode.data.type === BlockEnum.VariableAggregator
-        // ) {
-        //   const { setShowAssignVariablePopup } = workflowStore.getState()
+  const handleIsolatedNodeAdd = (
+    nodeType: BlockEnum,
+    position?: XYPosition
+  ) => {
+    if (getNodesReadOnly()) return;
 
-        //   setShowAssignVariablePopup({
-        //     nodeId: prevNode.id,
-        //     nodeData: prevNode.data,
-        //     variableAssignerNodeId: newNode.id,
-        //     variableAssignerNodeData: newNode.data as VariableAssignerNodeType,
-        //     variableAssignerNodeHandleId: targetHandle,
-        //     parentNode: nodes.find(node => node.id === newNode.parentNode),
-        //     x: -25,
-        //     y: 44,
-        //   })
-        // }
-        const newEdges: Array<GraphEdge | Edge> = edges.value
-        newEdges.splice(currentEdgeIndex, 1)
-        newEdges.forEach((item) => {
-          item.data = {
-            ...item.data,
-            _connectedNodeIsSelected: false,
-          }
-        })
-        if (newPrevEdge) newEdges.push(newPrevEdge)
-
-        if (newNextEdge) newEdges.push(newNextEdge)
-        setEdges(newEdges)
-      }
-      // handleSyncWorkflowDraft()
-      saveStateToHistory(WorkflowHistoryEvent.NodeAdd, { nodeId: newNode.id })
-  }
-
-  const handleIsolatedNodeAdd = (nodeType: BlockEnum, position?: XYPosition) => {
-    if (getNodesReadOnly()) return
-
-    const { nodes, setNodes, edges, setEdges, viewport } = store
-    const { x, y } = viewport.value
+    const { nodes, setNodes, edges, setEdges, viewport } = store;
+    const { x, y } = viewport.value;
     const nodesWithSameType = nodes.value.filter(
-      node => node.data.type === nodeType,
-    )
-    const { defaultValue } = nodesMetaDataMap![nodeType]
-    const { newNode, newIterationStartNode, newLoopStartNode }
-      = generateNewNode({
+      (node) => node.data.type === nodeType
+    );
+    const { defaultValue } = nodesMetaDataMap![nodeType];
+    const { newNode, newIterationStartNode, newLoopStartNode } =
+      generateNewNode({
         type: getNodeCustomTypeByNodeDataType(nodeType),
         data: {
           ...(defaultValue as any),
@@ -1046,82 +1102,82 @@ export const useNodesInteractions = (
           x: position?.x || x,
           y: position?.y || y,
         },
-      })
-    const newNodes = [...nodes.value, newNode]
-    if (newIterationStartNode) newNodes.push(newIterationStartNode)
-    if (newLoopStartNode) newNodes.push(newLoopStartNode)
-    setNodes(newNodes)
-  }
+      });
+    const newNodes = [...nodes.value, newNode];
+    if (newIterationStartNode) newNodes.push(newIterationStartNode);
+    if (newLoopStartNode) newNodes.push(newLoopStartNode);
+    setNodes(newNodes);
+  };
 
   const handleNodesCopy = (nodeId?: string) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
     const { setClipboardElements } = workflowStore;
     const { nodes } = store;
 
     if (nodeId) {
       const nodeToCopy = nodes.value.find(
-        node =>
-          node.id === nodeId
-          && node.data.type !== BlockEnum.Start
-          && node.data.type !== BlockEnum.OperatorStart
-          && node.type !== CUSTOM_ITERATION_START_NODE
-          && node.type !== CUSTOM_LOOP_START_NODE
-          && node.data.type !== BlockEnum.LoopEnd
-          // && node.data.type !== BlockEnum.KnowledgeBase
-          // && node.data.type !== BlockEnum.DataSourceEmpty,
-      )
-      if (nodeToCopy) setClipboardElements([nodeToCopy])
+        (node) =>
+          node.id === nodeId &&
+          node.data.type !== BlockEnum.Start &&
+          node.data.type !== BlockEnum.OperatorStart &&
+          node.type !== CUSTOM_ITERATION_START_NODE &&
+          node.type !== CUSTOM_LOOP_START_NODE &&
+          node.data.type !== BlockEnum.LoopEnd
+        // && node.data.type !== BlockEnum.KnowledgeBase
+        // && node.data.type !== BlockEnum.DataSourceEmpty,
+      );
+      if (nodeToCopy) setClipboardElements([nodeToCopy]);
     } else {
-        // If no nodeId is provided, fall back to the current behavior
-        const bundledNodes = nodes.value.filter((node) => {
-          if (!node.data._isBundled) return false
-          const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum]
-          if (metaData.isSingleton) return false
-          return !node.data.isInIteration && !node.data.isInLoop
-        })
+      // If no nodeId is provided, fall back to the current behavior
+      const bundledNodes = nodes.value.filter((node) => {
+        if (!node.data._isBundled) return false;
+        const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum];
+        if (metaData.isSingleton) return false;
+        return !node.data.isInIteration && !node.data.isInLoop;
+      });
 
-        if (bundledNodes.length) {
-          setClipboardElements(bundledNodes)
-          return
-        }
+      if (bundledNodes.length) {
+        setClipboardElements(bundledNodes);
+        return;
+      }
 
-        const selectedNode = nodes.value.find((node) => {
-          if (!node.data.selected) return false
-          const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum]
-          return !metaData.isSingleton
-        })
+      const selectedNode = nodes.value.find((node) => {
+        if (!node.data.selected) return false;
+        const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum];
+        return !metaData.isSingleton;
+      });
 
-        if (selectedNode) setClipboardElements([selectedNode])
+      if (selectedNode) setClipboardElements([selectedNode]);
     }
-  }
+  };
 
   const handleNodesPaste = () => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
     const { clipboardElements, mousePosition } = workflowStore;
     const { nodes, edges, project, setNodes, setEdges } = store;
 
-    const nodesToPaste: Node[] = []
-    const edgesToPaste: Edge[] = []
+    const nodesToPaste: Node[] = [];
+    const edgesToPaste: Edge[] = [];
 
     if (clipboardElements.value.length) {
-      const { x, y } = getTopLeftNodePosition(clipboardElements.value)
+      const { x, y } = getTopLeftNodePosition(clipboardElements.value);
       const currentPosition = project({
         x: mousePosition.value.pageX,
         y: mousePosition.value.pageY,
-      })
-      const offsetX = currentPosition.x - x
-      const offsetY = currentPosition.y - y
-      let idMapping: Record<string, string> = {}
+      });
+      const offsetX = currentPosition.x - x;
+      const offsetY = currentPosition.y - y;
+      let idMapping: Record<string, string> = {};
       clipboardElements.value.forEach((nodeToPaste, index) => {
-        const nodeType = nodeToPaste.data!.type
+        const nodeType = nodeToPaste.data!.type;
 
-        const { newNode, newIterationStartNode, newLoopStartNode }
-          = generateNewNode({
+        const { newNode, newIterationStartNode, newLoopStartNode } =
+          generateNewNode({
             type: nodeToPaste.type,
             data: {
               ...nodesMetaDataMap![nodeType].defaultValue,
               type: nodeType,
-              desc: '',
+              desc: "",
               ...nodeToPaste.data,
               selected: false,
               _isBundled: false,
@@ -1135,100 +1191,97 @@ export const useNodesInteractions = (
             },
             extent: nodeToPaste.extent,
             zIndex: nodeToPaste.zIndex,
-          })
-        newNode.id = newNode.id + index
+          });
+        newNode.id = newNode.id + index;
         // This new node is movable and can be placed anywhere
-        let newChildren: Node[] = []
+        let newChildren: Node[] = [];
         if (nodeToPaste.data!.type === BlockEnum.Iteration) {
           newIterationStartNode!.parentNode = newNode.id;
-          (newNode.data as IterationNodeType).start_node_id
-            = newIterationStartNode!.id
+          (newNode.data as IterationNodeType).start_node_id =
+            newIterationStartNode!.id;
 
           const oldIterationStartNode = nodes.value.find(
-            n =>
-              n.parentNode === nodeToPaste.id
-              && n.type === CUSTOM_ITERATION_START_NODE,
-          )
-          idMapping[oldIterationStartNode!.id] = newIterationStartNode!.id
+            (n) =>
+              n.parentNode === nodeToPaste.id &&
+              n.type === CUSTOM_ITERATION_START_NODE
+          );
+          idMapping[oldIterationStartNode!.id] = newIterationStartNode!.id;
 
-          const { copyChildren, newIdMapping }
-            = handleNodeIterationChildrenCopy(
+          const { copyChildren, newIdMapping } =
+            handleNodeIterationChildrenCopy(
               nodeToPaste.id,
               newNode.id,
-              idMapping,
-            )
-          newChildren = copyChildren
-          idMapping = newIdMapping
+              idMapping
+            );
+          newChildren = copyChildren;
+          idMapping = newIdMapping;
           newChildren.forEach((child) => {
             newNode.data!._children?.push({
               nodeId: child.id,
               nodeType: child.data!.type,
-            })
-          })
-          newChildren.push(newIterationStartNode!)
-        }
-        else if (nodeToPaste.data!.type === BlockEnum.Loop) {
+            });
+          });
+          newChildren.push(newIterationStartNode!);
+        } else if (nodeToPaste.data!.type === BlockEnum.Loop) {
           newLoopStartNode!.parentNode = newNode.id;
-          (newNode.data as LoopNodeType).start_node_id = newLoopStartNode!.id
+          (newNode.data as LoopNodeType).start_node_id = newLoopStartNode!.id;
 
-          newChildren = handleNodeLoopChildrenCopy(nodeToPaste.id, newNode.id)
+          newChildren = handleNodeLoopChildrenCopy(nodeToPaste.id, newNode.id);
           newChildren.forEach((child) => {
             newNode.data!._children?.push({
               nodeId: child.id,
               nodeType: child.data!.type,
-            })
-          })
-          newChildren.push(newLoopStartNode!)
-        }
-        else {
+            });
+          });
+          newChildren.push(newLoopStartNode!);
+        } else {
           // single node paste
-          const selectedNode = nodes.value.find(node => node.selected)
+          const selectedNode = nodes.value.find((node) => node.selected);
           if (selectedNode) {
             const commonNestedDisallowPasteNodes = [
               // end node only can be placed outermost layer
               BlockEnum.End,
-            ]
+            ];
 
             // handle disallow paste node
             if (commonNestedDisallowPasteNodes.includes(nodeToPaste.data!.type))
-              return
+              return;
 
             // handle paste to nested block
             if (selectedNode.data.type === BlockEnum.Iteration) {
-              newNode.data!.isInIteration = true
-              newNode.data!.iteration_id = selectedNode.data.iteration_id
-              newNode.parentNode = selectedNode.id
+              newNode.data!.isInIteration = true;
+              newNode.data!.iteration_id = selectedNode.data.iteration_id;
+              newNode.parentNode = selectedNode.id;
               newNode.position = {
                 x: newNode.position.x,
                 y: newNode.position.y,
-              }
+              };
               // set position base on parent node
-              newNode.position = getNestedNodePosition(newNode, selectedNode)
-            }
-            else if (selectedNode.data.type === BlockEnum.Loop) {
-            // if (selectedNode.data.type === BlockEnum.Loop) {
-              newNode.data!.isInLoop = true
-              newNode.data!.loop_id = selectedNode.data.loop_id
-              newNode.parentNode = selectedNode.id
+              newNode.position = getNestedNodePosition(newNode, selectedNode);
+            } else if (selectedNode.data.type === BlockEnum.Loop) {
+              // if (selectedNode.data.type === BlockEnum.Loop) {
+              newNode.data!.isInLoop = true;
+              newNode.data!.loop_id = selectedNode.data.loop_id;
+              newNode.parentNode = selectedNode.id;
               newNode.position = {
                 x: newNode.position.x,
                 y: newNode.position.y,
-              }
+              };
               // set position base on parent node
-              newNode.position = getNestedNodePosition(newNode, selectedNode)
+              newNode.position = getNestedNodePosition(newNode, selectedNode);
             }
           }
         }
 
-        nodesToPaste.push(newNode)
+        nodesToPaste.push(newNode);
 
-        if (newChildren.length) nodesToPaste.push(...newChildren)
-      })
+        if (newChildren.length) nodesToPaste.push(...newChildren);
+      });
 
       // only handle edge when paste nested block
       edges.value.forEach((edge) => {
-        const sourceId = idMapping[edge.source]
-        const targetId = idMapping[edge.target]
+        const sourceId = idMapping[edge.source];
+        const targetId = idMapping[edge.target];
 
         if (sourceId && targetId) {
           const newEdge: Edge = {
@@ -1240,126 +1293,138 @@ export const useNodesInteractions = (
               ...edge.data,
               _connectedNodeIsSelected: false,
             },
-          }
-          edgesToPaste.push(newEdge)
+          };
+          edgesToPaste.push(newEdge);
         }
-      })
+      });
 
-      setNodes([...nodes.value, ...nodesToPaste])
-      setEdges([...edges.value, ...edgesToPaste])
+      setNodes([...nodes.value, ...nodesToPaste]);
+      setEdges([...edges.value, ...edgesToPaste]);
       saveStateToHistory(WorkflowHistoryEvent.NodePaste, {
         nodeId: nodesToPaste?.[0]?.id,
-      })
+      });
       // handleSyncWorkflowDraft()
     }
-  }
+  };
 
   const handleNodesDuplicate = (nodeId?: string) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
-    handleNodesCopy(nodeId)
-    handleNodesPaste()
-  }
+    handleNodesCopy(nodeId);
+    handleNodesPaste();
+  };
 
   const handleNodesDelete = () => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
-    const { nodes, edges } = store
+    const { nodes, edges } = store;
 
     const bundledNodes = nodes.value.filter(
-      node => node.data._isBundled && node.data.type !== BlockEnum.Start && node.data.type !== BlockEnum.OperatorStart,
-    )
+      (node) =>
+        node.data._isBundled &&
+        node.data.type !== BlockEnum.Start &&
+        node.data.type !== BlockEnum.OperatorStart
+    );
 
     if (bundledNodes.length) {
-      bundledNodes.forEach(node => handleNodeDelete(node.id))
-      return
+      bundledNodes.forEach((node) => handleNodeDelete(node.id));
+      return;
     }
 
-    const edgeSelected = edges.value.some(edge => edge.selected)
-    if (edgeSelected) return
+    const edgeSelected = edges.value.some((edge) => edge.selected);
+    if (edgeSelected) return;
 
     const selectedNode = nodes.value.find(
-      node => node.data.selected && node.data.type !== BlockEnum.Start && node.data.type !== BlockEnum.OperatorStart,
-    )
+      (node) =>
+        node.data.selected &&
+        node.data.type !== BlockEnum.Start &&
+        node.data.type !== BlockEnum.OperatorStart
+    );
 
-    if (selectedNode) handleNodeDelete(selectedNode.id)
-  }
+    if (selectedNode) handleNodeDelete(selectedNode.id);
+  };
 
   const handleNodeDisconnect = (nodeId: string) => {
-    if (getNodesReadOnly()) return
+    if (getNodesReadOnly()) return;
 
-      const { nodes, setNodes, edges, setEdges } = store
-      const currentNode = nodes.value.find(node => node.id === nodeId)!
-      const connectedEdges = getConnectedEdges([currentNode], edges.value)
-      const nodesConnectedSourceOrTargetHandleIdsMap
-        = getNodesConnectedSourceOrTargetHandleIdsMap(
-          connectedEdges.map(edge => ({ type: 'remove', edge })),
-          nodes.value,
-        )
-      nodes.value.forEach((node) => {
-        if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
-          node.data = {
-            ...node.data,
-            ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
-          }
-        }
-      })
-      edges.value = edges.value.filter(
-        edge =>
-          !connectedEdges.find(
-            connectedEdge => connectedEdge.id === edge.id,
-          ),
-      )
-      // handleSyncWorkflowDraft()
-      saveStateToHistory(WorkflowHistoryEvent.EdgeDelete)
-  }
+    const { nodes, setNodes, edges, setEdges } = store;
+    const currentNode = nodes.value.find((node) => node.id === nodeId)!;
+    const connectedEdges = getConnectedEdges([currentNode], edges.value);
+    const nodesConnectedSourceOrTargetHandleIdsMap =
+      getNodesConnectedSourceOrTargetHandleIdsMap(
+        connectedEdges.map((edge) => ({ type: "remove", edge })),
+        nodes.value
+      );
+    nodes.value.forEach((node) => {
+      if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
+        node.data = {
+          ...node.data,
+          ...nodesConnectedSourceOrTargetHandleIdsMap[node.id],
+        };
+      }
+    });
+    edges.value = edges.value.filter(
+      (edge) =>
+        !connectedEdges.find((connectedEdge) => connectedEdge.id === edge.id)
+    );
+    // handleSyncWorkflowDraft()
+    saveStateToHistory(WorkflowHistoryEvent.EdgeDelete);
+  };
 
   const handleHistoryBack = () => {
-    if (getNodesReadOnly() || getWorkflowReadOnly()) return
+    if (getNodesReadOnly() || getWorkflowReadOnly()) return;
 
-    const { setEdges, setNodes } = store
-    undo()
+    const { setEdges, setNodes } = store;
+    undo();
 
-    const currentHistory = workflowHistoryStore.getCurrentHistory()
+    const currentHistory = workflowHistoryStore.getCurrentHistory();
     if (currentHistory) {
-      const { nodes, edges } = currentHistory
+      const { nodes, edges } = currentHistory;
       if (nodes && edges) {
-        setEdges(edges)
-        setNodes(nodes)
+        setEdges(edges);
+        setNodes(nodes);
       }
     }
-  }
+  };
 
   const handleHistoryForward = () => {
-    if (getNodesReadOnly() || getWorkflowReadOnly()) return
-    const { setEdges, setNodes } = store
-    redo()
-    const currentHistory = workflowHistoryStore.getCurrentHistory()
+    if (getNodesReadOnly() || getWorkflowReadOnly()) return;
+    const { setEdges, setNodes } = store;
+    redo();
+    const currentHistory = workflowHistoryStore.getCurrentHistory();
     if (currentHistory) {
-      const { nodes, edges } = currentHistory
+      const { nodes, edges } = currentHistory;
       if (nodes && edges) {
-        setEdges(edges)
-        setNodes(nodes)
+        setEdges(edges);
+        setNodes(nodes);
       }
     }
-  }
+  };
 
   const handleMoveNodeToParent = (nodeId: string, parentNodeId: string) => {
-    if (getNodesReadOnly()) return
-    if (!nodeId || !parentNodeId) return
+    if (getNodesReadOnly()) return;
+    if (!nodeId || !parentNodeId) return;
 
-    const { nodes, updateNode } = store
+    const { nodes, updateNode } = store;
 
-    const parentNode = nodes.value.find(node => node.id === parentNodeId)!
-    if (!parentNode) return
+    const parentNode = nodes.value.find((node) => node.id === parentNodeId)!;
+    if (!parentNode) return;
 
-    const isInIteration = parentNode.data!.type === BlockEnum.Iteration
-    const isInLoop = parentNode.data!.type === BlockEnum.Loop
-    const node = nodes.value.find(node => node.id === nodeId)!
-    if (!node) return
+    const isInIteration = parentNode.data!.type === BlockEnum.Iteration;
+    const isInLoop = parentNode.data!.type === BlockEnum.Loop;
+    const node = nodes.value.find((node) => node.id === nodeId)!;
+    if (!node) return;
 
-    const brPosition = getBottomRightNodePosition(nodes.value.filter(node => node.parentNode === parentNodeId))
-    const tlPosition = getTopLeftNodePosition(nodes.value.filter(node => node.parentNode === parentNodeId))
+    const { edges } = store;
+    const connectedEdges = getConnectedEdges([node], edges.value)
+    connectedEdges.forEach((edge) => handleEdgeDelete(edge.id));
+
+    const brPosition = getBottomRightNodePosition(
+      nodes.value.filter((node) => node.parentNode === parentNodeId)
+    );
+    const tlPosition = getTopLeftNodePosition(
+      nodes.value.filter((node) => node.parentNode === parentNodeId)
+    );
     updateNode(nodeId, {
       data: {
         ...node.data,
@@ -1374,14 +1439,24 @@ export const useNodesInteractions = (
         x: brPosition.x + X_OFFSET,
         y: tlPosition.y,
       },
-    })
+    });
     updateNode(parentNodeId, {
       data: {
         ...parentNode.data,
-        _children: [...parentNode.data._children, { nodeId, nodeType: node.data.type }],
+        _children: [
+          ...parentNode.data._children,
+          { nodeId, nodeType: node.data.type },
+        ],
       },
-    })
-  }
+    });
+
+    if (parentNode.data.type === BlockEnum.Loop) {
+      handleNodeLoopRerender(parentNode.id); 
+    }
+    if (parentNode.data.type === BlockEnum.Iteration) {
+      handleNodeIterationRerender(parentNode.id);
+    }
+  };
 
   return {
     handleNodeClick,
@@ -1406,6 +1481,6 @@ export const useNodesInteractions = (
     handleNodeDisconnect,
     handleHistoryBack,
     handleHistoryForward,
-    handleMoveNodeToParent
-  }
-}
+    handleMoveNodeToParent,
+  };
+};

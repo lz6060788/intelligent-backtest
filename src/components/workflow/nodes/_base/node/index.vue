@@ -26,6 +26,13 @@
     <targetHandle v-if="showTargetHandle" handle-id="target" v-bind="props"></targetHandle>
     <sourceHandle v-if="showSourceHandle" handle-id="source" v-bind="props"></sourceHandle>
     <node-control v-bind="props" @edit-operator-detail="emit('edit-operator-detail')"></node-control>
+    <div
+      v-if="data._isWillDragEnter"
+      class="rounded-2xl absolute left-0 top-0 w-full h-full bg-gray-800/90 flex items-center justify-center text-gray-400"
+      :style="{ zIndex: WILL_DRAG_ENTER_MASK_Z_INDEX }"
+    >
+      松开鼠标拖入该节点
+    </div>
   </div>
 </template>
 
@@ -41,6 +48,7 @@ import { useNodeLoopInteractions } from '../../loop/use-interactions'
   const { handleNodeIterationChildSizeChange } = useNodeIterationInteractions()
 import cn from '@/utils/classnames'
 import { useNodeIterationInteractions } from '../../iteration/use-interactions';
+import { WILL_DRAG_ENTER_MASK_Z_INDEX } from '../../../constant/nodes';
 
 const { handleNodeLoopChildSizeChange } = useNodeLoopInteractions()
 

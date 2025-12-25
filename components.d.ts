@@ -12,7 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ActionButton: typeof import('./src/components/base/action-button/index.vue')['default']
-    AddBlock: typeof import('./src/components/workflow/nodes/loop/add-block.vue')['default']
+    AddBlock: typeof import('./src/components/workflow/nodes/iteration/add-block.vue')['default']
     AddButton: typeof import('./src/components/base/add-button/index.vue')['default']
     AddChunks: typeof import('./src/components/base/icons/src/vender/knowledge/AddChunks.vue')['default']
     AddVariable: typeof import('./src/components/workflow/nodes/variable-assigner/components/add-variable/index.vue')['default']
@@ -162,7 +162,7 @@ declare module 'vue' {
     DotsGrid: typeof import('./src/components/base/icons/src/vender/line/general/DotsGrid.vue')['default']
     Download02: typeof import('./src/components/base/icons/src/vender/solid/general/Download02.vue')['default']
     DragHandle: typeof import('./src/components/base/icons/src/vender/line/others/DragHandle.vue')['default']
-    Dumb: typeof import('./src/components/workflow/nodes/loop-start/dumb.vue')['default']
+    Dumb: typeof import('./src/components/workflow/nodes/iteration-start/dumb.vue')['default']
     Economic: typeof import('./src/components/base/icons/src/vender/knowledge/Economic.vue')['default']
     Edge: typeof import('./src/components/workflow/edge/index.vue')['default']
     Edit02: typeof import('./src/components/base/icons/src/vender/line/general/Edit02.vue')['default']
@@ -190,6 +190,7 @@ declare module 'vue' {
     ElRadio: typeof import('element-plus/es')['ElRadio']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElSelect: typeof import('element-plus/es')['ElSelect']
+    ElSlider: typeof import('element-plus/es')['ElSlider']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']

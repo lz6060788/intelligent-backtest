@@ -86,7 +86,8 @@ export type CommonNodeType<T = {}> = {
   credential_id?: string
   _dimmed?: boolean
   _isBelongToCalculator?: boolean
-  // _dimmed?: boolean
+  // 表示拖拽节点将要进入该节点
+  _isWillDragEnter?: boolean
 } & T;
 
 export type Node<T = {}> = VueFlowNode<CommonNodeType<T>>

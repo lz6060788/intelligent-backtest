@@ -5,7 +5,6 @@ import { getNodesConnectedSourceOrTargetHandleIdsMap } from "../utils";
 import { useNodesReadOnly } from './use-workflow'
 import { useWorkflowInstance } from './use-workflow-instance'
 import { BlockEnum, type Edge } from "@/types";
-import { useNodesInteractions } from "./use-node-interactions";
 import { CUSTOM_EDGE, LOOP_CHILDREN_Z_INDEX } from "../constant";
 
 
@@ -14,7 +13,6 @@ export const useEdgeInteractions = (id?: string) => {
   const store = useVueFlow(instanceId);
   const { saveStateToHistory } = useWorkflowHistory(instanceId)
   const { getNodesReadOnly } = useNodesReadOnly(instanceId)
-  const { handleNodeConnect } = useNodesInteractions(instanceId)
 
   const handleEdgeMouseEnter = (e: EdgeMouseEvent) => {
     if (getNodesReadOnly())

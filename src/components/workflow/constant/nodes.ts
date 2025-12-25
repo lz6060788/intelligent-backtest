@@ -92,6 +92,9 @@ export const LOOP_PADDING = {
   left: 16,
 }
 
+export const WILL_DRAG_ENTER_MASK_Z_INDEX = 1003
+export const DRAGGING_NODE_Z_INDEX = 1004
+
 export const NODE_LAYOUT_HORIZONTAL_PADDING = 60
 export const NODE_LAYOUT_VERTICAL_PADDING = 60
 export const NODE_LAYOUT_MIN_DISTANCE = 100
@@ -274,4 +277,11 @@ export const CUSTOM_EDGE = 'custom'
 export const DSL_EXPORT_CHECK = 'DSL_EXPORT_CHECK'
 export const DEFAULT_RETRY_MAX = 3
 export const DEFAULT_RETRY_INTERVAL = 100
+
+export const VALID_NODE_IN_LOOP_OR_ITERATION = [
+  BlockEnum.LLM, BlockEnum.Code,
+  BlockEnum.HttpRequest, BlockEnum.VariableAggregator,
+  BlockEnum.OperatorOverview, BlockEnum.Backtest,
+  BlockEnum.IfElse
+]
 
