@@ -86,7 +86,7 @@ const handleNodeChange = (nodes: GraphNode[]) => {
   }
 }
 
-const isProd = import.meta.env.PROD || true;
+const isProd = import.meta.env.PROD;
 </script>
 
 <style scoped>

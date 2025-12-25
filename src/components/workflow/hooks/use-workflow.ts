@@ -9,6 +9,7 @@ import { useWorkflowInstance } from '../hooks/use-workflow-instance'
 import { computed } from "vue"
 import { findUsedVarNodes, getNodeOutputVars, updateNodeVars } from "../nodes/_base/variable/utils"
 import type { OperatorNodeType } from "../nodes/operator/types"
+import { CUSTOM_ITERATION_START_NODE } from "../nodes/iteration-start/constants"
 
 export const useWorkflow = (id?: string) => {
   const { instanceId } = useWorkflowInstance(id)
@@ -34,7 +35,7 @@ export const useWorkflow = (id?: string) => {
     let startNodes = nodes.value.filter(node => nodesMap?.[node.data.type as BlockEnum]?.metaData.isStart) || []
 
     if (currentNode?.parentNode) {
-      const startNode = nodes.value.find(node => node.parentNode === currentNode.parentNode && (node.type === CUSTOM_LOOP_START_NODE))
+      const startNode = nodes.value.find(node => node.parentNode === currentNode.parentNode && (node.type === CUSTOM_ITERATION_START_NODE || node.type === CUSTOM_LOOP_START_NODE))
       if (startNode)
         startNodes = [startNode]
     }

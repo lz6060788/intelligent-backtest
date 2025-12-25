@@ -3,6 +3,8 @@ import { CUSTOM_NODE, ITERATION_NODE_Z_INDEX, LOOP_NODE_Z_INDEX, CUSTOM_LOOP_STA
 import { Position, type GraphNode } from '@vue-flow/core'
 import type { LoopNodeType } from '../nodes/loop/type'
 import { v4 as uuid4 } from 'uuid'
+import { CUSTOM_ITERATION_START_NODE } from '../nodes/iteration-start/constants'
+import type { IterationNodeType } from '../nodes/iteration/types'
 
 
 export function generateNewNode({ data, position, id, zIndex, type, ...rest }: Omit<Node, 'id'> & { id?: string }): {
@@ -22,15 +24,15 @@ export function generateNewNode({ data, position, id, zIndex, type, ...rest }: O
     ...rest,
   } as Node
 
-  // if (data!.type === BlockEnum.Iteration) {
-  //   const newIterationStartNode = getIterationStartNode(newNode.id);
-  //   (newNode.data as IterationNodeType).start_node_id = newIterationStartNode.id;
-  //   (newNode.data as IterationNodeType)._children = [{ nodeId: newIterationStartNode.id, nodeType: BlockEnum.IterationStart }]
-  //   return {
-  //     newNode,
-  //     newIterationStartNode,
-  //   }
-  // }
+  if (data!.type === BlockEnum.Iteration) {
+    const newIterationStartNode = getIterationStartNode(newNode.id);
+    (newNode.data as IterationNodeType).start_node_id = newIterationStartNode.id;
+    (newNode.data as IterationNodeType)._children = [{ nodeId: newIterationStartNode.id, nodeType: BlockEnum.IterationStart }]
+    return {
+      newNode,
+      newIterationStartNode,
+    }
+  }
 
   if (data!.type === BlockEnum.Loop) {
     const newLoopStartNode = getLoopStartNode(newNode.id);
@@ -81,6 +83,27 @@ export const getBottomRightNodePosition = (nodes: GraphNode[]) => {
     x: maxX,
     y: maxY,
   }
+}
+
+export function getIterationStartNode(iterationId: string): Node {
+  return generateNewNode({
+    id: `${iterationId}start`,
+    type: CUSTOM_ITERATION_START_NODE,
+    data: {
+      title: '',
+      desc: '',
+      type: BlockEnum.IterationStart,
+      isInIteration: true,
+    },
+    position: {
+      x: 24,
+      y: 68,
+    },
+    zIndex: LOOP_CHILDREN_Z_INDEX,
+    parentNode: iterationId,
+    selectable: false,
+    draggable: false,
+  }).newNode
 }
 
 export function getLoopStartNode(loopId: string): Node {

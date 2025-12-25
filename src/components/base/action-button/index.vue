@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, computed, type ButtonHTMLAttributes, onMounted } from 'vue';
-import { type VariantProps, cva } from 'class-variance-authority'
+import { ref } from 'vue';
+import { cva } from 'class-variance-authority'
 import cn from '@/utils/classnames'
 
 type ActionButtonProps = {

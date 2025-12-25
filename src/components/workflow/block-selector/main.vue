@@ -41,7 +41,7 @@
           :on-select="handleSelect"
           :available-blocks-types="availableBlocksTypes"
         >
-          <template #filter>
+          <!-- <template #filter>
             <div class="relative m-2" @click.stop>
               <Input
                 v-if="activeTab === TabsEnum.Blocks"
@@ -62,7 +62,7 @@
                 @clear="searchText = ''"
               />
             </div>
-          </template>
+          </template> -->
         </Tabs>
       </div>
     </template>

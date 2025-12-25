@@ -32,7 +32,7 @@
           <Badge
             v-if="block.metaData.type === BlockEnum.LoopEnd"
             :text="t('workflow.nodes.loop.loopNode')"
-            className="ml-2 shrink-0"
+            className="ml-2 shrink-0 rounded border-solid border-gray-5 border-0.5 text-gray-4"
           />
         </div>
       </div>

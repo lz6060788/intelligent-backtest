@@ -2,10 +2,10 @@
   <div
     :class="cn(
       'rounded-2xl border relative bg-gray-800 border-solid',
-      showSelectedBorder ? 'border-blue-500' : 'border-transparent',
+      showSelectedBorder ? 'border-blue-500' : 'border-gray-700',
       'group relative pb-1 shadow-sm',
-      (data.type !== BlockEnum.Loop) && 'w-[240px]',
-      (data.type === BlockEnum.Loop) && 'flex h-full w-full flex-col',
+      (data.type !== BlockEnum.Loop && data.type !== BlockEnum.Iteration) && 'w-[240px]',
+      (data.type === BlockEnum.Loop || data.type === BlockEnum.Iteration) && 'flex h-full w-full flex-col',
       !data._runningStatus && 'hover:shadow-lg',
       borderStatus.showRunningBorder && '!border-state-accent-solid',
       borderStatus.showSuccessBorder && '!border-state-success-solid',
@@ -38,7 +38,9 @@ import targetHandle from '../targetHandle/index.vue'
 import sourceHandle from '../sourceHandle/index.vue'
 import nodeControl from '../node-control/index.vue'
 import { useNodeLoopInteractions } from '../../loop/use-interactions'
+  const { handleNodeIterationChildSizeChange } = useNodeIterationInteractions()
 import cn from '@/utils/classnames'
+import { useNodeIterationInteractions } from '../../iteration/use-interactions';
 
 const { handleNodeLoopChildSizeChange } = useNodeLoopInteractions()
 
@@ -66,10 +68,25 @@ watchEffect((onCleanup) => {
   }
 })
 
+watchEffect((onCleanup) => {
+  if (nodeRef.value && props.data.selected && props.data.isInIteration) {
+    const resizeObserver = new ResizeObserver(() => {
+      handleNodeIterationChildSizeChange(id)
+    })
+
+    resizeObserver.observe(nodeRef.value)
+
+    onCleanup(() => {
+      resizeObserver.disconnect()
+    })
+  }
+})
+
+
 const showSelectedBorder = computed(() => props.data.selected || props.data._isBundled || props.data._isEntering)
 const _style = computed(() => ({
-  width: (props.data.type === BlockEnum.Loop) ? props.data.width : 'auto',
-  height: (props.data.type === BlockEnum.Loop) ? props.data.height : 'auto',
+  width: (props.data.type !== BlockEnum.Iteration && props.data.type === BlockEnum.Loop) ? props.data.width : 'auto',
+  height: (props.data.type === BlockEnum.Iteration || props.data.type === BlockEnum.Loop) ? props.data.height : 'auto',
   padding: `${NODE_PADDING_Y}px ${NODE_PADDING_X}px`,
 }))
 // const hasVarValue = hasNodeInspectVars(props.id)

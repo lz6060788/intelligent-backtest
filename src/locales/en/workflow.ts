@@ -294,6 +294,7 @@ const translation = {
     'loop-start': '',
     'loop': 'Execute a loop of logic until the termination condition is met or the maximum loop count is reached.',
     'loop-end': 'Equivalent to "break". This node has no configuration items. When the loop body reaches this node, the loop terminates.',
+    'iteration-start': '',
     'parameter-extractor': 'Use LLM to extract structured parameters from natural language for tool invocations or HTTP requests.',
     'document-extractor': 'Used to parse uploaded documents into text content that is easily understandable by LLM.',
     'list-operator': 'Used to filter or sort array content.',

@@ -1,6 +1,5 @@
 import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-router'
 
-import HomeView from '@/view/HomeView.vue'
 import StrategysView from '@/view/StrategysView.vue'
 import StrategyDetailVue from '@/view/StrategyDetail.vue'
 import TestView from '@/view/TestView.vue'
@@ -14,10 +13,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'home',
-    redirect: () => {
-      return { path: '/strategy/detail/1' }
-    },
-    // component: HomeView
+    component: TestView
   },
   {
     path: '/screener',
@@ -48,11 +44,6 @@ const routes: RouteRecordRaw[] = [
     path: '/community',
     name: 'community',
     component: CommunityView
-  },
-  {
-    path: '/test',
-    name: 'test',
-    component: TestView
   },
   {
     path: '/strategy',

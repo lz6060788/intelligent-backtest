@@ -297,6 +297,7 @@ const translation = {
     'loop-start': '',
     'loop': '循环执行一段逻辑直到满足结束条件或者到达循环次数上限。',
     'loop-end': '相当于“break”此节点没有配置项，当循环体内运行到此节点后循环终止。',
+    'iteration-start': '',
     'parameter-extractor': '利用 LLM 从自然语言内推理提取出结构化参数，用于后置的工具调用或 HTTP 请求。',
     'document-extractor': '用于将用户上传的文档解析为 LLM 便于理解的文本内容。',
     'list-operator': '用于过滤或排序数组内容。',

@@ -12,6 +12,7 @@ import EndPanel from './end/panel.vue';
 import IfElsePanel from './if-else/panel.vue';
 import HttpPanel from './http/panel.vue';
 import LoopPanel from './loop/panel.vue';
+import IterationPanel from './iteration/panel.vue'
 import LLMPanel from './llm/panel.vue';
 import VariableAssignerPanel from './variable-assigner/panel.vue';
 import CalculatorPanel from './operator/panel.vue';
@@ -30,6 +31,7 @@ const NodeComponentMap = {
   [BlockEnum.Code]: CodePanel,
   [BlockEnum.HttpRequest]: HttpPanel,
   [BlockEnum.Loop]: LoopPanel,
+  [BlockEnum.Iteration]: IterationPanel,
   [BlockEnum.LLM]: LLMPanel,
   [BlockEnum.VariableAggregator]: VariableAssignerPanel,
   [BlockEnum.Operator]: CalculatorPanel,

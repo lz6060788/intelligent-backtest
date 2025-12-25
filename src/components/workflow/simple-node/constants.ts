@@ -1,1 +1,1 @@
-export const CUSTOM_SIMPLE_NODE = 'node-custom-simple'
+export const CUSTOM_SIMPLE_NODE = 'custom-simple'

@@ -20,6 +20,8 @@ export const enum BlockEnum {
   Loop = 'loop',
   LoopStart = 'loop-start',
   LoopEnd = 'loop-end',
+  Iteration = 'iteration',
+  IterationStart = 'iteration-start',
   DataSource = 'DataSource',
   Backtest = 'backtest',
   Operator = 'operator',
@@ -59,14 +61,14 @@ export type CommonNodeType<T = {}> = {
   _isEntering?: boolean
   // _showAddVariablePopup?: boolean
   // _holdAddVariablePopup?: boolean
-  // _iterationLength?: number
-  // _iterationIndex?: number
+  _iterationLength?: number
+  _iterationIndex?: number
   _waitingRun?: boolean
   _retryIndex?: number
   _dataSourceStartToAdd?: boolean
   _isTempNode?: boolean
-  // isInIteration?: boolean
-  // iteration_id?: string
+  isInIteration?: boolean
+  iteration_id?: string
   selected?: boolean
   title: string
   desc: string
@@ -132,3 +134,6 @@ export enum BlockClassificationEnum {
   Utilities = 'utilities',
 }
 
+export type ChildNodeTypeCount = {
+  [key: string]: number;
+}

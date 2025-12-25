@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute left-12 top-8 z-10 flex h-8 items-center">
+  <div class="absolute left-12 top-8 z-10 flex h-8 items-center" @click.stop="">
     <div class="group/insert relative h-0.5 w-16 bg-gray-300">
       <div class="absolute right-0 top-1/2 h-2 w-0.5 -translate-y-1/2 bg-primary-500"></div>
     </div>
@@ -13,9 +13,9 @@
       <template #trigger="data">
         <div
           :class="cn(
-            'system-sm-medium relative inline-flex h-8 cursor-pointer items-center rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-3 text-components-button-secondary-text shadow-xs backdrop-blur-[5px] hover:bg-components-button-secondary-bg-hover',
+            'system-sm-medium relative inline-flex h-8 cursor-pointer items-center rounded-lg border-[0.5px] border-gray-7 border-solid bg-gray-8 px-3 text-components-button-secondary-text shadow-xs backdrop-blur-[5px] hover:bg-gray-7',
             nodesReadOnly && '!cursor-not-allowed bg-components-button-secondary-bg-disabled',
-            data?.open && 'bg-components-button-secondary-bg-hover',
+            data?.open && 'bg-gray-7',
           )"
         >
           <RiAddLine class="mr-1 h-4 w-4" />

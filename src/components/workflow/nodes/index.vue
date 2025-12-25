@@ -17,6 +17,7 @@ import IfElseNode from './if-else/index.vue';
 import CodeNode from './code/index.vue';
 import HttpNode from './http/index.vue';
 import LoopNode from './loop/index.vue';
+import IterationNode from './iteration/index.vue';
 import LLMNode from './llm/index.vue';
 import VariableAssignerNode from './variable-assigner/index.vue';
 import OperatorNode from './operator/index.vue';
@@ -35,6 +36,7 @@ const NodeComponentMap = {
   [BlockEnum.Code]: CodeNode,
   [BlockEnum.HttpRequest]: HttpNode,
   [BlockEnum.Loop]: LoopNode,
+  [BlockEnum.Iteration]: IterationNode,
   [BlockEnum.LLM]: LLMNode,
   [BlockEnum.VariableAggregator]: VariableAssignerNode,
   [BlockEnum.Operator]: OperatorNode,

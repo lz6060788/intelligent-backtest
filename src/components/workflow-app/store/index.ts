@@ -31,7 +31,7 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
     {
       id: MAIN_WORKFLOW_APP_ID,
       name: '主流程图',
-      graph: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 0.4 } },
+      graph: { nodes: [], edges: [], viewport: { x: 0, y: 0, zoom: 1 } },
       isOperator: false,
     },
   ]);

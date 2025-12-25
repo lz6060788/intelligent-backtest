@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<HandleProps>(), {});
 
 const { getNodesReadOnly } = useNodesReadOnly()
 
-const { availableNextBlocks } = useAvailableBlocks(props.data.type, props.data.isInLoop)
+const { availableNextBlocks } = useAvailableBlocks(props.data.type, props.data.isInIteration || props.data.isInLoop)
 const isConnectable = computed(() => !!availableNextBlocks.length)
 const handleHandleClick = (e: MouseEvent) => {
   e.stopPropagation()

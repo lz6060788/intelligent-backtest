@@ -2,7 +2,7 @@
   <NodeSelector
     v-bind="props"
     :blocks="blocks!"
-    :width="180"
+    :width="220"
   >
     <template v-if="triggerSlot" #trigger="data">
       <slot name="trigger" :open="data?.open" />
@@ -32,10 +32,10 @@ const blocks = computed(() => {
     if (block.metaData.type === BlockEnum.End)
       return false
 
-    if (block.metaData.type === BlockEnum.DataSource)
+    if (block.metaData.type === BlockEnum.LoopStart)
       return false
 
-    if (block.metaData.type === BlockEnum.LoopStart)
+    if (block.metaData.type === BlockEnum.IterationStart)
       return false
 
     if (block.metaData.type === BlockEnum.OperatorStart)

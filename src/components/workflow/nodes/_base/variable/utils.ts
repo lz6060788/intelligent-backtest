@@ -53,6 +53,7 @@ import type { OperatorStartNodeType } from '../../operator-start/types'
 import type { EndNodeType } from '../../end/types'
 import type { OperatorOverviewNodeType } from '../../operator-overview/types'
 import { getOutputVars, transformVarType } from '../../operator-end/utils'
+import type { IterationNodeType } from '../../iteration/types'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
@@ -464,6 +465,16 @@ const formatItem = (
       break
     }
 
+    case BlockEnum.Iteration: {
+      res.vars = [
+        {
+          variable: 'output',
+          type: (data as IterationNodeType).output_type || VarType.arrayString,
+        },
+      ]
+      break
+    }
+
     // case BlockEnum.Agent: {
     //   const payload = data as AgentNodeType
     //   const outputs: Var[] = []
@@ -749,60 +760,60 @@ export const toNodeOutputVars = (
   return res
 }
 
-// const getIterationItemType = ({
-//   valueSelector,
-//   beforeNodesOutputVars,
-// }: {
-//   valueSelector: ValueSelector;
-//   beforeNodesOutputVars: NodeOutPutVar[];
-// }): VarType => {
-//   const outputVarNodeId = valueSelector[0]
-//   const isSystem = isSystemVar(valueSelector)
-//   const isChatVar = isConversationVar(valueSelector)
+const getIterationItemType = ({
+  valueSelector,
+  beforeNodesOutputVars,
+}: {
+  valueSelector: ValueSelector;
+  beforeNodesOutputVars: NodeOutPutVar[];
+}): VarType => {
+  const outputVarNodeId = valueSelector[0]
+  const isSystem = isSystemVar(valueSelector)
+  const isChatVar = isConversationVar(valueSelector)
 
-//   const targetVar = isSystem
-//     ? beforeNodesOutputVars.find(v => v.isStartNode)
-//     : beforeNodesOutputVars.find(v => v.nodeId === outputVarNodeId)
+  const targetVar = isSystem
+    ? beforeNodesOutputVars.find(v => v.isStartNode)
+    : beforeNodesOutputVars.find(v => v.nodeId === outputVarNodeId)
 
-//   if (!targetVar) return VarType.string
+  if (!targetVar) return VarType.string
 
-//   let arrayType: VarType = VarType.string
+  let arrayType: VarType = VarType.string
 
-//   let curr: any = targetVar.vars
-//   if (isSystem || isChatVar) {
-//     arrayType = curr.find(
-//       (v: any) => v.variable === valueSelector.join('.'),
-//     )?.type
-//   }
-//   else {
-//     for (let i = 1; i < valueSelector.length; i++) {
-//       const key = valueSelector[i]
-//       const isLast = i === valueSelector.length - 1
-//       curr = Array.isArray(curr) ? curr.find(v => v.variable === key) : []
+  let curr: any = targetVar.vars
+  if (isSystem || isChatVar) {
+    arrayType = curr.find(
+      (v: any) => v.variable === valueSelector.join('.'),
+    )?.type
+  }
+  else {
+    for (let i = 1; i < valueSelector.length; i++) {
+      const key = valueSelector[i]
+      const isLast = i === valueSelector.length - 1
+      curr = Array.isArray(curr) ? curr.find(v => v.variable === key) : []
 
-//       if (isLast) arrayType = curr?.type
-//       else if (curr?.type === VarType.object || curr?.type === VarType.file)
-//         curr = curr.children || []
-//     }
-//   }
+      if (isLast) arrayType = curr?.type
+      else if (curr?.type === VarType.object || curr?.type === VarType.file)
+        curr = curr.children || []
+    }
+  }
 
-//   switch (arrayType as VarType) {
-//     case VarType.arrayString:
-//       return VarType.string
-//     case VarType.arrayNumber:
-//       return VarType.number
-//     case VarType.arrayBoolean:
-//       return VarType.boolean
-//     case VarType.arrayObject:
-//       return VarType.object
-//     case VarType.array:
-//       return VarType.arrayObject // Use more specific type instead of any
-//     case VarType.arrayFile:
-//       return VarType.file
-//     default:
-//       return VarType.string
-//   }
-// }
+  switch (arrayType as VarType) {
+    case VarType.arrayString:
+      return VarType.string
+    case VarType.arrayNumber:
+      return VarType.number
+    case VarType.arrayBoolean:
+      return VarType.boolean
+    case VarType.arrayObject:
+      return VarType.object
+    case VarType.array:
+      return VarType.arrayObject // Use more specific type instead of any
+    case VarType.arrayFile:
+      return VarType.file
+    default:
+      return VarType.string
+  }
+}
 
 const getLoopItemType = ({
   valueSelector,
@@ -862,7 +873,7 @@ const getLoopItemType = ({
 export const getVarType = ({
   parentNode,
   valueSelector,
-  // isIterationItem,
+  isIterationItem,
   isLoopItem,
   availableNodes,
   isChatMode,
@@ -882,7 +893,7 @@ export const getVarType = ({
 }: {
   valueSelector: ValueSelector;
   parentNode?: Node | null;
-  // isIterationItem?: boolean;
+  isIterationItem?: boolean;
   isLoopItem?: boolean;
   availableNodes: any[];
   isChatMode: boolean;
@@ -907,23 +918,23 @@ export const getVarType = ({
     schemaTypeDefinitions,
   )
 
-  // const isIterationInnerVar = parentNode?.data!.type === BlockEnum.Iteration
-  // if (isIterationItem) {
-  //   return getIterationItemType({
-  //     valueSelector,
-  //     beforeNodesOutputVars,
-  //   })
-  // }
-  // if (isIterationInnerVar) {
-  //   if (valueSelector[1] === 'item') {
-  //     const itemType = getIterationItemType({
-  //       valueSelector: (parentNode?.data as any)?.iterator_selector || [],
-  //       beforeNodesOutputVars,
-  //     })
-  //     return itemType
-  //   }
-  //   if (valueSelector[1] === 'index') return VarType.number
-  // }
+  const isIterationInnerVar = parentNode?.data!.type === BlockEnum.Iteration
+  if (isIterationItem) {
+    return getIterationItemType({
+      valueSelector,
+      beforeNodesOutputVars,
+    })
+  }
+  if (isIterationInnerVar) {
+    if (valueSelector[1] === 'item') {
+      const itemType = getIterationItemType({
+        valueSelector: (parentNode?.data as any)?.iterator_selector || [],
+        beforeNodesOutputVars,
+      })
+      return itemType
+    }
+    if (valueSelector[1] === 'index') return VarType.number
+  }
 
   const isLoopInnerVar = parentNode?.data!.type === BlockEnum.Loop
   if (isLoopItem) {
@@ -1058,52 +1069,52 @@ export const toNodeAvailableVars = ({
     allPluginInfoList,
     schemaTypeDefinitions,
   )
-  // const isInIteration = parentNode?.data.type === BlockEnum.Iteration
-  // if (isInIteration) {
-  //   const iterationNode: any = parentNode
-  //   const itemType = getVarType({
-  //     parentNode: iterationNode,
-  //     isIterationItem: true,
-  //     valueSelector: iterationNode?.data.iterator_selector || [],
-  //     availableNodes: beforeNodes,
-  //     isChatMode,
-  //     environmentVariables,
-  //     conversationVariables,
-  //     allPluginInfoList,
-  //     schemaTypeDefinitions,
-  //   })
-  //   const itemChildren
-  //     = itemType === VarType.file
-  //       ? {
-  //         children: OUTPUT_FILE_SUB_VARIABLES.map((key) => {
-  //           return {
-  //             variable: key,
-  //             type: key === 'size' ? VarType.number : VarType.string,
-  //           }
-  //         }),
-  //       }
-  //       : {}
-  //   const iterationVar = {
-  //     nodeId: iterationNode?.id,
-  //     title: t('workflow.nodes.iteration.currentIteration'),
-  //     vars: [
-  //       {
-  //         variable: 'item',
-  //         type: itemType,
-  //         ...itemChildren,
-  //       },
-  //       {
-  //         variable: 'index',
-  //         type: VarType.number,
-  //       },
-  //     ],
-  //   }
-  //   const iterationIndex = beforeNodesOutputVars.findIndex(
-  //     v => v.nodeId === iterationNode?.id,
-  //   )
-  //   if (iterationIndex > -1) beforeNodesOutputVars.splice(iterationIndex, 1)
-  //   beforeNodesOutputVars.unshift(iterationVar)
-  // }
+  const isInIteration = parentNode?.data!.type === BlockEnum.Iteration
+  if (isInIteration) {
+    const iterationNode: any = parentNode
+    const itemType = getVarType({
+      parentNode: iterationNode,
+      isIterationItem: true,
+      valueSelector: iterationNode?.data.iterator_selector || [],
+      availableNodes: beforeNodes,
+      isChatMode,
+      environmentVariables,
+      conversationVariables,
+      allPluginInfoList,
+      schemaTypeDefinitions,
+    })
+    const itemChildren
+      = itemType === VarType.file
+        ? {
+          children: OUTPUT_FILE_SUB_VARIABLES.map((key) => {
+            return {
+              variable: key,
+              type: key === 'size' ? VarType.number : VarType.string,
+            }
+          }),
+        }
+        : {}
+    const iterationVar = {
+      nodeId: iterationNode?.id,
+      title: t('workflow.nodes.iteration.currentIteration'),
+      vars: [
+        {
+          variable: 'item',
+          type: itemType,
+          ...itemChildren,
+        },
+        {
+          variable: 'index',
+          type: VarType.number,
+        },
+      ],
+    }
+    const iterationIndex = beforeNodesOutputVars.findIndex(
+      v => v.nodeId === iterationNode?.id,
+    )
+    if (iterationIndex > -1) beforeNodesOutputVars.splice(iterationIndex, 1)
+    beforeNodesOutputVars.unshift(iterationVar)
+  }
   return beforeNodesOutputVars
 }
 
@@ -1221,6 +1232,11 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
 
     case BlockEnum.VariableAggregator: {
       res = (data as VariableAssignerNodeType)?.variables
+      break
+    }
+
+    case BlockEnum.Iteration: {
+      res = [(data as IterationNodeType).iterator_selector]
       break
     }
 
@@ -1522,6 +1538,13 @@ export const updateNodeVars = (
       }
       break
     }
+    case BlockEnum.Iteration: {
+      const payload = data as IterationNodeType
+      if (payload.iterator_selector.join('.') === oldVarSelector.join('.'))
+        payload.iterator_selector = newVarSelector
+
+      break
+    }
     case BlockEnum.Loop: {
       const payload = data as LoopNodeType
       if (payload.break_conditions) {
@@ -1674,10 +1697,10 @@ export const getNodeOutputVars = (
     //   break
     // }
 
-    // case BlockEnum.Iteration: {
-    //   res.push([id, 'output'])
-    //   break
-    // }
+    case BlockEnum.Iteration: {
+      res.push([id, 'output'])
+      break
+    }
 
     case BlockEnum.Loop: {
       res.push([id, 'output'])

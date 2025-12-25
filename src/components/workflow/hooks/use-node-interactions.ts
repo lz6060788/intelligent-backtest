@@ -10,6 +10,7 @@ import { generateNewNode, genNewNodeTitleFromOld, getBottomRightNodePosition, ge
 import type { LoopNodeType } from '../nodes/loop/type';
 import { useNodeLoopInteractions } from '@/components/workflow/nodes/loop/use-interactions'
 import { useNodesMetaData } from './use-nodes-meta-data';
+import i18n from "@/locales"
 import {
   useNodesReadOnly,
   useWorkflow,
@@ -19,14 +20,20 @@ import {
   WorkflowHistoryEvent,
   useWorkflowHistory,
 } from './use-workflow-history'
+import { CUSTOM_ITERATION_START_NODE } from '../nodes/iteration-start/constants';
+import { useNodeIterationInteractions } from '../nodes/iteration/use-interactions';
+import type { IterationNodeType } from '../nodes/iteration/types';
 
 export const useNodesInteractions = (
   id?: string,
 ) => {
+  const t = i18n.global.t
   const { instance: workflowStore, instanceId } = useWorkflowInstance(id);
   const store = useVueFlow(instanceId);
   const { getNodesReadOnly } = useNodesReadOnly(instanceId)
   const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId)
+  const { handleNodeIterationChildDrag, handleNodeIterationChildrenCopy }
+    = useNodeIterationInteractions(instanceId)
   const { handleNodeLoopChildDrag, handleNodeLoopChildrenCopy }
     = useNodeLoopInteractions(instanceId)
   const { nodesMap: nodesMetaDataMap } = useNodesMetaData(instanceId)
@@ -42,6 +49,12 @@ export const useNodesInteractions = (
     if (getNodesReadOnly()) return
     const node = e.node;
 
+    if (
+      node.type === CUSTOM_ITERATION_START_NODE
+      || node.type === CUSTOM_LOOP_START_NODE
+    )
+      return
+
     dragNodeStartPosition.x = node.position.x;
     dragNodeStartPosition.y = node.position.y;
   }
@@ -50,11 +63,14 @@ export const useNodesInteractions = (
     if (getNodesReadOnly()) return
     const { node, event } = e;
 
+    if (node.type === CUSTOM_ITERATION_START_NODE) return
+
     if (node.type === CUSTOM_LOOP_START_NODE) return
 
     const { nodes } = store;
     event.stopPropagation();
 
+    const { restrictPosition } = handleNodeIterationChildDrag(node)
     const { restrictPosition: restrictLoopPosition }
       = handleNodeLoopChildDrag(node)
 
@@ -62,9 +78,14 @@ export const useNodesInteractions = (
 
     if (restrictLoopPosition.x !== undefined)
       currentNode.position.x = restrictLoopPosition.x
+    else if (restrictPosition.x !== undefined)
+      currentNode.position.x = restrictPosition.x
     else currentNode.position.x = node.position.x
+
     if (restrictLoopPosition.y !== undefined)
       currentNode.position.y = restrictLoopPosition.y
+    else if (restrictPosition.y !== undefined)
+      currentNode.position.y = restrictPosition.y
     else currentNode.position.y = node.position.y
   }
 
@@ -87,6 +108,13 @@ export const useNodesInteractions = (
 
   const handleNodeMouseEnter = (e: NodeMouseEvent) => {
     if (getNodesReadOnly()) return
+
+    if (
+      e.node.type === CUSTOM_ITERATION_START_NODE
+      || e.node.type === CUSTOM_LOOP_START_NODE
+    )
+      return
+
     const node = e.node;
     const { nodes, edges } = store;
     const { connectingNodePayload, setEnteringNodePayload }
@@ -137,6 +165,13 @@ export const useNodesInteractions = (
 
   const handleNodeMouseLeave = (e: NodeMouseEvent) => {
     if (getNodesReadOnly()) return
+
+    if (
+      e.node.type === CUSTOM_ITERATION_START_NODE
+      || e.node.type === CUSTOM_LOOP_START_NODE
+    )
+      return
+
     const { setEnteringNodePayload } = workflowStore
     setEnteringNodePayload(undefined)
     const { nodes, edges } = store
@@ -194,12 +229,13 @@ export const useNodesInteractions = (
   }
 
   const handleNodeClick = (e: NodeMouseEvent) => {
+    if (e.node.type === CUSTOM_ITERATION_START_NODE) return
     if (e.node.type === CUSTOM_LOOP_START_NODE) return
     handleNodeSelect(e.node.id);
   }
 
   const handleNodeContextMenu = (e: NodeMouseEvent) => {
-
+    if (e.node.type === CUSTOM_ITERATION_START_NODE) return
     if (e.node.type === CUSTOM_LOOP_START_NODE)
       return
     e.event.preventDefault()
@@ -218,12 +254,11 @@ export const useNodesInteractions = (
     if (getNodesReadOnly()) return
     const { nodeId, handleType, handleId } = e
 
+    console.log('handleNodeConnectStart:', e)
     if (nodeId && handleType) {
       const { setConnectingNodePayload } = workflowStore
       const { nodes } = store
       const node = nodes.value.find(n => n.id === nodeId)!
-
-      // if (node.type === CUSTOM_NOTE_NODE) return
 
       // if (
       //   node.data.type === BlockEnum.VariableAggregator
@@ -264,8 +299,8 @@ export const useNodesInteractions = (
       return
 
     const parendNode = nodes.value.find(node => node.id === targetNode?.parentNode)
-    // const isInIteration
-    //   = parendNode && parendNode.data.type === BlockEnum.Iteration
+    const isInIteration
+    = parendNode && parendNode.data.type === BlockEnum.Iteration
     const isInLoop = !!parendNode && parendNode.data.type === BlockEnum.Loop
 
     const newEdge = {
@@ -278,8 +313,8 @@ export const useNodesInteractions = (
       data: {
         sourceType: nodes.value.find(node => node.id === source)!.data.type,
         targetType: nodes.value.find(node => node.id === target)!.data.type,
-        // isInIteration,
-        // iteration_id: isInIteration ? targetNode?.parentNode : undefined,
+        isInIteration,
+        iteration_id: isInIteration ? targetNode?.parentNode : undefined,
         isInLoop,
         loop_id: isInLoop ? targetNode?.parentNode : undefined,
       },
@@ -394,45 +429,45 @@ export const useNodesInteractions = (
         return
 
       // deleteNodeInspectorVars(nodeId)
-      // if (currentNode.data.type === BlockEnum.Iteration) {
-      //   const iterationChildren = nodes.filter(
-      //     node => node.parentId === currentNode.id,
-      //   )
+      if (currentNode.data.type === BlockEnum.Iteration) {
+        const iterationChildren = nodes.value.filter(
+          node => node.parentNode === currentNode.id,
+        )
 
-      //   if (iterationChildren.length) {
-      //     if (currentNode.data._isBundled) {
-      //       iterationChildren.forEach((child) => {
-      //         handleNodeDelete(child.id)
-      //       })
-      //       return handleNodeDelete(nodeId)
-      //     }
-      //     else {
-      //       if (iterationChildren.length === 1) {
-      //         handleNodeDelete(iterationChildren[0].id)
-      //         handleNodeDelete(nodeId)
+        if (iterationChildren.length) {
+          if (currentNode.data._isBundled) {
+            iterationChildren.forEach((child) => {
+              handleNodeDelete(child.id)
+            })
+            return handleNodeDelete(nodeId)
+          }
+          else {
+            if (iterationChildren.length === 1) {
+              handleNodeDelete(iterationChildren[0]!.id)
+              handleNodeDelete(nodeId)
 
-      //         return
-      //       }
-      //       const { setShowConfirm, showConfirm } = workflowStore.getState()
+              return
+            }
+            const { setShowConfirm, showConfirm } = workflowStore
 
-      //       if (!showConfirm) {
-      //         setShowConfirm({
-      //           title: t('workflow.nodes.iteration.deleteTitle'),
-      //           desc: t('workflow.nodes.iteration.deleteDesc') || '',
-      //           onConfirm: () => {
-      //             iterationChildren.forEach((child) => {
-      //               handleNodeDelete(child.id)
-      //             })
-      //             handleNodeDelete(nodeId)
-      //             handleSyncWorkflowDraft()
-      //             setShowConfirm(undefined)
-      //           },
-      //         })
-      //         return
-      //       }
-      //     }
-      //   }
-      // }
+            if (!showConfirm) {
+              setShowConfirm({
+                title: t('workflow.nodes.iteration.deleteTitle'),
+                desc: t('workflow.nodes.iteration.deleteDesc') || '',
+                onConfirm: () => {
+                  iterationChildren.forEach((child) => {
+                    handleNodeDelete(child.id)
+                  })
+                  handleNodeDelete(nodeId)
+                  // handleSyncWorkflowDraft()
+                  setShowConfirm(undefined)
+                },
+              })
+              return
+            }
+          }
+        }
+      }
 
       if (currentNode.data.type === BlockEnum.Loop) {
         const loopChildren = nodes.value.filter(
@@ -474,27 +509,13 @@ export const useNodesInteractions = (
         }
       }
 
-      // if (currentNode.data.type === BlockEnum.DataSource) {
-      //   const { id } = currentNode
-      //   const { ragPipelineVariables, setRagPipelineVariables }
-      //     = workflowStore
-      //   if (ragPipelineVariables && setRagPipelineVariables) {
-      //     const newRagPipelineVariables: RAGPipelineVariables = []
-      //     ragPipelineVariables.forEach((variable) => {
-      //       if (variable.belong_to_node_id === id) return
-      //       newRagPipelineVariables.push(variable)
-      //     })
-      //     setRagPipelineVariables(newRagPipelineVariables)
-      //   }
-      // }
-
       const connectedEdges = getConnectedEdges([{ id: nodeId } as Node], edges.value)
       const nodesConnectedSourceOrTargetHandleIdsMap
         = getNodesConnectedSourceOrTargetHandleIdsMap(
           connectedEdges.map(edge => ({ type: 'remove', edge })),
           nodes.value,
         )
-      const newNodes = unref(nodes.value)
+      const newNodes = cloneDeep(unref(nodes.value))
       newNodes.forEach((node) => {
         if (nodesConnectedSourceOrTargetHandleIdsMap[node.id]) {
           node.data = {
@@ -582,24 +603,22 @@ export const useNodesInteractions = (
 
         const parentNode
           = nodes.value.find(node => node.id === prevNode!.parentNode) || null
+        const isInIteration
+          = !!parentNode && parentNode.data.type === BlockEnum.Iteration
         const isInLoop
           = !!parentNode && parentNode.data.type === BlockEnum.Loop
 
         if (prevNode!.parentNode) {
+          newNode.data!.isInIteration = isInIteration
           newNode.data!.isInLoop = isInLoop
+          if (isInIteration) {
+            newNode.data!.iteration_id = parentNode.id
+            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
+          }
           if (isInLoop) {
             newNode.data!.loop_id = parentNode.id
             newNode.zIndex = LOOP_CHILDREN_Z_INDEX
           }
-          // if (
-          //   isInLoop
-          //   && (newNode.data!.type === BlockEnum.Answer
-          //     || newNode.data!.type === BlockEnum.Tool
-          //     || newNode.data!.type === BlockEnum.Assigner)
-          // ) {
-          //   const iterNodeData: IterationNodeType = parentNode.data
-          //   iterNodeData._isShowTips = true
-          // }
         }
 
         let newEdge = null
@@ -614,9 +633,9 @@ export const useNodesInteractions = (
             data: {
               sourceType: prevNode!.data.type,
               targetType: newNode.data!.type,
-              // isInIteration,
+              isInIteration,
               isInLoop,
-              // iteration_id: isInIteration ? prevNode.parentNode : undefined,
+              iteration_id: isInIteration ? prevNode!.parentNode : undefined,
               loop_id: isInLoop ? prevNode!.parentNode : undefined,
               _connectedNodeIsSelected: true,
             },
@@ -641,15 +660,15 @@ export const useNodesInteractions = (
             }
           }
 
-          // if (
-          //   node.data.type === BlockEnum.Iteration
-          //   && prevNode!.parentNode === node.id
-          // ) {
-          //   node.data._children?.push({
-          //     nodeId: newNode.id,
-          //     nodeType: newNode.data!.type,
-          //   })
-          // }
+          if (
+            node.data.type === BlockEnum.Iteration
+            && prevNode!.parentNode === node.id
+          ) {
+            node.data._children?.push({
+              nodeId: newNode.id,
+              nodeType: newNode.data!.type,
+            })
+          }
 
           if (
             node.data.type === BlockEnum.Loop
@@ -662,30 +681,13 @@ export const useNodesInteractions = (
           }
         })
         const newNodes = [...nodes.value, newNode]
-        
-        // if (newIterationStartNode) nodes.value.push(newIterationStartNode)
-        
+
+        if (newIterationStartNode) newNodes.push(newIterationStartNode)
+
         if (newLoopStartNode) newNodes.push(newLoopStartNode)
 
         setNodes(newNodes)
 
-        // if (
-        //   newNode.data.type === BlockEnum.VariableAssigner
-        //   || newNode.data.type === BlockEnum.VariableAggregator
-        // ) {
-        //   const { setShowAssignVariablePopup } = workflowStore.getState()
-
-        //   setShowAssignVariablePopup({
-        //     nodeId: prevNode.id,
-        //     nodeData: prevNode.data,
-        //     variableAssignerNodeId: newNode.id,
-        //     variableAssignerNodeData: newNode.data as VariableAssignerNodeType,
-        //     variableAssignerNodeHandleId: targetHandle,
-        //     parentNode: nodes.find(node => node.id === newNode.parentNode),
-        //     x: -25,
-        //     y: 44,
-        //   })
-        // }
         edges.value.forEach((item) => {
           item.data = {
             ...item.data,
@@ -700,7 +702,6 @@ export const useNodesInteractions = (
         const nextNode = nodes.value[nextNodeIndex]!
         if (
           nodeType !== BlockEnum.IfElse
-          // && nodeType !== BlockEnum.QuestionClassifier
         )
         newNode.data!._connectedSourceHandleIds = [sourceHandle]
         newNode.data!._connectedTargetHandleIds = []
@@ -713,18 +714,18 @@ export const useNodesInteractions = (
 
         const parentNode
           = nodes.value.find(node => node.id === nextNode.parentNode) || null
-        // const isInIteration
-        //   = !!parentNode && parentNode.data.type === BlockEnum.Iteration
+        const isInIteration
+          = !!parentNode && parentNode.data.type === BlockEnum.Iteration
         const isInLoop
           = !!parentNode && parentNode.data.type === BlockEnum.Loop
 
         if (parentNode && nextNode.parentNode) {
-          // newNode.data.isInIteration = isInIteration
+          newNode.data!.isInIteration = isInIteration
           newNode.data!.isInLoop = isInLoop
-          // if (isInIteration) {
-          //   newNode.data.iteration_id = parentNode.id
-          //   newNode.zIndex = ITERATION_CHILDREN_Z_INDEX
-          // }
+          if (isInIteration) {
+            newNode.data!.iteration_id = parentNode.id
+            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
+          }
           if (isInLoop) {
             newNode.data!.loop_id = parentNode.id
             newNode.zIndex = LOOP_CHILDREN_Z_INDEX
@@ -735,7 +736,6 @@ export const useNodesInteractions = (
 
         if (
           nodeType !== BlockEnum.IfElse
-          // && nodeType !== BlockEnum.QuestionClassifier
           && nodeType !== BlockEnum.LoopEnd
         ) {
           newEdge = {
@@ -748,9 +748,9 @@ export const useNodesInteractions = (
             data: {
               sourceType: newNode.data!.type,
               targetType: nextNode.data.type,
-              // isInIteration,
+              isInIteration,
               isInLoop,
-              // iteration_id: isInIteration ? nextNode.parentNode : undefined,
+              iteration_id: isInIteration ? nextNode.parentNode : undefined,
               loop_id: isInLoop ? nextNode.parentNode : undefined,
               _connectedNodeIsSelected: true,
             },
@@ -786,23 +786,23 @@ export const useNodesInteractions = (
             }
           }
 
-          // if (
-          //   node.data.type === BlockEnum.Iteration
-          //   && nextNode.parentNode === node.id
-          // ) {
-          //   node.data._children?.push({
-          //     nodeId: newNode.id,
-          //     nodeType: newNode.data.type,
-          //   })
-          // }
+          if (
+            node.data.type === BlockEnum.Iteration
+            && nextNode.parentNode === node.id
+          ) {
+            node.data._children?.push({
+              nodeId: newNode.id,
+              nodeType: newNode.data!.type,
+            })
+          }
 
-          // if (
-          //   node.data.type === BlockEnum.Iteration
-          //   && node.data.start_node_id === nextNodeId
-          // ) {
-          //   node.data.start_node_id = newNode.id
-          //   node.data.startNodeType = newNode.data.type
-          // }
+          if (
+            node.data.type === BlockEnum.Iteration
+            && node.data.start_node_id === nextNodeId
+          ) {
+            node.data.start_node_id = newNode.id
+            node.data.startNodeType = newNode.data!.type
+          }
 
           if (
             node.data.type === BlockEnum.Loop
@@ -853,18 +853,18 @@ export const useNodesInteractions = (
 
         const parentNode
           = nodes.value.find(node => node.id === prevNode.parentNode) || null
-        // const isInIteration
-        //   = !!parentNode && parentNode.data.type === BlockEnum.Iteration
+        const isInIteration
+          = !!parentNode && parentNode.data.type === BlockEnum.Iteration
         const isInLoop
           = !!parentNode && parentNode.data.type === BlockEnum.Loop
 
         if (parentNode && prevNode.parentNode) {
-          // newNode.data.isInIteration = isInIteration
+          newNode.data!.isInIteration = isInIteration
           newNode.data!.isInLoop = isInLoop
-          // if (isInIteration) {
-          //   newNode.data.iteration_id = parentNode.id
-          //   newNode.zIndex = ITERATION_CHILDREN_Z_INDEX
-          // }
+          if (isInIteration) {
+            newNode.data!.iteration_id = parentNode.id
+            newNode.zIndex = LOOP_CHILDREN_Z_INDEX
+          }
           if (isInLoop) {
             newNode.data!.loop_id = parentNode.id
             newNode.zIndex = LOOP_CHILDREN_Z_INDEX
@@ -887,9 +887,9 @@ export const useNodesInteractions = (
             data: {
               sourceType: prevNode.data.type,
               targetType: newNode.data!.type,
-              // isInIteration,
+              isInIteration,
               isInLoop,
-              // iteration_id: isInIteration ? prevNode.parentNode : undefined,
+              iteration_id: isInIteration ? prevNode.parentNode : undefined,
               loop_id: isInLoop ? prevNode.parentNode : undefined,
               _connectedNodeIsSelected: true,
             },
@@ -903,9 +903,9 @@ export const useNodesInteractions = (
 
         const nextNodeParentNode
           = nodes.value.find(node => node.id === nextNode.parentNode) || null
-        // const isNextNodeInIteration
-        //   = !!nextNodeParentNode
-        //   && nextNodeParentNode.data.type === BlockEnum.Iteration
+        const isNextNodeInIteration
+          = !!nextNodeParentNode
+          && nextNodeParentNode.data.type === BlockEnum.Iteration
         const isNextNodeInLoop
           = !!nextNodeParentNode
           && nextNodeParentNode.data.type === BlockEnum.Loop
@@ -925,11 +925,11 @@ export const useNodesInteractions = (
             data: {
               sourceType: newNode.data!.type,
               targetType: nextNode.data.type,
-              // isInIteration: isNextNodeInIteration,
+              isInIteration: isNextNodeInIteration,
               isInLoop: isNextNodeInLoop,
-              // iteration_id: isNextNodeInIteration
-              //   ? nextNode.parentNode
-              //   : undefined,
+              iteration_id: isNextNodeInIteration
+                ? nextNode.parentNode
+                : undefined,
               loop_id: isNextNodeInLoop ? nextNode.parentNode : undefined,
               _connectedNodeIsSelected: true,
             },
@@ -964,15 +964,15 @@ export const useNodesInteractions = (
           if (afterNodesInSameBranchIds.includes(node.id))
             node.position.x += NODE_WIDTH_X_OFFSET
 
-          // if (
-          //   node.data.type === BlockEnum.Iteration
-          //   && prevNode.parentNode === node.id
-          // ) {
-          //   node.data._children?.push({
-          //     nodeId: newNode.id,
-          //     nodeType: newNode.data.type,
-          //   })
-          // }
+          if (
+            node.data.type === BlockEnum.Iteration
+            && prevNode.parentNode === node.id
+          ) {
+            node.data._children?.push({
+              nodeId: newNode.id,
+              nodeType: newNode.data!.type,
+            })
+          }
           if (
             node.data.type === BlockEnum.Loop
             && prevNode.parentNode === node.id
@@ -1064,7 +1064,7 @@ export const useNodesInteractions = (
           node.id === nodeId
           && node.data.type !== BlockEnum.Start
           && node.data.type !== BlockEnum.OperatorStart
-          // && node.type !== CUSTOM_ITERATION_START_NODE
+          && node.type !== CUSTOM_ITERATION_START_NODE
           && node.type !== CUSTOM_LOOP_START_NODE
           && node.data.type !== BlockEnum.LoopEnd
           // && node.data.type !== BlockEnum.KnowledgeBase
@@ -1075,8 +1075,8 @@ export const useNodesInteractions = (
         // If no nodeId is provided, fall back to the current behavior
         const bundledNodes = nodes.value.filter((node) => {
           if (!node.data._isBundled) return false
-          // const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum]
-          // if (metaData.isSingleton) return false
+          const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum]
+          if (metaData.isSingleton) return false
           return !node.data.isInIteration && !node.data.isInLoop
         })
 
@@ -1087,9 +1087,8 @@ export const useNodesInteractions = (
 
         const selectedNode = nodes.value.find((node) => {
           if (!node.data.selected) return false
-          return true
-          // const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum]
-          // return !metaData.isSingleton
+          const { metaData } = nodesMetaDataMap![node.data.type as BlockEnum]
+          return !metaData.isSingleton
         })
 
         if (selectedNode) setClipboardElements([selectedNode])
@@ -1120,7 +1119,7 @@ export const useNodesInteractions = (
           = generateNewNode({
             type: nodeToPaste.type,
             data: {
-              // ...nodesMetaDataMap![nodeType].defaultValue,
+              ...nodesMetaDataMap![nodeType].defaultValue,
               type: nodeType,
               desc: '',
               ...nodeToPaste.data,
@@ -1140,36 +1139,35 @@ export const useNodesInteractions = (
         newNode.id = newNode.id + index
         // This new node is movable and can be placed anywhere
         let newChildren: Node[] = []
-        // if (nodeToPaste.data!.type === BlockEnum.Iteration) {
-        //   newIterationStartNode!.parentNode = newNode.id;
-        //   (newNode.data as IterationNodeType).start_node_id
-        //     = newIterationStartNode!.id
+        if (nodeToPaste.data!.type === BlockEnum.Iteration) {
+          newIterationStartNode!.parentNode = newNode.id;
+          (newNode.data as IterationNodeType).start_node_id
+            = newIterationStartNode!.id
 
-        //   const oldIterationStartNode = nodes.find(
-        //     n =>
-        //       n.parentNode === nodeToPaste.id
-        //       && n.type === CUSTOM_ITERATION_START_NODE,
-        //   )
-        //   idMapping[oldIterationStartNode!.id] = newIterationStartNode!.id
+          const oldIterationStartNode = nodes.value.find(
+            n =>
+              n.parentNode === nodeToPaste.id
+              && n.type === CUSTOM_ITERATION_START_NODE,
+          )
+          idMapping[oldIterationStartNode!.id] = newIterationStartNode!.id
 
-        //   const { copyChildren, newIdMapping }
-        //     = handleNodeIterationChildrenCopy(
-        //       nodeToPaste.id,
-        //       newNode.id,
-        //       idMapping,
-        //     )
-        //   newChildren = copyChildren
-        //   idMapping = newIdMapping
-        //   newChildren.forEach((child) => {
-        //     newNode.data._children?.push({
-        //       nodeId: child.id,
-        //       nodeType: child.data.type,
-        //     })
-        //   })
-        //   newChildren.push(newIterationStartNode!)
-        // }
-        // else if (nodeToPaste.data.type === BlockEnum.Loop) {
-        if (nodeToPaste.data!.type === BlockEnum.Loop) {
+          const { copyChildren, newIdMapping }
+            = handleNodeIterationChildrenCopy(
+              nodeToPaste.id,
+              newNode.id,
+              idMapping,
+            )
+          newChildren = copyChildren
+          idMapping = newIdMapping
+          newChildren.forEach((child) => {
+            newNode.data!._children?.push({
+              nodeId: child.id,
+              nodeType: child.data!.type,
+            })
+          })
+          newChildren.push(newIterationStartNode!)
+        }
+        else if (nodeToPaste.data!.type === BlockEnum.Loop) {
           newLoopStartNode!.parentNode = newNode.id;
           (newNode.data as LoopNodeType).start_node_id = newLoopStartNode!.id
 
@@ -1196,19 +1194,19 @@ export const useNodesInteractions = (
               return
 
             // handle paste to nested block
-            // if (selectedNode.data.type === BlockEnum.Iteration) {
-            //   newNode.data.isInIteration = true
-            //   newNode.data.iteration_id = selectedNode.data.iteration_id
-            //   newNode.parentNode = selectedNode.id
-            //   newNode.positionAbsolute = {
-            //     x: newNode.position.x,
-            //     y: newNode.position.y,
-            //   }
-            //   // set position base on parent node
-            //   newNode.position = getNestedNodePosition(newNode, selectedNode)
-            // }
-            // else if (selectedNode.data.type === BlockEnum.Loop) {
-            if (selectedNode.data.type === BlockEnum.Loop) {
+            if (selectedNode.data.type === BlockEnum.Iteration) {
+              newNode.data!.isInIteration = true
+              newNode.data!.iteration_id = selectedNode.data.iteration_id
+              newNode.parentNode = selectedNode.id
+              newNode.position = {
+                x: newNode.position.x,
+                y: newNode.position.y,
+              }
+              // set position base on parent node
+              newNode.position = getNestedNodePosition(newNode, selectedNode)
+            }
+            else if (selectedNode.data.type === BlockEnum.Loop) {
+            // if (selectedNode.data.type === BlockEnum.Loop) {
               newNode.data!.isInLoop = true
               newNode.data!.loop_id = selectedNode.data.loop_id
               newNode.parentNode = selectedNode.id
@@ -1355,6 +1353,8 @@ export const useNodesInteractions = (
     const parentNode = nodes.value.find(node => node.id === parentNodeId)!
     if (!parentNode) return
 
+    const isInIteration = parentNode.data!.type === BlockEnum.Iteration
+    const isInLoop = parentNode.data!.type === BlockEnum.Loop
     const node = nodes.value.find(node => node.id === nodeId)!
     if (!node) return
 
@@ -1363,8 +1363,10 @@ export const useNodesInteractions = (
     updateNode(nodeId, {
       data: {
         ...node.data,
-        isInLoop: true,
-        loop_id: parentNodeId,
+        isInIteration: isInIteration,
+        isInLoop: isInLoop,
+        iteration_id: isInIteration ? parentNodeId : undefined,
+        loop_id: isInLoop ? parentNodeId : undefined,
       },
       zIndex: LOOP_CHILDREN_Z_INDEX,
       parentNode: parentNodeId,

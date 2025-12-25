@@ -3,7 +3,7 @@ import { useNodesMetaData } from './use-nodes-meta-data.ts'
 
 /** 这里拓展特殊节点类型；若基础节点配置来自于服务端，这里需要改为响应式 */
 const availableBlocksFilter = (nodeType: BlockEnum, inContainer?: boolean) => {
-  if (inContainer && (nodeType === BlockEnum.Loop || nodeType === BlockEnum.End || nodeType === BlockEnum.DataSource))
+  if (inContainer && (nodeType === BlockEnum.Loop || nodeType === BlockEnum.Iteration || nodeType === BlockEnum.End || nodeType === BlockEnum.DataSource))
     return false
 
   if (!inContainer && nodeType === BlockEnum.LoopEnd)

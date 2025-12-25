@@ -13,6 +13,8 @@ import operatorStartDefault from '@/components/workflow/nodes/operator-start/def
 import backtestDefault from '@/components/workflow/nodes/backtest/default';
 import operatorOverviewDefault from '@/components/workflow/nodes/operator-overview/default';
 import operatorEndDefault from '@/components/workflow/nodes/operator-end/default';
+import iterationStartDefault from '@/components/workflow/nodes/iteration-start/default';
+import iterationDefault from '@/components/workflow/nodes/iteration/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -34,6 +36,8 @@ export const WORKFLOW_COMMON_NODES = [
   backtestDefault,
   operatorOverviewDefault,
   operatorEndDefault,
+  iterationStartDefault,
+  iterationDefault,
 ] as NodeDefault[]
 
 
@@ -115,8 +119,8 @@ export const RETRIEVAL_OUTPUT_STRUCT = `{
 export const SUPPORT_OUTPUT_VARS_NODE = [
   BlockEnum.Start, BlockEnum.LLM, BlockEnum.Code, BlockEnum.Operator,
   BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
-  BlockEnum.Loop, BlockEnum.Agent, BlockEnum.DataSource, BlockEnum.OperatorStart,
-  BlockEnum.OperatorOverview, BlockEnum.Backtest,
+  BlockEnum.Loop, BlockEnum.OperatorStart,
+  BlockEnum.OperatorOverview, BlockEnum.Backtest, BlockEnum.Iteration,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [
@@ -270,3 +274,4 @@ export const CUSTOM_EDGE = 'custom'
 export const DSL_EXPORT_CHECK = 'DSL_EXPORT_CHECK'
 export const DEFAULT_RETRY_MAX = 3
 export const DEFAULT_RETRY_INTERVAL = 100
+

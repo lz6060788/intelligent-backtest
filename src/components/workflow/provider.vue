@@ -41,7 +41,9 @@
         :zoomOnScroll="true"
         :zoomOnDoubleClick="true"
         :pan-on-drag="controlMode === ControlMode.Hand"
-        :selectNodesOnDrag="controlMode === ControlMode.Pointer && !workflowReadOnly"
+        :selectNodesOnDrag="
+          controlMode === ControlMode.Pointer && !workflowReadOnly
+        "
         :selection-mode="SelectionMode.Partial"
         :selection-key-code="controlMode === ControlMode.Hand ? null : true"
         :min-zoom="0.25"
@@ -50,8 +52,14 @@
         <template #node-custom="customNodeProps">
           <customNode
             v-bind="customNodeProps"
-            @edit-operator-detail="(id: string, title: string, data: any) => emit('edit-operator-detail', id, title, data)"
+            @edit-operator-detail="
+              (id: string, title: string, data: any) =>
+                emit('edit-operator-detail', id, title, data)
+            "
           />
+        </template>
+        <template #node-custom-iteration-start="customIterationStartNodeProps">
+          <customIterationStartNode v-bind="customIterationStartNodeProps" />
         </template>
         <template #node-custom-loop-start="customLoopStartNodeProps">
           <customLoopStartNode v-bind="customLoopStartNodeProps" />
@@ -62,11 +70,11 @@
         <template #edge-custom="customEdgeProps">
           <customEdge v-bind="customEdgeProps"></customEdge>
         </template>
-        <Background :size="1" pattern-color="#fff" :gap="8"></Background>
+        <Background :size="1.5" pattern-color="#ffffff90" :gap="40"></Background>
         <Operator />
 
         <div
-          className='pointer-events-none absolute left-0 top-0 z-10 flex w-12 items-center justify-center p-1 pl-2'
+          className="pointer-events-none absolute left-0 top-0 z-10 flex w-12 items-center justify-center p-1 pl-2"
           :style="{ height: controlHeight }"
         >
           <Controller />
@@ -79,24 +87,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, provide, ref, toRefs, watch } from 'vue'
-import { useVueFlow, VueFlow, SelectionMode, type NodeChange } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  provide,
+  ref,
+  toRefs,
+  watch,
+} from "vue";
+import {
+  useVueFlow,
+  VueFlow,
+  SelectionMode,
+  type NodeChange,
+} from "@vue-flow/core";
+import { Background } from "@vue-flow/background";
 // import { Controls as VueFlowControls } from '@vue-flow/controls'
-import Operator from './operator/index.vue'
-import '@vue-flow/controls/dist/style.css'
-import customNode from './nodes/index.vue';
-import customEdge from './edge/index.vue';
-import customLoopStartNode from './nodes/loop-start/index.vue'
-import customSimpleNode from './simple-node/index.vue'
-import Panel from './panel/index.vue'
-import Header from './header/index.vue'
-import { useNodesInteractions, useEdgeInteractions, useSelectionInteractions, useWorkflowReadOnly,  useNodesReadOnly, useNodesSyncDraft, useWorkflowRefreshDraft } from './hooks/index'
-import type { WorkflowProps, WorkflowGraph } from '@/types/workflow'
-import Controller from './operator/controller.vue'
-import hotkeys from 'hotkeys-js';
-import { useWorkflowInstance } from './hooks/use-workflow-instance'
-import { BlockEnum, ControlMode, type GraphNode } from '@/types';
+import Operator from "./operator/index.vue";
+import "@vue-flow/controls/dist/style.css";
+import customNode from "./nodes/index.vue";
+import customEdge from "./edge/index.vue";
+import customLoopStartNode from "./nodes/loop-start/index.vue";
+import customIterationStartNode from "./nodes/iteration-start/index.vue";
+import customSimpleNode from "./simple-node/index.vue";
+import Panel from "./panel/index.vue";
+import Header from "./header/index.vue";
+import {
+  useNodesInteractions,
+  useEdgeInteractions,
+  useSelectionInteractions,
+  useWorkflowReadOnly,
+  useNodesReadOnly,
+  useNodesSyncDraft,
+  useWorkflowRefreshDraft,
+} from "./hooks/index";
+import type { WorkflowProps, WorkflowGraph } from "@/types/workflow";
+import Controller from "./operator/controller.vue";
+import hotkeys from "hotkeys-js";
+import { useWorkflowInstance } from "./hooks/use-workflow-instance";
+import { BlockEnum, ControlMode, type GraphNode } from "@/types";
 
 const workflowContainerRef = ref<HTMLDivElement>();
 
@@ -107,20 +137,24 @@ const props = withDefaults(defineProps<WorkflowProps>(), {
   viewport: () => ({
     x: 0,
     y: 0,
-    zoom: 0.25
-  })
+    zoom: 1,
+  }),
 });
 
-const { instanceId,  instance: workflowStore, cleanInstance } = useWorkflowInstance(props.id)
-workflowStore.setWorkflowIsCalculator(props.isOperator)
+const {
+  instanceId,
+  instance: workflowStore,
+  cleanInstance,
+} = useWorkflowInstance(props.id);
+workflowStore.setWorkflowIsCalculator(props.isOperator);
 
-const store = useVueFlow(instanceId)
-const { nodes, setNodes, setEdges } = store
+const store = useVueFlow(instanceId);
+const { nodes, setNodes, setEdges } = store;
 
 const emit = defineEmits<{
-  'edit-operator-detail': [id: string, title: string, data: any]
-  'nodes-change': [nodes: GraphNode[]]
-}>()
+  "edit-operator-detail": [id: string, title: string, data: any];
+  "nodes-change": [nodes: GraphNode[]];
+}>();
 
 const {
   handleNodeClick,
@@ -136,62 +170,65 @@ const {
   handleNodesCopy,
   handleNodesPaste,
   handleNodesDelete,
-  handleIsolatedNodeAdd
+  handleIsolatedNodeAdd,
 } = useNodesInteractions();
 
 const {
   handleEdgeMouseEnter,
   handleEdgeMouseLeave,
   handleEdgeChange,
-  handleEdgeDelete
+  handleEdgeDelete,
 } = useEdgeInteractions();
 
 const {
   handleSelectionStart,
   selectionEnd,
   handleSelectionDrag,
-  handleSelectionContextMenu
+  handleSelectionContextMenu,
 } = useSelectionInteractions();
 
-
-hotkeys('ctrl+c', function(event, handler){
-  event.preventDefault()
+hotkeys("ctrl+c", function (event, handler) {
+  event.preventDefault();
   handleNodesCopy();
 });
 
-hotkeys('ctrl+v', function(event, handler){
-  event.preventDefault()
+hotkeys("ctrl+v", function (event, handler) {
+  event.preventDefault();
   handleNodesPaste();
 });
 
-hotkeys('delete,backspace', function(event, handler){
-  event.preventDefault()
-  handleNodesDelete()
-  handleEdgeDelete()
+hotkeys("delete,backspace", function (event, handler) {
+  event.preventDefault();
+  handleNodesDelete();
+  handleEdgeDelete();
 });
 
-const controlMode = computed(() => workflowStore.controlMode.value)
+const controlMode = computed(() => workflowStore.controlMode.value);
 
-const workflowCanvasHeight = computed(() => workflowStore.workflowCanvasHeight.value)
-const bottomPanelHeight = computed(() => workflowStore.bottomPanelHeight.value)
+const workflowCanvasHeight = computed(
+  () => workflowStore.workflowCanvasHeight.value
+);
+const bottomPanelHeight = computed(() => workflowStore.bottomPanelHeight.value);
 
 const controlHeight = computed(() => {
-  if (!workflowCanvasHeight.value)
-    return '100%'
-  return (workflowCanvasHeight.value as number) - (bottomPanelHeight.value as number)
-})
+  if (!workflowCanvasHeight.value) return "100%";
+  return (
+    (workflowCanvasHeight.value as number) - (bottomPanelHeight.value as number)
+  );
+});
 
-const { workflowReadOnly } = useWorkflowReadOnly()
-const { nodesReadOnly } = useNodesReadOnly()
+const { workflowReadOnly } = useWorkflowReadOnly();
+const { nodesReadOnly } = useNodesReadOnly();
 
-const nodeList = computed(() => nodes.value.map(node => node.id))
+const nodeList = computed(() => nodes.value.map((node) => node.id));
 watch(nodeList, () => {
-  emit('nodes-change', nodes.value)
-})
+  emit("nodes-change", nodes.value);
+});
 
 onMounted(() => {
-  workflowContainerRef.value?.addEventListener('mousemove', (e) => {
-    const containerClientRect = workflowContainerRef.value?.getBoundingClientRect()
+  workflowContainerRef.value?.addEventListener("mousemove", (e) => {
+    const containerClientRect =
+      workflowContainerRef.value?.getBoundingClientRect();
 
     if (containerClientRect) {
       workflowStore.setMousePosition({
@@ -199,31 +236,30 @@ onMounted(() => {
         pageY: e.clientY,
         elementX: e.clientX - containerClientRect.left,
         elementY: e.clientY - containerClientRect.top,
-      })
+      });
     }
-  })
+  });
 
   if (props.nodes.length > 0) {
-    setNodes(props.nodes)
-    setEdges(props.edges)
+    setNodes(props.nodes);
+    setEdges(props.edges);
   } else {
     if (props.isOperator) {
-      handleIsolatedNodeAdd(BlockEnum.OperatorStart, { x: 200, y: 800 })
-      handleIsolatedNodeAdd(BlockEnum.OperatorEnd, { x: 1000, y: 800 })
-    }
-    else {
-      handleIsolatedNodeAdd(BlockEnum.Start, { x: 200, y: 800 })
-      handleIsolatedNodeAdd(BlockEnum.End, { x: 1000, y: 800 })
+      handleIsolatedNodeAdd(BlockEnum.OperatorStart, { x: 100, y: 320 });
+      handleIsolatedNodeAdd(BlockEnum.OperatorEnd, { x: 800, y: 320 });
+    } else {
+      handleIsolatedNodeAdd(BlockEnum.Start, { x: 100, y: 320 });
+      handleIsolatedNodeAdd(BlockEnum.End, { x: 800, y: 320 });
     }
   }
-})
+});
 
 onUnmounted(() => {
-  cleanInstance()
-})
+  cleanInstance();
+});
 </script>
 
 <style>
-@import '@vue-flow/core/dist/style.css';
-@import '@vue-flow/core/dist/theme-default.css';
+@import "@vue-flow/core/dist/style.css";
+@import "@vue-flow/core/dist/theme-default.css";
 </style>
