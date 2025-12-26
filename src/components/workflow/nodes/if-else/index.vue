@@ -12,7 +12,8 @@
             </div>
           </div>
           <NodeSourceHandle
-            v-bind="props"
+            :id="id"
+            :data="data"
             :handleId="caseItem.case_id"
             handleClassName="!top-1/2 !left-auto !-right-[20px] !-translate-y-1/2 z-9999"
           />
@@ -57,7 +58,8 @@
     <div class="relative flex h-6 items-center px-1">
       <div class="w-full text-right text-xs font-semibold text-text-secondary">ELSE</div>
       <NodeSourceHandle
-        v-bind="props"
+        :id="id"
+        :data="data"
         handleId="false"
         handleClassName="!top-1/2 !left-auto !-right-[20px] !-translate-y-1/2"
       />
@@ -68,7 +70,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { NodeProps } from '@vue-flow/core'
+import type { NodeProps } from '@/types/node'  // 改为从 @/types/node 导入
 import NodeSourceHandle from '../_base/sourceHandle/index.vue'
 import { isEmptyRelatedOperator } from './utils.ts'
 import type { Condition, IfElseNodeType } from './types.ts'

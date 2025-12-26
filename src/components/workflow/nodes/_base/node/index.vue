@@ -79,7 +79,7 @@ watchEffect((onCleanup) => {
 watchEffect((onCleanup) => {
   if (nodeRef.value && props.data.selected && props.data.isInIteration) {
     const resizeObserver = new ResizeObserver(() => {
-      handleNodeIterationChildSizeChange(id)
+      handleNodeIterationChildSizeChange(props.id)
     })
 
     resizeObserver.observe(nodeRef.value)
