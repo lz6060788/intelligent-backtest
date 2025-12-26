@@ -49,6 +49,7 @@ import { useNodeIterationInteractions } from "../nodes/iteration/use-interaction
 import type { IterationNodeType } from "../nodes/iteration/types";
 import { useEdgeInteractions } from ".";
 import { VALID_NODE_IN_LOOP_OR_ITERATION } from "../constant";
+import { ElMessageBox } from "element-plus";
 
 export const useNodesInteractions = (id?: string) => {
   const t = i18n.global.t;
@@ -516,23 +517,22 @@ export const useNodesInteractions = (id?: string) => {
 
             return;
           }
-          const { setShowConfirm, showConfirm } = workflowStore;
-
-          if (!showConfirm) {
-            setShowConfirm({
-              title: t("workflow.nodes.iteration.deleteTitle"),
-              desc: t("workflow.nodes.iteration.deleteDesc") || "",
-              onConfirm: () => {
-                iterationChildren.forEach((child) => {
-                  handleNodeDelete(child.id);
-                });
-                handleNodeDelete(nodeId);
-                // handleSyncWorkflowDraft()
-                setShowConfirm(undefined);
-              },
-            });
-            return;
-          }
+          // 由于存在aime调用与用户交互难以处理，先屏蔽交互，后期可以考虑使用整体异步方案
+          iterationChildren.forEach((child) => {
+            handleNodeDelete(child.id);
+          });
+          handleNodeDelete(nodeId);
+          // ElMessageBox.confirm(t("workflow.nodes.iteration.deleteTitle"), t("workflow.nodes.iteration.deleteDesc") || "", {
+          //   confirmButtonText: t("common.operation.confirm"),
+          //   cancelButtonText: t("common.operation.cancel"),
+          //   type: "warning",
+          // }).then(() => {
+          //   iterationChildren.forEach((child) => {
+          //     handleNodeDelete(child.id);
+          //   });
+          //   handleNodeDelete(nodeId);
+          // });
+          return;
         }
       }
     }
@@ -555,23 +555,22 @@ export const useNodesInteractions = (id?: string) => {
 
             return;
           }
-          const { setShowConfirm, showConfirm } = workflowStore;
 
-          if (!showConfirm) {
-            setShowConfirm({
-              title: "是否删除循环节点",
-              desc: "",
-              onConfirm: () => {
-                loopChildren.forEach((child) => {
-                  handleNodeDelete(child.id);
-                });
-                handleNodeDelete(nodeId);
-                // handleSyncWorkflowDraft()
-                setShowConfirm(undefined);
-              },
-            });
-            return;
-          }
+          loopChildren.forEach((child) => {
+            handleNodeDelete(child.id);
+          });
+          handleNodeDelete(nodeId);
+          // ElMessageBox.confirm(t("workflow.nodes.loop.deleteTitle"), t("workflow.nodes.loop.deleteDesc") || "", {
+          //   confirmButtonText: t("common.operation.confirm"),
+          //   cancelButtonText: t("common.operation.cancel"),
+          //   type: "warning",
+          // }).then(() => {
+          //   loopChildren.forEach((child) => {
+          //     handleNodeDelete(child.id);
+          //   });
+          //   handleNodeDelete(nodeId);
+          // });
+          return;
         }
       }
     }
