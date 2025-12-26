@@ -59,6 +59,8 @@ export default {
     more: '更多',
     selectAll: '全选',
     deSelectAll: '取消全选',
+    collapse: '收起',
+    expand: '展开',
   },
   errorMsg: {
     fieldRequired: '{{field}} 为必填项',

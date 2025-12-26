@@ -59,6 +59,8 @@ export default {
     more: 'More',
     selectAll: 'Select All',
     deSelectAll: 'Deselect All',
+    collapse: 'Collapse',
+    expand: 'Expand',
   },
   errorMsg: {
     fieldRequired: '{{field}} is required',

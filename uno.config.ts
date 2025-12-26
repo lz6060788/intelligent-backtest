@@ -33,6 +33,7 @@ export default defineConfig({
           /* 映射尺寸变量 */
           --height-header: 56px;
           --width-sidemenu: 180px;
+          --width-sidemenu-collapsed: 64px;
           ${cssVars}
         }
       `
