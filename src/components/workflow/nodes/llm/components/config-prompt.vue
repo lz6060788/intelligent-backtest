@@ -76,14 +76,14 @@
             </div>
           </Draggable>
         </div>
-        <el-button
+        <!-- <el-button
           class="mt-2"
           size="small"
           type="primary"
           @click="handleAddPrompt"
         >
           {{ t(`${i18nPrefix}.addMessage`) }}
-        </el-button>
+        </el-button> -->
       </div>
     </template>
     <template v-else>

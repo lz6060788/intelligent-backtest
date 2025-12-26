@@ -5,14 +5,14 @@ import { ITERATION_PADDING } from '../_base/node/constant'
 import { generateNewNode } from '../../utils/node'
 import { getNodeCustomTypeByNodeDataType } from '../../utils/node'
 import { useWorkflowInstance } from '../../hooks/use-workflow-instance'
-import { useI18n } from 'vue-i18n'
 import { CUSTOM_ITERATION_START_NODE } from '../iteration-start/constants'
+import i18n from '@/locales'
 
 /**
  * 节点迭代交互的composable
  */
 export const useNodeIterationInteractions = (id?: string) => {
-  const { t } = useI18n()
+  const t = i18n.global.t;
   const { instanceId } = useWorkflowInstance(id)
   const store = useVueFlow(instanceId)
   const { nodesMap: nodesMetaDataMap } = useNodesMetaData(instanceId)
