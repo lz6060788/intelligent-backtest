@@ -1,5 +1,7 @@
 <template>
   <div class="h-10 w-full flex items-center justify-center">
+    <el-button type="primary" @click="saveToLocal">保存到本地</el-button>
+    <el-button type="primary" @click="loadFromLocal">从本地加载</el-button>
     <el-button type="primary" @click="debugPrint">Print Workflow Draft</el-button>
     <el-button type="primary" @click="runWorkflow">{{ t('workflow.singleRun.startRun') }}</el-button>
   </div>
@@ -47,6 +49,69 @@ const runWorkflow = async () => {
     ElNotification({
       title: '运行失败',
       message: (error as Error).message,
+      type: 'error'
+    })
+  }
+}
+
+const saveToLocal = () => {
+  try {
+  const isCalculator = workflowStore.workflowIsCalculator.value
+  const workflowDraft = {
+    nodes: transformGraphNodesToNodes(store.nodes.value),
+    edges: transformGraphEdgesToEdges(store.edges.value),
+    viewport: store.viewport.value
+  }
+  const hisWorkflowDraft = localStorage.getItem('workflowDraft')
+  const newHisWorkflowDraft = {
+    ...JSON.parse(hisWorkflowDraft || '{}'),
+    [isCalculator ? 'calculator' : 'main']: workflowDraft
+  }
+    localStorage.setItem('workflowDraft', JSON.stringify(newHisWorkflowDraft))
+    ElNotification({
+      title: '保存成功',
+      message: '保存到本地成功',
+      type: 'success'
+    })
+  } catch (error) {
+    ElNotification({
+      title: '保存失败',
+      message: '保存到本地失败',
+      type: 'error'
+    })
+  }
+}
+
+const loadFromLocal = () => {
+  try {
+    const isCalculator = workflowStore.workflowIsCalculator.value
+    const hisWorkflowDraft = localStorage.getItem('workflowDraft')
+    if (hisWorkflowDraft) {
+      const workflowDraftObj = JSON.parse(hisWorkflowDraft)
+      const workflowDraft = workflowDraftObj[isCalculator ? 'calculator' : 'main']
+      if (!workflowDraft) {
+        ElNotification({
+          title: '加载失败',
+          message: '没有找到对应的流程草稿',
+          type: 'error'
+        })
+        return
+      }
+      const { nodes, edges, viewport } = workflowDraft
+      const {setNodes, setEdges, setViewport} = store
+      setNodes(nodes)
+      setEdges(edges)
+      setViewport(viewport)
+    }
+    ElNotification({
+      title: '加载成功',
+      message: '加载本地成功',
+      type: 'success'
+    })
+  } catch (error) {
+    ElNotification({
+      title: '加载失败',
+      message: '加载本地失败',
       type: 'error'
     })
   }
