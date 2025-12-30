@@ -1,5 +1,7 @@
 <template>
   <div class="h-10 w-full flex items-center justify-center">
+    <el-button type="primary" @click="exportToJson">导出为 JSON</el-button>
+    <el-button type="primary" @click="importFromJson">从 JSON 导入</el-button>
     <el-button type="primary" @click="saveToLocal">保存到本地</el-button>
     <el-button type="primary" @click="loadFromLocal">从本地加载</el-button>
     <el-button type="primary" @click="debugPrint">Print Workflow Draft</el-button>
@@ -14,7 +16,7 @@ import { ElNotification } from 'element-plus'
 import { useWorkflowStartRun } from '../hooks/use-workflow-start-run'
 import { transformGraphNodesToNodes, transformGraphEdgesToEdges } from '@/components/workflow/utils'
 import { useWorkflowInstance } from '../hooks/use-workflow-instance'
-import { useVueFlow } from '@vue-flow/core'
+import { type GraphNode, type GraphEdge, type ViewportTransform, useVueFlow } from '@vue-flow/core'
 import inputsModal from '../modal/inputs/index.vue';
 import { useI18n } from 'vue-i18n'
 
@@ -112,6 +114,83 @@ const loadFromLocal = () => {
     ElNotification({
       title: '加载失败',
       message: '加载本地失败',
+      type: 'error'
+    })
+  }
+}
+
+const exportToJson = () => {
+  try {
+    const workflowDraft = {
+      nodes: transformGraphNodesToNodes(store.nodes.value),
+      edges: transformGraphEdgesToEdges(store.edges.value),
+      viewport: store.viewport.value
+    }
+    const json = JSON.stringify(workflowDraft)
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'workflow.json'
+    a.click()
+    URL.revokeObjectURL(url)
+    ElNotification({
+      title: '导出成功',
+      message: '导出成功',
+      type: 'success'
+    })
+  } catch (error) {
+    ElNotification({
+      title: '导出失败',
+      message: '导出失败',
+      type: 'error'
+    })
+  }
+}
+
+const importFromJson = () => {
+  try {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json'
+    input.click()
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.readAsText(file)
+      reader.onload = (e) => {
+        try {
+        const json = JSON.parse(e.target?.result as string) as { nodes: any[], edges: any[], viewport: any }
+        const { nodes, edges, viewport } = json
+        const { setNodes, setEdges, setViewport } = store
+        if (!nodes || !edges || !viewport) {
+          throw new Error('导入的流程草稿不合法')
+        }
+        if (!Array.isArray(nodes) || !Array.isArray(edges) || !viewport) {
+          throw new Error('导入的流程草稿不合法')
+        }
+          setNodes(nodes as GraphNode<any, any, string>[])
+          setEdges(edges as GraphEdge<any, any, string>[])
+          setViewport(viewport as ViewportTransform)
+        } catch (error) {
+          ElNotification({
+            title: '导入失败',
+            message: '导入失败',
+            type: 'error'
+          })
+        }
+      }
+      ElNotification({
+        title: '导入成功',
+        message: '导入成功',
+        type: 'success'
+      })
+    }
+  } catch (error) {
+    ElNotification({
+      title: '导入失败',
+      message: '导入失败',
       type: 'error'
     })
   }
