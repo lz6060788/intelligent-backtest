@@ -79,7 +79,6 @@
         >
           <Controller />
         </div>
-        <!-- <VueFlowControls /> -->
       </VueFlow>
       <Panel />
     </div>

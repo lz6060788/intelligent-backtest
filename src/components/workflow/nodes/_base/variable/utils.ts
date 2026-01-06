@@ -1347,7 +1347,7 @@ export const findUsedVarNodes = (
   const res: Node[] = []
   availableNodes.forEach((node) => {
     const vars = getNodeUsedVars(node)
-    if (vars.find(v => v.join('.') === varSelector.join('.'))) res.push(node)
+    if (vars.find(v => v?.join('.') === varSelector.join('.'))) res.push(node)
   })
   return res
 }
