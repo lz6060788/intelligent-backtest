@@ -28,7 +28,7 @@
       <div class="flex items-center justify-between px-4 py-2 w-full">
         <el-button
           type="primary"
-          :disabled="(workflowRunningData?.result?.status === WorkflowRunningStatus.Running)"
+          :disabled="workflowIsRunning"
           class="w-full"
           @click="doRun"
         >
@@ -57,7 +57,7 @@ import { transformGraphEdgesToEdges, transformGraphNodesToNodes } from '../../ut
 
 const { instanceId,  instance: workflowStore } = useWorkflowInstance()
 const store = useVueFlow(instanceId)
-const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
+const workflowIsRunning = computed(() => workflowStore.workflowIsRuning.value)
 
 const emit = defineEmits<{
   (e: 'run'): void

@@ -3,8 +3,8 @@
     <el-tooltip :content="t('workflow.common.undo')" placement="top">
       <div
         :class="cn(
-          'system-sm-medium flex h-8 w-8 cursor-pointer select-none items-center rounded-md px-1.5 text-text-tertiary hover:bg-state-base-hover hover:text-text-secondary',
-          (nodesReadOnly || buttonsDisabled.undo) && 'cursor-not-allowed text-text-disabled hover:bg-transparent hover:text-text-disabled'
+          'system-sm-medium flex h-8 w-8 cursor-pointer select-none items-center rounded-md px-1.5 text-white',
+          (nodesReadOnly || buttonsDisabled.undo) && 'cursor-not-allowed text-gray-400 hover:bg-transparent hover:text-text-disabled'
         )"
         @click="handleUndoClick"
       >
@@ -14,8 +14,8 @@
     <el-tooltip :content="t('workflow.common.redo')" placement="top">
       <div
         :class="cn(
-          'system-sm-medium flex h-8 w-8 cursor-pointer select-none items-center rounded-md px-1.5 text-text-tertiary hover:bg-state-base-hover hover:text-text-secondary',
-          (nodesReadOnly || buttonsDisabled.redo) && 'cursor-not-allowed text-text-disabled hover:bg-transparent hover:text-text-disabled'
+          'system-sm-medium flex h-8 w-8 cursor-pointer select-none items-center rounded-md px-1.5 text-white',
+          (nodesReadOnly || buttonsDisabled.redo) && 'cursor-not-allowed text-gray-400 hover:bg-transparent hover:text-text-disabled'
         )"
         @click="handleRedoClick"
       >

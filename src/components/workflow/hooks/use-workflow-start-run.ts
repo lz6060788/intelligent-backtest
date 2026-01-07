@@ -21,10 +21,10 @@ export const useWorkflowStartRun = (id?: string) => {
 
   const handleWorkflowStartRun = async (params: WorkflowRunParamsType) => {
     const {
-      workflowRunningData,
+      workflowIsRuning,
     } = workflowStore
 
-    if (workflowRunningData.value?.result.status === WorkflowRunningStatus.Running)
+    if (workflowIsRuning.value)
       return
 
     const startNode = nodes.value.find(node => node.data.type === BlockEnum.Start || node.data.type === BlockEnum.OperatorStart)

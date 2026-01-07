@@ -12,7 +12,7 @@ import { reactive, unref } from "vue";
 import { useVueFlow, getConnectedEdges } from "@vue-flow/core";
 import { useWorkflowInstance } from "../hooks/use-workflow-instance";
 import { cloneDeep } from "lodash-es";
-import { BlockEnum, type Edge, type Node, type OnNodeAdd } from "@/types";
+import { BlockEnum, type Edge, type GraphNode, type Node, type OnNodeAdd } from "@/types";
 import {
   CUSTOM_EDGE,
   CUSTOM_LOOP_START_NODE,
@@ -48,8 +48,9 @@ import { CUSTOM_ITERATION_START_NODE } from "../nodes/iteration-start/constants"
 import { useNodeIterationInteractions } from "../nodes/iteration/use-interactions";
 import type { IterationNodeType } from "../nodes/iteration/types";
 import { useEdgeInteractions } from ".";
-import { VALID_NODE_IN_LOOP_OR_ITERATION } from "../constant";
+import { ITERATION_PADDING, LOOP_PADDING, VALID_NODE_IN_LOOP_OR_ITERATION } from "../constant";
 import { ElMessageBox } from "element-plus";
+import type { ResizeParamsWithDirection } from "@vue-flow/node-resizer";
 
 export const useNodesInteractions = (id?: string) => {
   const t = i18n.global.t;
@@ -1457,6 +1458,11 @@ export const useNodesInteractions = (id?: string) => {
     }
   };
 
+  const handleNodeResize = (nodeId: string) => {
+    // handleSyncWorkflowDraft()
+    saveStateToHistory(WorkflowHistoryEvent.NodeResize, { nodeId })
+  }
+
   return {
     handleNodeClick,
     handleNodeDragStart,
@@ -1481,5 +1487,6 @@ export const useNodesInteractions = (id?: string) => {
     handleHistoryBack,
     handleHistoryForward,
     handleMoveNodeToParent,
+    handleNodeResize
   };
 };

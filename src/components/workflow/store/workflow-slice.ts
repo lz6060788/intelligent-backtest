@@ -15,8 +15,10 @@ type PreviewRunningData = WorkflowRunningData & {
 export type WorkflowSliceShape = {
   workflowIsCalculator: Ref<boolean>
   setWorkflowIsCalculator: (workflowIsCalculator: boolean) => void
-  workflowRunningData: Ref<WorkflowRunningData | undefined>
-  setWorkflowRunningData: (workflowData?: WorkflowRunningData) => void
+  // workflowRunningData: Ref<WorkflowRunningData | undefined>
+  // setWorkflowRunningData: (workflowData?: WorkflowRunningData) => void
+  workflowIsRuning: Ref<boolean>
+  setWorkflowIsRunning: (status: boolean) => void
   clipboardElements: Ref<Node[]>
   setClipboardElements: (clipboardElements: Node[]) => void
   selection: Ref<null | { x1: number; y1: number; x2: number; y2: number }>
@@ -40,8 +42,10 @@ export type WorkflowSliceShape = {
 export const createWorkflowSlice = () => {
   const workflowIsCalculator = ref<boolean>(false);
   const setWorkflowIsCalculator = (val: boolean) => workflowIsCalculator.value = val;
-  const workflowRunningData = ref<WorkflowRunningData | undefined>();
-  const setWorkflowRunningData = (val?: WorkflowRunningData) => workflowRunningData.value = val;
+  const workflowIsRuning = ref(false);
+  const setWorkflowIsRunning = (status: boolean) => workflowIsRuning.value = status;
+  // const workflowRunningData = ref<WorkflowRunningData | undefined>();
+  // const setWorkflowRunningData = (val?: WorkflowRunningData) => workflowRunningData.value = val;
   const clipboardElements = ref<Node[]>([]);
   const setClipboardElements = (val: Node[]) => clipboardElements.value = val;
   const selection = ref<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
@@ -66,8 +70,8 @@ export const createWorkflowSlice = () => {
   return {
     workflowIsCalculator,
     setWorkflowIsCalculator,
-    workflowRunningData,
-    setWorkflowRunningData,
+    workflowIsRuning,
+    setWorkflowIsRunning,
     clipboardElements,
     setClipboardElements,
     selection,

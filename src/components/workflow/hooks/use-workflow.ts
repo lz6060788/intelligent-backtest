@@ -376,31 +376,31 @@ export const useWorkflow = (id?: string) => {
 
 export const useWorkflowReadOnly = (id?: string) => {
   const { instance:workflowStore } = useWorkflowInstance(id)
-  const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
+  const isRunning = computed(() => workflowStore.workflowIsRuning.value)
 
   const getWorkflowReadOnly = () => {
-    return workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running
+    return isRunning.value
   }
 
   return {
-    workflowReadOnly: workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running,
+    workflowReadOnly: isRunning.value,
     getWorkflowReadOnly,
   }
 }
 
 export const useNodesReadOnly = (id?: string) => {
   const { instance: workflowStore } = useWorkflowInstance(id)
-  const workflowRunningData = computed(() => workflowStore.workflowRunningData.value)
+  const isRunning = computed(() => workflowStore.workflowIsRuning.value)
   // const historyWorkflowData = workflowStore.historyWorkflowData
   // const isRestoring = workflowStore.isRestoring
 
   const getNodesReadOnly = () => {
-    return workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running
+    return isRunning.value
     // return workflowRunningData.value?.result.status === WorkflowRunningStatus.Running || historyWorkflowData.value || isRestoring.value
   }
 
   return {
-    nodesReadOnly: !!(workflowRunningData.value?.result?.status === WorkflowRunningStatus.Running),
+    nodesReadOnly: !!(isRunning.value),
     // nodesReadOnly: !!(workflowRunningData.value?.result.status === WorkflowRunningStatus.Running || historyWorkflowData.value || isRestoring.value),
     getNodesReadOnly,
   }

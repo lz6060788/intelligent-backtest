@@ -35,7 +35,7 @@ export const useWorkflowInteractions = (id?: string) => {
 
   const handleCancelDebugAndPreviewPanel = () => {
     workflowStore.setShowDebugAndPreviewPanel(false)
-    workflowStore.setWorkflowRunningData(undefined)
+    workflowStore.setWorkflowIsRunning(false)
     handleNodeCancelRunningStatus()
     handleEdgeCancelRunningStatus()
   }
@@ -225,8 +225,8 @@ export const useWorkflowOrganize = (id?: string) => {
 
 export const useWorkflowZoom = (id?: string) => {
   // const { handleSyncWorkflowDraft } = useNodesSyncDraft()
+  const { instanceId } = useWorkflowInstance(id)
   const { getWorkflowReadOnly } = useWorkflowReadOnly(instanceId)
-  const { instanceId } = useWorkflowInstance()
   const {
     zoomIn,
     zoomOut,

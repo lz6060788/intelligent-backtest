@@ -5,7 +5,7 @@
     <el-button type="primary" @click="saveToLocal">保存到本地</el-button>
     <el-button type="primary" @click="loadFromLocal">从本地加载</el-button>
     <el-button type="primary" @click="debugPrint">Print Workflow Draft</el-button>
-    <el-button type="primary" @click="runWorkflow">{{ t('workflow.singleRun.startRun') }}</el-button>
+    <el-button type="primary" @click="runWorkflow" :loading="workflowIsRunning">{{ t('workflow.singleRun.startRun') }}</el-button>
   </div>
   <inputsModal v-if="showInputsPanel" @close="setShowInputsPanel(false)"></inputsModal>
 </template>
@@ -25,6 +25,7 @@ const { t } = useI18n()
 const { instanceId,  instance: workflowStore } = useWorkflowInstance()
 const showInputsPanel = computed(() => workflowStore.showInputsPanel.value)
 const { setShowInputsPanel } = workflowStore
+const workflowIsRunning = computed(() => workflowStore.workflowIsRuning.value)
 
 const store = useVueFlow(instanceId)
 

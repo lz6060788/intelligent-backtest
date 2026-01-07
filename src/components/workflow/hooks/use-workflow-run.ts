@@ -4,6 +4,8 @@ import {
 import { useWorkflowInstance } from './use-workflow-instance'
 import { useNodesSyncDraft } from './use-nodes-sync-draft'
 import { api } from '@/api'
+import { ElMessageBox } from 'element-plus'
+import { WorkflowRunningStatus } from '@/types/workflow'
 
 export const useWorkflowRun = (id?: string) => {
   const { instanceId, instance: workflowStore } = useWorkflowInstance(id)
@@ -25,7 +27,15 @@ export const useWorkflowRun = (id?: string) => {
     })
     await doSyncWorkflowDraft()
 
-    return await api.workflow.run(params)
+    workflowStore.setWorkflowIsRunning(true)
+    const res = await api.workflow.run(params)
+    workflowStore.setWorkflowIsRunning(false)
+    ElMessageBox.alert(JSON.stringify(res), '运行结果', {
+      showConfirmButton: false,
+      showCancelButton: false,
+      type: 'success',
+    })
+    return res
   }
 
   const handleStopRun = async (taskId: string) => {
