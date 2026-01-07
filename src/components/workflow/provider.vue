@@ -105,6 +105,7 @@ import { Background } from "@vue-flow/background";
 // import { Controls as VueFlowControls } from '@vue-flow/controls'
 import Operator from "./operator/index.vue";
 import "@vue-flow/controls/dist/style.css";
+import "@vue-flow/node-resizer/dist/style.css";
 import customNode from "./nodes/index.vue";
 import customEdge from "./edge/index.vue";
 import customLoopStartNode from "./nodes/loop-start/index.vue";

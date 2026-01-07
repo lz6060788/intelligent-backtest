@@ -346,6 +346,7 @@ declare module 'vue' {
     NodeControl: typeof import('./src/components/workflow/nodes/_base/node-control/index.vue')['default']
     NodeGroupItem: typeof import('./src/components/workflow/nodes/variable-assigner/components/node-group-item.vue')['default']
     NodePosition: typeof import('./src/components/workflow/nodes/_base/node-position/index.vue')['default']
+    NodeResizer: typeof import('./src/components/workflow/nodes/_base/node-resizer/index.vue')['default']
     Nodes: typeof import('./src/components/workflow/nodes/index.vue')['default']
     NodeVariableItem: typeof import('./src/components/workflow/nodes/variable-assigner/components/node-variable-item.vue')['default']
     Notion: typeof import('./src/components/base/icons/src/public/common/Notion.vue')['default']

@@ -33,6 +33,12 @@
     >
       松开鼠标拖入该节点
     </div>
+    <NodeResizer
+      v-if="data.type === BlockEnum.Iteration || data.type === BlockEnum.Loop"
+      :node-id="id"
+      :node-data="data"
+    >
+    </NodeResizer>
   </div>
 </template>
 
@@ -49,6 +55,7 @@ import { useNodeLoopInteractions } from '../../loop/use-interactions'
 import cn from '@/utils/classnames'
 import { useNodeIterationInteractions } from '../../iteration/use-interactions';
 import { WILL_DRAG_ENTER_MASK_Z_INDEX } from '../../../constant/nodes';
+import NodeResizer from '../node-resizer/index.vue'
 
 const { handleNodeLoopChildSizeChange } = useNodeLoopInteractions()
 
