@@ -44,7 +44,7 @@ import {
   Loop,
   LoopEnd,
   VariableX,
-  Iteration
+  Iteration,
 } from '@/components/base/icons/src/vender/workflow/index'
 // import AppIcon from '@/app/components/base/app-icon'
 
@@ -83,6 +83,7 @@ const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
   [BlockEnum.Backtest]: 'bg-blue-4',
   [BlockEnum.OperatorOverview]: 'bg-blue-4',
   [BlockEnum.OperatorEnd]: 'bg-blue-4',
+  [BlockEnum.Search]: 'bg-blue-4',
 }
 
 const iconComponentMap = {
@@ -103,6 +104,7 @@ const iconComponentMap = {
   [BlockEnum.OperatorOverview]: VariableX,
   [BlockEnum.OperatorEnd]: End,
   [BlockEnum.Iteration]: Iteration,
+  [BlockEnum.Search]: Http,
 }
 
 // 计算属性

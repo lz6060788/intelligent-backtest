@@ -565,20 +565,19 @@ export const useFunctionCall = (
       },
       operator_graph_id: 1
     }
-
     try {
       const res = await api.workflow.graph2graph(params)
+      const graph = res.response.response.response.graph;
+      if (!graph.nodes.length) {
+        throw new Error('No nodes found in the graph')
+      }
+      setNodes(graph.nodes as GraphNode[]);
+      setEdges(graph.edges as GraphEdge[]);
+      setViewport(graph.viewport as ViewportTransform);
+      return '算子流更新成功'
     } catch (error) {
       throw new Error('算子流更新服务调用失败：' + (error as Error).message)
     }
-    const graph = res.response.response.response.graph;
-    if (!graph.nodes.length) {
-      throw new Error('No nodes found in the graph')
-    }
-    setNodes(graph.nodes as GraphNode[]);
-    setEdges(graph.edges as GraphEdge[]);
-    setViewport(graph.viewport as ViewportTransform);
-    return '算子流更新成功'
     // const { handleUpdateCalculatorGraph } = useCalculatorGraph(payload.value.workflowId);
     // return handleUpdateCalculatorGraph(instruction);
   };

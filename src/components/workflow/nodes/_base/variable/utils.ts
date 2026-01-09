@@ -16,6 +16,7 @@ export type SchemaTypeDefinition = {
 import {
   BlockEnum,
   InputVarType,
+  ValueType,
   VarType,
 } from '@/types'
 import type { StartNodeType } from '@/components/workflow/nodes/start/types'
@@ -39,6 +40,7 @@ import {
   HTTP_REQUEST_OUTPUT_STRUCT,
   LLM_OUTPUT_STRUCT,
   OUTPUT_FILE_SUB_VARIABLES,
+  SEARCH_OUTPUT_STRUCT,
   SUPPORT_OUTPUT_VARS_NODE,
 } from '@/components/workflow/constant'
 import { VAR_REGEX } from '@/config'
@@ -54,6 +56,7 @@ import type { EndNodeType } from '../../end/types'
 import type { OperatorOverviewNodeType } from '../../operator-overview/types'
 import { getOutputVars, transformVarType } from '../../operator-end/utils'
 import type { IterationNodeType } from '../../iteration/types'
+import type { SearchNodeType } from '../../search/types'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
@@ -531,6 +534,11 @@ const formatItem = (
 
     case BlockEnum.Backtest: {
       res.vars = BACKTEST_OUTPUT_STRUCT
+      break
+    }
+
+    case BlockEnum.Search: {
+      res.vars = SEARCH_OUTPUT_STRUCT
       break
     }
 
@@ -1262,6 +1270,19 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       })
       break
     }
+
+    case BlockEnum.Search: {
+      res = []
+      for (const item of (data as SearchNodeType).retrieve_params.items) {
+        if (item.search_query.type === ValueType.variable && item.search_query.value.length)
+          res.push(item.search_query.value as ValueSelector)
+        if (item.start_date.type === ValueType.variable && item.start_date.value.length)
+          res.push(item.start_date.value as ValueSelector)
+        if (item.end_date.type === ValueType.variable && item.end_date.value.length)
+          res.push(item.end_date.value as ValueSelector)
+      }
+      break
+    }
   }
   return res || []
 }
@@ -1574,6 +1595,28 @@ export const updateNodeVars = (
           return v
         })
       }
+      break
+    }
+    case BlockEnum.Search: {
+      const payload = data as SearchNodeType
+      if (payload.retrieve_params.items) {
+        payload.retrieve_params.items = payload.retrieve_params.items.map((item) => {
+          if (item.search_query.type === ValueType.variable
+            && (item.search_query.value as ValueSelector).join('.') === oldVarSelector.join('.')
+          )
+            item.search_query.value = newVarSelector
+          if (item.start_date.type === ValueType.variable
+            && (item.start_date.value as ValueSelector).join('.') === oldVarSelector.join('.')
+          )
+            item.start_date.value = newVarSelector
+          if (item.end_date.type === ValueType.variable
+            && (item.end_date.value as ValueSelector).join('.') === oldVarSelector.join('.')
+          )
+            item.end_date.value = newVarSelector
+          return item
+        })
+      }
+      break
     }
   }
   return newNode
@@ -1728,6 +1771,11 @@ export const getNodeOutputVars = (
 
     case BlockEnum.Backtest: {
       varsToValueSelectorList(BACKTEST_OUTPUT_STRUCT, [id], res)
+      break
+    }
+
+    case BlockEnum.Search: {
+      varsToValueSelectorList(SEARCH_OUTPUT_STRUCT, [id], res)
       break
     }
   }

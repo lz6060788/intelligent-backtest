@@ -25,6 +25,7 @@ import OperatorStartNode from './operator-start/index.vue';
 import OperatorEndNode from './operator-end/index.vue';
 import OperatorOverviewNode from './operator-overview/index.vue';
 import BacktestNode from './backtest/index.vue';
+import SearchNode from './search/index.vue';
 import { BlockEnum, type NodeProps } from '@/types/node';
 import BaseNode from './_base/node/index.vue'
 
@@ -43,7 +44,8 @@ const NodeComponentMap = {
   [BlockEnum.OperatorStart]: OperatorStartNode,
   [BlockEnum.OperatorEnd]: OperatorEndNode,
   [BlockEnum.OperatorOverview]: OperatorOverviewNode,
-  [BlockEnum.Backtest]: BacktestNode
+  [BlockEnum.Backtest]: BacktestNode,
+  [BlockEnum.Search]: SearchNode,
 } as const
 
 // 声明组件接收的 props

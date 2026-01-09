@@ -275,6 +275,7 @@ const translation = {
     'backtest': 'Backtest',
     'operator-overview': 'Operator Overview',
     'operator-end': 'Operator End',
+    'search': 'Search',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',
@@ -306,6 +307,7 @@ const translation = {
     'operator-overview': 'Operator Overview About',
     'backtest': 'Operator Backtest About',
     'operator-end': 'Operator End About',
+    'search': 'Search About',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -1045,6 +1047,8 @@ const translation = {
       },
       outputDescribe: 'Backtest Result',
     },
+    search: {
+    }
   },
   tracing: {
     stopBy: 'Stop by {{user}}',

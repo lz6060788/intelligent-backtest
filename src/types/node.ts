@@ -29,6 +29,7 @@ export const enum BlockEnum {
   OperatorOverview = 'operator-overview',
   OperatorEnd = 'operator-end',
   Tool = 'tool',
+  Search = 'search'
 }
 
 export type Branch = {

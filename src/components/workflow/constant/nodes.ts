@@ -15,6 +15,7 @@ import operatorOverviewDefault from '@/components/workflow/nodes/operator-overvi
 import operatorEndDefault from '@/components/workflow/nodes/operator-end/default';
 import iterationStartDefault from '@/components/workflow/nodes/iteration-start/default';
 import iterationDefault from '@/components/workflow/nodes/iteration/default';
+import searchDefault from '@/components/workflow/nodes/search/default';
 import { TransferMethod } from '@/types'
 import type { NodeDefault, Var } from '@/types'
 import { BlockEnum, VarType } from '@/types'
@@ -38,6 +39,7 @@ export const WORKFLOW_COMMON_NODES = [
   operatorEndDefault,
   iterationStartDefault,
   iterationDefault,
+  searchDefault,
 ] as NodeDefault[]
 
 
@@ -210,6 +212,13 @@ export const TOOL_OUTPUT_STRUCT: Var[] = [
 export const BACKTEST_OUTPUT_STRUCT: Var[] = [
   {
     variable: 'result',
+    type: VarType.object,
+  },
+]
+
+export const SEARCH_OUTPUT_STRUCT: Var[] = [
+  {
+    variable: 'output',
     type: VarType.object,
   },
 ]
