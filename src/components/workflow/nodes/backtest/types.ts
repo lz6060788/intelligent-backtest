@@ -29,8 +29,37 @@ export type RiskControl = {
   };
 }
 
+export const enum TickerPickerMode {
+  ticker = 'ticker',
+  pool = 'pool'
+}
+
+export const enum PoolTypeEnum {
+  preset = 'preset',
+  custom = 'custom'
+}
+
+export type PoolPresetConfig = {
+  preset_code: string[]
+}
+
+export const enum PoolSourceType {
+  manual_list = 'manual_list',
+  variable_ref = 'variable_ref'
+}
+
+export type PoolCustomConfig = {
+  source_type: PoolSourceType;
+  tickers: string[];
+  reference_path: ValueSelector[];
+}
+
 export type BacktestNodeType = CommonNodeType & {
-  ticker: string;
+  ticker: {
+    pool_type: PoolTypeEnum;
+    preset_config: PoolPresetConfig;
+    custom_config: PoolCustomConfig;
+  };
   start_date: string;
   end_date: string;
   price_type: PriceType;

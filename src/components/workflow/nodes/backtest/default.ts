@@ -1,5 +1,5 @@
 import type { NodeDefault } from '@/types'
-import { PriceType, type BacktestNodeType } from './types.ts'
+import { PoolSourceType, PoolTypeEnum, PriceType, TickerPickerMode, type BacktestNodeType } from './types.ts'
 import { genNodeMetaData } from '@/components/workflow/utils'
 import { BlockEnum, VarType } from '@/types'
 
@@ -11,14 +11,24 @@ const metaData = genNodeMetaData({
 const nodeDefault: NodeDefault<BacktestNodeType> = {
   metaData,
   defaultValue: {
-    ticker: '300033.SZ',
+    ticker: {
+      pool_type: PoolTypeEnum.preset,
+      preset_config: {
+        preset_code: []
+      },
+      custom_config: {
+        source_type: PoolSourceType.manual_list,
+        tickers: [],
+        reference_path: []
+      },
+    },
     start_date: '2025-01-01',
     end_date: '2025-12-17',
     price_type: PriceType.CLOSE,
     execution_signals: {
       open: {
-        isManual: true,
-        value: ['20251216', '20251214'],
+        isManual: false,
+        value: [],
       },
       close: {
         isManual: false,

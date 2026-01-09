@@ -24,7 +24,7 @@ export const WORKFLOW_COMMON_NODES = [
   startDefault,
   ifElseDefault,
   codeDefault,
-  httpDefault,
+  // httpDefault,
   loopStartDefault,
   loopDefault,
   loopEndDefault,

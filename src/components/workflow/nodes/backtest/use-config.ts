@@ -1,12 +1,12 @@
 import { PriceType } from './types'
-import type { BacktestNodeType, RiskControl, SignalVariable } from './types'
+import type { BacktestNodeType, PoolPresetConfig, PoolSourceType, PoolTypeEnum, RiskControl, SignalVariable, TickerPickerMode } from './types'
 import type { ValueSelector, Var } from '@/types'
 import useNodeCrud from '@/components/workflow/nodes/_base/hooks/use-node-crud.ts'
 import {
   useNodesReadOnly,
   useWorkflow,
 } from '@/components/workflow/hooks'
-import { computed, ref, type Ref } from 'vue'
+import { computed, onMounted, ref, type Ref } from 'vue'
 import { cloneDeep } from 'lodash-es'
 
 const useConfig = (id: string, payload: Ref<BacktestNodeType>) => {
@@ -15,9 +15,51 @@ const useConfig = (id: string, payload: Ref<BacktestNodeType>) => {
   const { setInputs } = useNodeCrud<BacktestNodeType>(id)
   const inputs = computed(() => payload.value)
 
-  const updateTicker = (ticker: string) => {
+  onMounted(() => {
+    inputs.value.ticker.custom_config.reference_path.filter(item => item.length === 0)
+  })
+
+  const updatePoolType = (poolType: PoolTypeEnum) => {
     const newInputs = cloneDeep(inputs.value)
-    newInputs.ticker = ticker
+    newInputs.ticker.pool_type = poolType
+    setInputs(newInputs)
+  }
+
+  const updatePresetCode = (preset_code: string[]) => {
+    const newInputs = cloneDeep(inputs.value)
+    newInputs.ticker.preset_config = {
+      preset_code,
+    }
+    setInputs(newInputs)
+  }
+
+  const updateCustomPoolSourceType = (source_type: PoolSourceType) => {
+    const newInputs = cloneDeep(inputs.value)
+    newInputs.ticker.custom_config.source_type = source_type
+    setInputs(newInputs)
+  }
+
+  const updateCustomPoolTickers = (tickers: string[]) => {
+    const newInputs = cloneDeep(inputs.value)
+    newInputs.ticker.custom_config.tickers = tickers
+    setInputs(newInputs)
+  }
+
+  const addCustomPoolReferencePath = () => {
+    const newInputs = cloneDeep(inputs.value)
+    newInputs.ticker.custom_config.reference_path.push([])
+    setInputs(newInputs)
+  }
+
+  const updateCustomPoolReferencePath = (index: number, reference_path: ValueSelector) => {
+    const newInputs = cloneDeep(inputs.value)
+    newInputs.ticker.custom_config.reference_path[index] = reference_path
+    setInputs(newInputs)
+  }
+
+  const removeCustomPoolReferencePath = (index: number) => {
+    const newInputs = cloneDeep(inputs.value)
+    newInputs.ticker.custom_config.reference_path.splice(index, 1)
     setInputs(newInputs)
   }
 
@@ -56,13 +98,18 @@ const useConfig = (id: string, payload: Ref<BacktestNodeType>) => {
   return {
     readOnly,
     inputs,
-    updateTicker,
+    updatePoolType,
+    updatePresetCode,
+    updateCustomPoolSourceType,
+    updateCustomPoolTickers,
+    addCustomPoolReferencePath,
+    updateCustomPoolReferencePath,
+    removeCustomPoolReferencePath,
     updateStartDate,
     updateEndDate,
     updatePriceType,
     updateExecutionSignals,
     updateRiskControl,
-    // updateOutput,
   }
 }
 
