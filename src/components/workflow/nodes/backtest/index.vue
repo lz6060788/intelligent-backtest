@@ -1,17 +1,16 @@
 <template>
-  <div v-if="data.ticker" class='mb-1 py-1 w-64'>
+  <div v-if="tickerCode" class='mb-1 py-1 w-64'>
     <div class='flex justify-start items-center rounded-md p-1'>
       <div class='flex h-4 shrink-0 items-center rounded px-1 text-xs font-semibold uppercase text-text-secondary mr-1'>{{ t(`${i18nPrefix}.ticker`) }}</div>
       <span class="bg-gray-700 rounded-md px-2" v-if="data.ticker.pool_type !== PoolTypeEnum.custom || data.ticker.custom_config.source_type !== PoolSourceType.variable_ref">
         {{ tickerCode }}
       </span>
       <template v-else>
-        <div class="space-y-1">          <VariableLabelInNode
-            v-for="(variable, index) in tickerCode"
-            :key="index"
-            :variables="variable || []"
-            :node-type="getNodeForVariable(variable as ValueSelector)?.data.type"
-            :node-title="getNodeForVariable(variable as ValueSelector)?.data.title"
+        <div class="space-y-1">
+          <VariableLabelInNode
+            :variables="tickerCode as string[] || []"
+            :node-type="getNodeForVariable(tickerCode as ValueSelector)?.data.type"
+            :node-title="getNodeForVariable(tickerCode as ValueSelector)?.data.title"
             :is-exception-variable="false"
             />
         </div>
@@ -27,6 +26,9 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import { isSystemVar } from '../_base/variable/utils'
+import {
+  VariableLabelInNode,
+} from '@/components/workflow/nodes/_base/variable/variable-label'
 
 const i18nPrefix = 'workflow.nodes.backtest'
 

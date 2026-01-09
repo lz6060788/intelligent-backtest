@@ -13,7 +13,7 @@
     <template v-if="payload.ticker.pool_type === PoolTypeEnum.preset">
       <Field class-name="mb-2">
         <template #title>
-          <div class="pl-3">{{ t(`${i18nPrefix}.ticker`) }}</div>
+          <div class="pl-3">标的池选择</div>
         </template>
         <div class="px-4">
           <el-select
@@ -23,7 +23,7 @@
             collapse-tags-tooltip
             :max-collapse-tags="3"
             :model-value="payload.ticker.preset_config.preset_code"
-            :placeholder="t(`${i18nPrefix}.price_typePlaceholder`)"
+            :placeholder="t(`${i18nPrefix}.tickerPlaceholder`)"
             @update:model-value="updatePresetCode"
           >
             <el-option v-for="item in presetCodeOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -37,7 +37,7 @@
           <div class="pl-3">标的来源</div>
         </template>
         <div class="px-4">
-          <el-select :disabled="readOnly" :model-value="payload.ticker.custom_config.source_type" :placeholder="t(`${i18nPrefix}.price_typePlaceholder`)" @update:model-value="updateCustomPoolSourceType">
+          <el-select :disabled="readOnly" :model-value="payload.ticker.custom_config.source_type" :placeholder="t(`${i18nPrefix}.tickerPlaceholder`)" @update:model-value="updateCustomPoolSourceType">
             <el-option v-for="item in tickerSourceOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
@@ -62,37 +62,21 @@
         <template #title>
           <div class="pl-3">{{ t(`${i18nPrefix}.ticker`) }}</div>
         </template>
-        <template #operations>
-          <div v-if="!readOnly" class="flex gap-2 pr-4">
-            <AddButton @click="addCustomPoolReferencePath" />
-          </div>
-        </template>
         <div class="px-4">
           <div class="space-y-2">
-            <div
-              v-for="(variable, index) in payload.ticker.custom_config.reference_path"
-              :key="index"
-              class="group relative flex items-center space-x-1 max-w-full"
-            >
-              <VarReferencePicker
-                :node-id="id"
-                :readonly="readOnly"
-                :is-show-node-name="true"
-                class="grow overflow-hidden"
-                :value="variable"
-                :is-support-constant-value="false"
-                :default-var-kind-type="VarKindType.variable"
-                :only-leaf-node-var="false"
-                :filter-var="filterVar"
-                :is-support-file-var="false"
-                @change="(value: ValueSelector) => updateCustomPoolReferencePath(index, value)"
-              />
-              <RemoveButton
-                v-if="!readOnly && index > 0"
-                @click="removeCustomPoolReferencePath(index)"
-                class="shrink-0"
-              />
-            </div>
+            <VarReferencePicker
+              :node-id="id"
+              :readonly="readOnly"
+              :is-show-node-name="true"
+              class="grow overflow-hidden"
+              :value="payload.ticker.custom_config.reference_path"
+              :is-support-constant-value="false"
+              :default-var-kind-type="VarKindType.variable"
+              :only-leaf-node-var="false"
+              :filter-var="filterVar"
+              :is-support-file-var="false"
+              @change="(value: ValueSelector) => updateCustomPoolReferencePath(value)"
+            />
           </div>
         </div>
       </Field>
@@ -181,11 +165,11 @@ const { t } = useI18n()
 
 const tickerPoolTypeOptions = [
   {
-    label: '预设',
+    label: '预设标的池',
     value: PoolTypeEnum.preset,
   },
   {
-    label: '自定义',
+    label: '固定标的池',
     value: PoolTypeEnum.custom,
   },
 ]
@@ -220,7 +204,7 @@ const priceTypeOptions = [
 ]
 
 const filterVar = (varPayload: Var) => {
-  return varPayload.type === VarType.string
+  return varPayload.type === VarType.arrayString
 }
 
 const {
@@ -228,9 +212,7 @@ const {
   updatePoolType,
   updateCustomPoolTickers,
   updateCustomPoolSourceType,
-  addCustomPoolReferencePath,
   updateCustomPoolReferencePath,
-  removeCustomPoolReferencePath,
   updatePresetCode,
   updateStartDate,
   updateEndDate,

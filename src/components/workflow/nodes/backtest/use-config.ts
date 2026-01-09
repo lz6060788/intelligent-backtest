@@ -15,10 +15,6 @@ const useConfig = (id: string, payload: Ref<BacktestNodeType>) => {
   const { setInputs } = useNodeCrud<BacktestNodeType>(id)
   const inputs = computed(() => payload.value)
 
-  onMounted(() => {
-    inputs.value.ticker.custom_config.reference_path.filter(item => item.length === 0)
-  })
-
   const updatePoolType = (poolType: PoolTypeEnum) => {
     const newInputs = cloneDeep(inputs.value)
     newInputs.ticker.pool_type = poolType
@@ -45,21 +41,9 @@ const useConfig = (id: string, payload: Ref<BacktestNodeType>) => {
     setInputs(newInputs)
   }
 
-  const addCustomPoolReferencePath = () => {
+  const updateCustomPoolReferencePath = (reference_path: ValueSelector) => {
     const newInputs = cloneDeep(inputs.value)
-    newInputs.ticker.custom_config.reference_path.push([])
-    setInputs(newInputs)
-  }
-
-  const updateCustomPoolReferencePath = (index: number, reference_path: ValueSelector) => {
-    const newInputs = cloneDeep(inputs.value)
-    newInputs.ticker.custom_config.reference_path[index] = reference_path
-    setInputs(newInputs)
-  }
-
-  const removeCustomPoolReferencePath = (index: number) => {
-    const newInputs = cloneDeep(inputs.value)
-    newInputs.ticker.custom_config.reference_path.splice(index, 1)
+    newInputs.ticker.custom_config.reference_path = reference_path
     setInputs(newInputs)
   }
 
@@ -102,9 +86,7 @@ const useConfig = (id: string, payload: Ref<BacktestNodeType>) => {
     updatePresetCode,
     updateCustomPoolSourceType,
     updateCustomPoolTickers,
-    addCustomPoolReferencePath,
     updateCustomPoolReferencePath,
-    removeCustomPoolReferencePath,
     updateStartDate,
     updateEndDate,
     updatePriceType,

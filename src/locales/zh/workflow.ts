@@ -1013,8 +1013,8 @@ const translation = {
       noInputVars: '暂未设置输入变量',
     },
     backtest: {
-      ticker: '股票代码',
-      tickerPlaceholder: '输入股票代码',
+      ticker: '标的列表',
+      tickerPlaceholder: '输入或选择标的列表',
       start_date: '开始日期',
       end_date: '结束日期',
       price_type: '价格类型',

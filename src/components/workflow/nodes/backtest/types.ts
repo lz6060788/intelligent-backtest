@@ -51,7 +51,7 @@ export const enum PoolSourceType {
 export type PoolCustomConfig = {
   source_type: PoolSourceType;
   tickers: string[];
-  reference_path: ValueSelector[];
+  reference_path: ValueSelector;
 }
 
 export type BacktestNodeType = CommonNodeType & {
