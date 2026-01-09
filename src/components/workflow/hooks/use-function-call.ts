@@ -6,12 +6,12 @@ import {
   useWorkflowStartRun,
   useWorkflowOrganize,
 } from ".";
-import { getConnectedEdges, useVueFlow, type Connection } from "@vue-flow/core";
+import { getConnectedEdges, useVueFlow, type Connection, type GraphEdge, type ViewportTransform } from "@vue-flow/core";
 import type {
   CallExternalCapabilitiesTool,
   FunctionCallContext,
 } from "@/components/aime/type";
-import { BlockEnum } from "@/types";
+import { BlockEnum, type GraphNode } from "@/types";
 import { unref, type Ref } from "vue";
 import { MAIN_WORKFLOW_APP_ID } from "@/components/workflow-app/constant";
 import { useWorkflowAppStore } from "@/components/workflow-app/store";
@@ -20,6 +20,7 @@ import {
   transformGraphEdgesToEdges,
 } from "../utils";
 import { useNodeLoopInteractions } from "../nodes/loop/use-interactions";
+import { api } from '@/api'
 
 export const enum FunctionCallName {
   GetWorkflowInfo = "get_workflow_info",
@@ -32,6 +33,7 @@ export const enum FunctionCallName {
   WorkflowTabAction = "workflow_tab_action",
   RunWorkflow = "run_workflow",
   BeautifyWorkflow = "beautify_workflow",
+  UpdateCalculatorGraph = "operator_tab_replace",
   // ConnectNode = 'connectNode',
   // DeleteEdge = 'DeleteEdge',
 }
@@ -340,6 +342,28 @@ export const useFunctionCall = (
       },
       tool_id: "456",
     },
+    // update_calculator_graph
+    {
+      type: "function",
+      function: {
+        name: FunctionCallName.UpdateCalculatorGraph,
+        description: "用于整体替换 `operator` tab 画布中的 flow 结构（包括 node 与 edge）。`operator` tab 为 `operator-overview` 的子画布，仅允许使用 `operator` 类型节点构建算子标准化流程。该工具支持 `agent` 与 `tool` 之间的上下文管理，可针对同一 `operator` tab 进行多次连续调整与微调。调用后将直接覆盖当前画布中的全部 node 和 edge，并返回执行结果。",
+        parameters: {
+            type: "object",
+            properties: {
+                instruction: {
+                    type: "string",
+                    description: "用于描述如何更新 `operator` 画布的自然语言指令"
+                }
+            },
+            required: [
+                "instruction"
+            ],
+            additionalProperties: false
+        }
+      },
+      tool_id: "456",
+    },
   ] as const satisfies CallExternalCapabilitiesTool[];
 
   /** 查询画布数据具体方法，会过滤算子概览节点数据 */
@@ -520,6 +544,45 @@ export const useFunctionCall = (
     return handleLayout();
   };
 
+  const callUpdateCalculatorGraph = async ({ instruction }: { instruction: string }) => {
+    const { activeWorkflow } = useWorkflowAppStore();
+    if (!activeWorkflow) {
+      throw new Error('No active workflow found')
+    }
+    if (!activeWorkflow.isOperator) {
+      throw new Error('Active workflow is not an operator workflow')
+    }
+    const store = useVueFlow(payload.value.workflowId);
+    const { nodes, edges, viewport, setNodes, setEdges, setViewport } = store;
+    const params = {
+      instruction,
+      current_graph: {
+        graph: {
+          nodes: transformGraphNodesToNodes(nodes.value),
+          edges: transformGraphEdgesToEdges(edges.value),
+          viewport
+        }
+      },
+      operator_graph_id: 1
+    }
+
+    try {
+      const res = await api.workflow.graph2graph(params)
+    } catch (error) {
+      throw new Error('算子流更新服务调用失败：' + (error as Error).message)
+    }
+    const graph = res.response.response.response.graph;
+    if (!graph.nodes.length) {
+      throw new Error('No nodes found in the graph')
+    }
+    setNodes(graph.nodes as GraphNode[]);
+    setEdges(graph.edges as GraphEdge[]);
+    setViewport(graph.viewport as ViewportTransform);
+    return '算子流更新成功'
+    // const { handleUpdateCalculatorGraph } = useCalculatorGraph(payload.value.workflowId);
+    // return handleUpdateCalculatorGraph(instruction);
+  };
+
   const functionCallMap = {
     [FunctionCallName.GetWorkflowInfo]: callGetWorkflowInfo,
     [FunctionCallName.GetNodesInfo]: callGetNodesInfo,
@@ -531,6 +594,7 @@ export const useFunctionCall = (
     [FunctionCallName.WorkflowTabAction]: callWorkflowTabAction,
     [FunctionCallName.RunWorkflow]: callRunWorkflow,
     [FunctionCallName.BeautifyWorkflow]: callBeautifyWorkflow,
+    [FunctionCallName.UpdateCalculatorGraph]: callUpdateCalculatorGraph,
     // [FunctionCallName.ConnectNode]: callConnectNode,
     // [FunctionCallName.DeleteEdge]: callDeleteEdge,
   } as const satisfies Record<

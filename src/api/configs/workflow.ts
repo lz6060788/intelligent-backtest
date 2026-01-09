@@ -12,4 +12,8 @@ export default {
     url: '/quantitative/flow/draft/stop',
     method: 'POST',
   }),
+  graph2graph: defineApiItem<any>({
+    url: '/ast2graph/v1/g2g',
+    method: 'POST',
+  }),
 } as const;

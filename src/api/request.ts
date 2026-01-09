@@ -162,11 +162,11 @@ export const baseRequest = async <Res = any, Data = any>(
   
   // GET/DELETE用params，其他用data
   const isGet = ['GET', 'DELETE'].includes(mergedConfig.method);
+
   const response = await instance({
     ...mergedConfig,
     [isGet ? 'params' : 'data']: dataOrParams,
   });
-  
   // 返回业务数据（拦截器已将业务数据提取到 response.data）
   return response.data;
 };
