@@ -126,6 +126,7 @@ export const SUPPORT_OUTPUT_VARS_NODE = [
   BlockEnum.HttpRequest, BlockEnum.Tool, BlockEnum.VariableAggregator,
   BlockEnum.Loop, BlockEnum.OperatorStart,
   BlockEnum.OperatorOverview, BlockEnum.Backtest, BlockEnum.Iteration,
+  BlockEnum.Search,
 ]
 
 export const AGENT_OUTPUT_STRUCT: Var[] = [
@@ -219,7 +220,7 @@ export const BACKTEST_OUTPUT_STRUCT: Var[] = [
 export const SEARCH_OUTPUT_STRUCT: Var[] = [
   {
     variable: 'output',
-    type: VarType.object,
+    type: VarType.arrayObject,
   },
 ]
 
@@ -291,6 +292,6 @@ export const VALID_NODE_IN_LOOP_OR_ITERATION = [
   BlockEnum.LLM, BlockEnum.Code,
   BlockEnum.HttpRequest, BlockEnum.VariableAggregator,
   BlockEnum.OperatorOverview, BlockEnum.Backtest,
-  BlockEnum.IfElse
+  BlockEnum.IfElse, BlockEnum.Search
 ]
 
