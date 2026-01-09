@@ -366,9 +366,27 @@ export const useFunctionCall = (
   ] as const satisfies CallExternalCapabilitiesTool[];
 
   /** 查询画布数据具体方法，会过滤算子概览节点数据 */
-  const callGetWorkflowInfo = () => {
+  const callGetWorkflowInfo = async () => {
+    const { activeWorkflow } = useWorkflowAppStore();
+    if (!activeWorkflow) {
+      throw new Error('No active workflow found')
+    }
     const store = useVueFlow(payload.value.workflowId);
-    const { nodes, edges } = store;
+    const { nodes, edges, viewport } = store;
+    if (activeWorkflow.isOperator) {
+      try {
+        const res = await api.workflow.graph2AST({
+          graph: {
+            nodes: transformGraphNodesToNodes(nodes.value),
+            edges: transformGraphEdgesToEdges(edges.value),
+            viewport
+          },
+        })
+        return res.response;
+      } catch (error) {
+        throw new Error('算子流AST获取失败：' + (error as Error).message)
+      }
+    }
     return {
       nodes: unref(nodes).map((node) => ({
         id: node.id,
@@ -562,7 +580,7 @@ export const useFunctionCall = (
           viewport
         }
       },
-      operator_graph_id: 1
+      operator_graph_id: activeWorkflow.id
     }
     try {
       const res = await api.workflow.graph2graph(params)

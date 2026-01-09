@@ -16,4 +16,8 @@ export default {
     url: '/ast2graph/v1/g2g',
     method: 'POST',
   }),
+  graph2AST: defineApiItem<any>({
+    url: '/ast2graph/v1/graph_to_ast',
+    method: 'POST',
+  }),
 } as const;
