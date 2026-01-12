@@ -63,15 +63,15 @@
     >
       <div class="sticky top-0 z-10 shrink-0 border-0 border-b-[0.5px] border-b-gray-500 border-solid bg-gray-800">
         <div class="flex items-center justify-between px-4 pb-1 pt-4">
-          <div class="flex items-center text-sm">
+          <div class="flex flex-1 items-center text-sm">
             <BlockIcon
               class="mr-1 shrink-0"
               :type="props.data!.type"
               size="md"
             />
             <el-input v-if="showTitleInput" v-model="props.data!.title" @blur="handleTitleBlur" />
-            <div v-else class="flex items-center">
-              <h2 class="flex-1">{{ data!.title }}</h2>
+            <div v-else class="w-full flex items-center">
+              <h2 class="flex-1 w-0 truncate" :title="data!.title">{{ data!.title }}</h2>
               <RiEdit2Fill class="w-4 h-4 cursor-pointer ml-1 hover:text-blue-500" @click="showTitleInput = true"></RiEdit2Fill>
             </div>
           </div>
