@@ -62,19 +62,21 @@
       :style="{ width: `${nodePanelWidth}px` }"
     >
       <div class="sticky top-0 z-10 shrink-0 border-0 border-b-[0.5px] border-b-gray-500 border-solid bg-gray-800">
-        <div class="flex items-center px-4 pb-1 pt-4">
-          <BlockIcon
-            class="mr-1 shrink-0"
-            :type="props.data!.type"
-            size="md"
-          />
-          <!-- <TitleInput
-            :value="props.data!.title || ''"
-            @blur="handleTitleBlur"
-          /> -->
-          <h2 class="flex-1">{{ data!.title }}</h2>
+        <div class="flex items-center justify-between px-4 pb-1 pt-4">
+          <div class="flex items-center text-sm">
+            <BlockIcon
+              class="mr-1 shrink-0"
+              :type="props.data!.type"
+              size="md"
+            />
+            <el-input v-if="showTitleInput" v-model="props.data!.title" @blur="handleTitleBlur" />
+            <div v-else class="flex items-center">
+              <h2 class="flex-1">{{ data!.title }}</h2>
+              <RiEdit2Fill class="w-4 h-4 cursor-pointer ml-1 hover:text-blue-500" @click="showTitleInput = true"></RiEdit2Fill>
+            </div>
+          </div>
           <div class="flex shrink-0 items-center text-text-tertiary">
-            <el-tooltip
+            <!-- <el-tooltip
               v-if="isSupportSingleRun && !nodesReadOnly"
               :content="t('workflow.panel.runThisStep')"
               :disabled="isSingleRunning"
@@ -95,7 +97,7 @@
                   />
                 </div>
               </template>
-            </el-tooltip>
+            </el-tooltip> -->
             <NodePosition :node-id="props.id" />
             <!-- <HelpLink :node-type="props.data.type" /> -->
             <!-- <PanelOperator
@@ -170,7 +172,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
-import { RiCloseLine, RiPlayLargeLine } from '@remixicon/vue'
+import { RiCloseLine, RiPlayLargeLine, RiEdit2Fill } from '@remixicon/vue'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash-es'
 import { ElTooltip } from 'element-plus'
@@ -319,9 +321,11 @@ const {
   handleNodeDataUpdateWithSyncDraft,
 } = useNodeDataUpdate()
 
+const showTitleInput = ref(false);
 const handleTitleBlur = (title: string) => {
-  handleNodeDataUpdateWithSyncDraft({ id: props.id, data: { title } })
+  // handleNodeDataUpdateWithSyncDraft({ id: props.id, data: { title } })
   saveStateToHistory(WorkflowHistoryEvent.NodeTitleChange, { nodeId: props.id })
+  showTitleInput.value = false;
 }
 
 const handleDescriptionChange = (desc: string) => {
