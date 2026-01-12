@@ -43,7 +43,7 @@
     <ConfigVarModal
       v-if="isShowEditVarModal"
       :is-show="isShowEditVarModal"
-      :support-file="true"
+      :support-file="false"
       :payload="payload"
       :var-keys="varKeys"
       @close="hideEditVarModal"

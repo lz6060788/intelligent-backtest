@@ -8,17 +8,32 @@ export const jsonObjectWrap = {
 export const jsonConfigPlaceHolder = JSON.stringify(
   {
     foo: {
-      type: 'string',
+      a: 1,
     },
-    bar: {
-      type: 'object',
-      properties: {
-        sub: {
-          type: 'number',
-        },
-      },
-      required: [],
-      additionalProperties: true,
-    },
+    bar: 2,
   }, null, 2,
+)
+
+export const arrayNumberWrap = {
+  type: 'array',
+  properties: [],
+  minItems: -1,
+  maxItems: -1,
+}
+
+export const arrayNumberPlaceHolder = JSON.stringify(
+  [1, 2, 3],
+  null, 2,
+)
+
+export const arrayStringWrap = {
+  type: 'array',
+  properties: [],
+  minItems: -1,
+  maxItems: -1,
+}
+
+export const arrayStringPlaceHolder = JSON.stringify(
+  ['a', 'b', 'c'],
+  null, 2,
 )

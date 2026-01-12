@@ -115,7 +115,7 @@
     <ConfigVarModal
       v-if="isShowAddVarModal"
       :is-create="true"
-      :support-file="true"
+      :support-file="false"
       :is-show="isShowAddVarModal"
       @close="hideAddVarModal"
       @confirm="handleAddVarConfirm"

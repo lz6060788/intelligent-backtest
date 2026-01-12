@@ -134,18 +134,34 @@
           </Field>
         </template>
 
-        <Field v-if="tempPayload.type === InputVarType.jsonObject" :title="t('appDebug.variableConfig.jsonSchema')" is-optional>
-          <!-- <CodeEditor
+        <Field v-if="tempPayload.type === InputVarType.json" :title="t('appDebug.variableConfig.defaultValue')" is-optional>
+          <CodeEditor
             :language="CodeLanguage.json"
-            :value="jsonSchemaStr"
-            :no-wrapper="true"
-            class="bg h-[80px] overflow-y-auto rounded-[10px] bg-components-input-bg-normal p-1"
-            @change="handleJSONSchemaChange"
+            :value="jsonStr"
+            @change="(val: string) => handlePayloadChange('default')(val || undefined)"
+            :placeholder="jsonConfigPlaceHolder"
           >
-            <template #placeholder>
-              <div class="whitespace-pre">{{ jsonConfigPlaceHolder }}</div>
-            </template>
-          </CodeEditor> -->
+          </CodeEditor>
+        </Field>
+
+        <Field v-if="tempPayload.type === InputVarType.arrayNumber" :title="t('appDebug.variableConfig.defaultValue')" is-optional>
+          <CodeEditor
+            :language="CodeLanguage.json"
+            :value="jsonStr"
+            @change="(val: string) => handlePayloadChange('default')(val || undefined)"
+            :placeholder="arrayNumberPlaceHolder"
+          >
+          </CodeEditor>
+        </Field>
+
+        <Field v-if="tempPayload.type === InputVarType.arrayString" :title="t('appDebug.variableConfig.defaultValue')" is-optional>
+          <CodeEditor
+            :language="CodeLanguage.json"
+            :value="jsonStr"
+            @change="(val: string) => handlePayloadChange('default')(val || undefined)"
+            :placeholder="arrayStringPlaceHolder"
+          >
+          </CodeEditor>
         </Field>
 
         <div class="!mt-5 flex h-6 items-center space-x-2">
@@ -189,10 +205,12 @@ import FileUploadSetting from '@/components/workflow/nodes/_base/file-upload-set
 import { DEFAULT_VALUE_MAX_LEN } from '@/config'
 import type { Item as SelectItem } from './type-select.vue'
 import TypeSelector from './type-select.vue'
-import { jsonObjectWrap } from './config'
+import { jsonObjectWrap, jsonConfigPlaceHolder, arrayNumberWrap, arrayStringWrap, arrayStringPlaceHolder, arrayNumberPlaceHolder } from './config'
 import { DEFAULT_FILE_UPLOAD_SETTING } from '@/components/workflow/constant'
 import { RiUploadCloud2Line } from '@remixicon/vue'
 import { cloneDeep } from 'lodash-es'
+import { CodeLanguage } from '@/components/workflow/nodes/code/types'
+import CodeEditor from '@/components/workflow/nodes/_base/editor/code-editor/index.vue'
 
 const TEXT_MAX_LENGTH = 256
 const CHECKBOX_DEFAULT_TRUE_VALUE = 'true'
@@ -284,16 +302,14 @@ const paragraphDefaultValue = computed({
   },
 })
 
-// JSON Schema 字符串
-const jsonSchemaStr = computed(() => {
-  const isJsonObject = tempPayload.value.type === InputVarType.jsonObject
-  if (!isJsonObject || !tempPayload.value.json_schema)
+const jsonStr = computed(() => {
+  if (!tempPayload.value.default)
     return ''
   try {
-    return JSON.stringify(JSON.parse(tempPayload.value.json_schema).properties, null, 2)
+    return JSON.stringify(JSON.parse(tempPayload.value.default as unknown as string), null, 2)
   }
-  catch {
-    return ''
+  catch (e) {
+    return tempPayload.value.default as string || ''
   }
 })
 
@@ -336,23 +352,6 @@ const handlePayloadChange = (key: string) => {
 }
 
 /**
- * 处理 JSON Schema 变化
- */
-const handleJSONSchemaChange = (value: string) => {
-  try {
-    const v = JSON.parse(value)
-    const res = {
-      ...jsonObjectWrap,
-      properties: v,
-    }
-    handlePayloadChange('json_schema')(JSON.stringify(res, null, 2))
-  }
-  catch {
-    return null
-  }
-}
-
-/**
  * 选择选项列表
  */
 const selectOptions = computed<SelectItem[]>(() => {
@@ -377,6 +376,18 @@ const selectOptions = computed<SelectItem[]>(() => {
       name: t('appDebug.variableConfig.checkbox'),
       value: InputVarType.checkbox,
     },
+    {
+      name: t('appDebug.variableConfig.json'),
+      value: InputVarType.json,
+    },
+    {
+      name: t('appDebug.variableConfig.arrayNumber'),
+      value: InputVarType.arrayNumber,
+    },
+    {
+      name: t('appDebug.variableConfig.arrayString'),
+      value: InputVarType.arrayString,
+    },
   ]
 
   if (props.supportTypes.length > 0) {
@@ -394,13 +405,6 @@ const selectOptions = computed<SelectItem[]>(() => {
   //       value: InputVarType.multiFiles,
   //     },
   //   )
-  // }
-
-  // if (!isBasicApp.value && isSupportJSON) {
-  //   baseOptions.push({
-  //     name: t('appDebug.variableConfig.json'),
-  //     value: InputVarType.jsonObject,
-  //   })
   // }
 
   return baseOptions
@@ -476,7 +480,6 @@ const checkboxDefaultSelectValue = computed(() => getCheckboxDefaultSelectValue(
  * 处理确认
  */
 const handleConfirm = () => {
-  console.log(tempPayload.value, props.payload)
   const moreInfo = tempPayload.value.variable === props.payload?.variable
     ? undefined
     : {
@@ -485,7 +488,6 @@ const handleConfirm = () => {
       }
 
   const isVariableNameValid = checkVariableName(tempPayload.value.variable)
-  console.log('isVariableNameValid',isVariableNameValid)
   if (!isVariableNameValid)
     return
 

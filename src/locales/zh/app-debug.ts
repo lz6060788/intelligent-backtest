@@ -375,6 +375,8 @@ const translation = {
     'multi-files': '文件列表',
     'json': 'JSON',
     'jsonSchema': 'JSON Schema',
+    'arrayNumber': 'Array Number',
+    'arrayString': 'Array String',
     'optional': '可选',
     'notSet': '未设置，在 Prompt 中输入 {input} 试试',
     'stringTitle': '文本框设置',

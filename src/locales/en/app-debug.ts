@@ -377,6 +377,8 @@ const translation = {
     'checkbox': 'Checkbox',
     'json': 'JSON Code',
     'jsonSchema': 'JSON Schema',
+    'arrayNumber': 'Array Number',
+    'arrayString': 'Array String',
     'optional': 'optional',
     'single-file': 'Single File',
     'multi-files': 'File List',

@@ -50,7 +50,7 @@
           @change="handleEditorChange"
           @mounted="handleEditorDidMount"
         ></MonacoEditor>
-        <template v-if="placeholder && !isFocus">
+        <template v-if="placeholder && !isFocus && !outPutValue">
           <div class="pointer-events-none absolute left-[36px] top-0 text-[13px] font-normal leading-[18px] text-gray-300">
             {{ placeholder }}
           </div>

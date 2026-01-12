@@ -78,6 +78,8 @@ export enum InputVarType {
   singleFile = 'file',
   multiFiles = 'file-list',
   loop = 'loop', // loop input
+  arrayNumber = 'array-number',
+  arrayString = 'array-string',
 }
 
 export type InputVar = {

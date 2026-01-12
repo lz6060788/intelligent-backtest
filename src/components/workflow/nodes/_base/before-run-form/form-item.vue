@@ -61,10 +61,19 @@
 
       <BoolInput
         v-if="isBooleanType"
-        :name="payload.label as string"
+        :name="payload.label"
         :value="!!value"
         :required="payload.required"
         @change="emit('change', $event)"
+      />
+
+      <CodeEditor
+        v-if="type === InputVarType.json || type === InputVarType.arrayNumber || type === InputVarType.arrayString"
+        :value="value || ''"
+        :placeholder="t('appDebug.variableConfig.inputPlaceholder')"
+        :autofocus="autoFocus"
+        :language="CodeLanguage.json"
+        @change="handleInputChange"
       />
     </div>
   </div>
@@ -77,6 +86,8 @@ import type { InputVar } from '@/types'
 import { InputVarType } from '@/types'
 import cn from '@/utils/classnames'
 import BoolInput from './bool-input.vue'
+import { CodeLanguage } from '../../code/types'
+import CodeEditor from '../editor/code-editor/index.vue'
 
 interface Props {
   payload: InputVar
