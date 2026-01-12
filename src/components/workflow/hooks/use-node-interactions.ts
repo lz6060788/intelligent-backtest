@@ -1107,6 +1107,7 @@ export const useNodesInteractions = (id?: string) => {
     if (newIterationStartNode) newNodes.push(newIterationStartNode);
     if (newLoopStartNode) newNodes.push(newLoopStartNode);
     setNodes(newNodes);
+    return newNode.id;
   };
 
   const handleNodesCopy = (nodeId?: string) => {

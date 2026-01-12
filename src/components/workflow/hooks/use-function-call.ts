@@ -18,9 +18,12 @@ import { useWorkflowAppStore } from "@/components/workflow-app/store";
 import {
   transformGraphNodesToNodes,
   transformGraphEdgesToEdges,
+  transformNodesToSimpleNodes,
+  transformEdgesToSimpleEdges,
 } from "../utils";
 import { useNodeLoopInteractions } from "../nodes/loop/use-interactions";
 import { api } from '@/api'
+import type { OperatorOverviewNodeType } from "../nodes/operator-overview/types";
 
 export const enum FunctionCallName {
   GetWorkflowInfo = "get_workflow_info",
@@ -31,7 +34,7 @@ export const enum FunctionCallName {
   CreateNodes = "create_nodes",
   SetNodeScopes = "set_node_scopes",
   WorkflowTabAction = "workflow_tab_action",
-  RunWorkflow = "run_workflow",
+  // RunWorkflow = "run_workflow",
   BeautifyWorkflow = "beautify_workflow",
   UpdateCalculatorGraph = "operator_tab_replace",
   // ConnectNode = 'connectNode',
@@ -314,19 +317,19 @@ export const useFunctionCall = (
       tool_id: "456",
     },
     // run_workflow
-    {
-      type: "function",
-      function: {
-        name: FunctionCallName.RunWorkflow,
-        description: "运行当前所打开工作流",
-        parameters: {
-          type: "object",
-          properties: {},
-          required: [],
-        },
-      },
-      tool_id: "456",
-    },
+    // {
+    //   type: "function",
+    //   function: {
+    //     name: FunctionCallName.RunWorkflow,
+    //     description: "运行当前所打开工作流",
+    //     parameters: {
+    //       type: "object",
+    //       properties: {},
+    //       required: [],
+    //     },
+    //   },
+    //   tool_id: "456",
+    // },
     // beautify_workflow
     {
       type: "function",
@@ -367,57 +370,82 @@ export const useFunctionCall = (
 
   /** 查询画布数据具体方法，会过滤算子概览节点数据 */
   const callGetWorkflowInfo = async () => {
-    const { activeWorkflow } = useWorkflowAppStore();
-    if (!activeWorkflow) {
-      throw new Error('No active workflow found')
-    }
     const store = useVueFlow(payload.value.workflowId);
     const { nodes, edges, viewport } = store;
-    if (activeWorkflow.isOperator) {
+    if (payload.value.isOperator) {
       try {
         const res = await api.workflow.graph2AST({
           graph: {
-            nodes: transformGraphNodesToNodes(nodes.value),
-            edges: transformGraphEdgesToEdges(edges.value),
+            nodes: nodes.value,
+            edges: edges.value,
             viewport
           },
         })
-        return res.response;
+        return {
+          active_tab: {
+              id: payload.value.workflowId,
+              tab: payload.value.isOperator ? '算子流程图' : '主流程图'
+          },
+          workflow_info: res.response
+        }
       } catch (error) {
         throw new Error('算子流AST获取失败：' + (error as Error).message)
       }
     }
-    return {
-      nodes: unref(nodes).map((node) => ({
-        id: node.id,
-        data: node.type !== BlockEnum.OperatorOverview ? node.data : null,
-        position: node.position,
-        parentNode: node.parentNode,
-        type: node.type,
-        width: node.width,
-        height: node.height,
-      })),
-      edges: unref(edges).map((edge) => ({
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        sourceHandle: edge.sourceHandle,
-        targetHandle: edge.targetHandle,
-        type: edge.type,
-        data: edge.data,
-      })),
-    };
+    else {
+      const graphNodes = unref(nodes).map(async (node) => {
+        if (node.data.type === BlockEnum.OperatorOverview) {
+          try {
+            const res = await api.workflow.graph2AST({
+              graph: {
+                nodes: (node.data as OperatorOverviewNodeType).graph.nodes,
+                edges: (node.data as OperatorOverviewNodeType).graph.edges,
+                viewport: (node.data as OperatorOverviewNodeType).graph.viewport
+              },
+            })
+            node.data.graph = res.response;
+          } catch (error) {
+            node.data.graph = null;
+          }
+        }
+        return node;
+      });
+      return {
+        active_tab: {
+            id: payload.value.workflowId,
+            tab: payload.value.isOperator ? '算子流程图' : '主流程图'
+        },
+        workflow_info: {
+          nodes: transformNodesToSimpleNodes(await Promise.all(graphNodes)),
+          edges: transformEdgesToSimpleEdges(edges.value),
+        }
+      };
+    }
   };
 
-  const callGetNodesInfo = ({ nodeIds }: { nodeIds: string[] }) => {
+  const callGetNodesInfo = async ({ nodeIds }: { nodeIds: string[] }) => {
     const store = useVueFlow(payload.value.workflowId);
     const { nodes } = store;
-    return unref(nodes)
+    const _nodes = unref(nodes)
       .filter((node) => nodeIds.includes(node.id))
-      .map((node) => ({
-        id: node.id,
-        data: node.type === BlockEnum.OperatorOverview ? null : node.data,
-      }));
+      .map(async (node) => {
+        if (node.data.type === BlockEnum.OperatorOverview) {
+          try {
+            const res = await api.workflow.graph2AST({
+              graph: {
+                nodes: (node.data as OperatorOverviewNodeType).graph.nodes,
+                edges: (node.data as OperatorOverviewNodeType).graph.edges,
+                viewport: (node.data as OperatorOverviewNodeType).graph.viewport
+              },
+            })
+            node.data.graph = res.response;
+          } catch (error) {
+            node.data.graph = null;
+          }
+        }
+        return node
+      });
+    return await Promise.all(_nodes);
   };
 
   const callUpdateNodeConfig = ({
@@ -435,7 +463,11 @@ export const useFunctionCall = (
         ...JSON.parse(data),
       };
     }
-    return true;
+    return {
+      node_type: targetNode?.data.type,
+      node_id: targetNode?.id,
+      current_config: JSON.stringify(targetNode?.data),
+    };
   };
 
   const callSetNodeConnections = ({
@@ -464,6 +496,10 @@ export const useFunctionCall = (
     setTimeout(() => {
       callBeautifyWorkflow();
     }, 1000);
+    const { edges } = useVueFlow(payload.value.workflowId);
+    return {
+      current_connections: transformEdgesToSimpleEdges(unref(edges)),
+    }
   };
 
   const callCreateNodes = ({
@@ -476,7 +512,7 @@ export const useFunctionCall = (
     const { handleIsolatedNodeAdd } = useNodesInteractions(
       payload.value.workflowId
     );
-    nodes.forEach((node) => {
+    const result = nodes.map((node) => {
       const { nodeType } = node;
       if (
         nodeType === BlockEnum.Start ||
@@ -484,14 +520,26 @@ export const useFunctionCall = (
       ) {
         return;
       }
-      return handleIsolatedNodeAdd(nodeType);
+      const id = handleIsolatedNodeAdd(nodeType);
+      return {
+        node_type: nodeType,
+        node_id: id
+      }
     });
+    return {
+      created_nodes: result.filter((node) => node?.node_id !== undefined),
+    }
     // callBeautifyWorkflow();
   };
 
   const callDeleteNodes = ({ nodeIds }: { nodeIds: string[] }) => {
     const { handleNodeDelete } = useNodesInteractions(payload.value.workflowId);
-    return nodeIds.forEach((nodeId) => handleNodeDelete(nodeId));
+    nodeIds.forEach((nodeId) => handleNodeDelete(nodeId));
+    const { edges, nodes } = useVueFlow(payload.value.workflowId);
+    return {
+      current_nodes: transformNodesToSimpleNodes(unref(nodes)),
+      current_connections: transformEdgesToSimpleEdges(unref(edges)),
+    }
   };
 
   const callSetNodeScopes = ({ assignments }: { assignments: { nodeIds: string[]; scope: { type: "workflow" | "loop"; nodeId: string; } }[] }) => {
@@ -514,7 +562,16 @@ export const useFunctionCall = (
     id: string;
   }) => {
     const { openNewWorkflow, removeWorkflow } = useWorkflowAppStore();
-    return action === "close" ? removeWorkflow(id) : openNewWorkflow(id);
+    const currentTabId = action === "close" ? removeWorkflow(id) : openNewWorkflow(id);
+    if (action === 'open') {
+      return `${currentTabId} tab 已经被打开`;
+    }
+    else if (action === 'switch') {
+      return `已切换至 ${currentTabId} tab`;
+    }
+    else if (action === 'close') {
+      return `tab ${id} 已经被关闭, 目前打开的tab为${currentTabId}`;
+    }
   };
 
   const callRunWorkflow = async (_: any, context: FunctionCallContext) => {
@@ -558,7 +615,8 @@ export const useFunctionCall = (
 
   const callBeautifyWorkflow = () => {
     const { handleLayout } = useWorkflowOrganize(payload.value.workflowId);
-    return handleLayout();
+    handleLayout();
+    return `${payload.value.workflowId} tab已经美化成功`;
   };
 
   const callUpdateCalculatorGraph = async ({ instruction }: { instruction: string }) => {
@@ -608,7 +666,7 @@ export const useFunctionCall = (
     [FunctionCallName.CreateNodes]: callCreateNodes,
     [FunctionCallName.SetNodeScopes]: callSetNodeScopes,
     [FunctionCallName.WorkflowTabAction]: callWorkflowTabAction,
-    [FunctionCallName.RunWorkflow]: callRunWorkflow,
+    // [FunctionCallName.RunWorkflow]: callRunWorkflow,
     [FunctionCallName.BeautifyWorkflow]: callBeautifyWorkflow,
     [FunctionCallName.UpdateCalculatorGraph]: callUpdateCalculatorGraph,
     // [FunctionCallName.ConnectNode]: callConnectNode,
@@ -619,7 +677,7 @@ export const useFunctionCall = (
   >;
 
   // 异步方法（需要用户操作后才有结果）
-  const asyncFunctionCalls: FunctionCallName[] = [FunctionCallName.RunWorkflow];
+  const asyncFunctionCalls: FunctionCallName[] = [];
 
   return {
     callExternalCapabilitiesTools,

@@ -33,13 +33,15 @@ const handleCallExternalCapabilities = async (data: { functionCallAction: Functi
       if (!asyncFunctionCalls.includes(action.function.name as keyof typeof functionCallMap)) {
         aimeRef.value?.respFunctionCall(action.uuid, true, {
           data: JSON.stringify(result),
+          success: true,
         })
       }
     } catch (error) {
       console.log('aime调用外部能力报错：', error)
       aimeRef.value?.respFunctionCall(action.uuid, false, {
-        data: (error as Error).message,
-        error: error as Error
+        message: (error as Error).message || 'unknown error',
+        data: {},
+        success: false,
       })
     }
   }

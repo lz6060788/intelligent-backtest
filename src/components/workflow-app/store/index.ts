@@ -41,6 +41,7 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
       changeActiveWorkflowId(workflowList.value[index - 1]!.id);
     }
     workflowList.value = workflowList.value.filter(workflow => workflow.id !== id);
+    return activeWorkflowId.value;
   }
   const openNewWorkflow = (id: string, name?: string) => {
     if (workflowList.value.find(workflow => workflow.id === id)) {
@@ -65,6 +66,7 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
     }
     workflowList.value.push(workflow);
     changeActiveWorkflowId(id);
+    return activeWorkflowId.value;
   }
 
   // 由于画布切换，vueflow实例会销毁，因此需要在切换之前需要当前画布的信息

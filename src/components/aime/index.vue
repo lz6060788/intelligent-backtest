@@ -69,7 +69,7 @@ const respFunctionCall = (toolId: string, isSuccess: boolean, data: any) => {
     content: {
       toolCallId: toolId,
       status: isSuccess,
-      toolResult: isSuccess ? (data || '') : { reason: data || 'unknown error' },
+      toolResult: data,
     },
   });
 }

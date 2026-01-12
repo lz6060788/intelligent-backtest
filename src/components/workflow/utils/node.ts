@@ -195,6 +195,22 @@ export const transformGraphNodesToNodes = (nodes: GraphNode[]): Node[] => {
   });
 };
 
+export const transformNodesToSimpleNodes = (nodes: Node[]): Partial<Node>[] => {
+  return nodes.map((node) => {
+    typeof node.data === 'object' && Object.keys(node.data).forEach((key) => {
+      if (key.startsWith('_')) {
+        delete (node.data as Node['data'])![key as keyof typeof node.data];
+      }
+    });
+    return {
+      id: node.id,
+      title: node.data?.title,
+      type: node.data?.type,
+      parentNode: node.parentNode,
+    };
+  });
+};
+
 export const findNodesByPosition = (
   nodes: GraphNode[],
   mouseX: number,
