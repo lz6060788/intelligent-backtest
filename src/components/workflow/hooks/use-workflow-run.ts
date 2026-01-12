@@ -4,8 +4,9 @@ import {
 import { useWorkflowInstance } from './use-workflow-instance'
 import { useNodesSyncDraft } from './use-nodes-sync-draft'
 import { api } from '@/api'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElNotification } from 'element-plus'
 import { WorkflowRunningStatus } from '@/types/workflow'
+import { h } from 'vue'
 
 export const useWorkflowRun = (id?: string) => {
   const { instanceId, instance: workflowStore } = useWorkflowInstance(id)
@@ -27,15 +28,27 @@ export const useWorkflowRun = (id?: string) => {
     })
     await doSyncWorkflowDraft()
 
-    workflowStore.setWorkflowIsRunning(true)
-    const res = await api.workflow.run(params)
-    workflowStore.setWorkflowIsRunning(false)
-    ElMessageBox.alert(JSON.stringify(res), '运行结果', {
-      showConfirmButton: false,
-      showCancelButton: false,
-      type: 'success',
-    })
-    return res
+    try {
+      workflowStore.setWorkflowIsRunning(true)
+      const res = await api.workflow.run(params)
+      ElMessageBox.alert(generateResponseVNodes(res.response), '运行结果', {
+        showConfirmButton: false,
+        showCancelButton: false,
+        type: 'success',
+      })
+      return res
+    }
+    catch (error) {
+      ElNotification({
+        title: 'Error',
+        message: (error as Error).message,
+        type: 'error'
+      })
+      throw error
+    }
+    finally {
+      workflowStore.setWorkflowIsRunning(false)
+    }
   }
 
   const handleStopRun = async (taskId: string) => {
@@ -46,4 +59,19 @@ export const useWorkflowRun = (id?: string) => {
     handleRun,
     handleStopRun,
   }
+}
+
+function generateResponseVNodes(res: any) {
+  if (!res || typeof res !== 'object' || Object.keys(res).length === 0) {
+    return h('p', null, h('span', null, '暂无响应数据'));
+  }
+
+  const vnodeList = Object.entries(res).map(([key, value], index) =>
+    h('p', { key: index }, [
+      h('span', { style: 'font-weight: bold' }, `${key}: `),
+      h('i', { style: 'color: teal' }, typeof value === 'object' ? JSON.stringify(value) : String(value))
+    ])
+  );
+
+  return h('div', null, vnodeList);
 }

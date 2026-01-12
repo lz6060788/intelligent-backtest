@@ -7,7 +7,7 @@
     @close="emit('close')"
   >
     <!-- 表单内容区域 -->
-    <div class="px-4 pb-2 pt-3">
+    <div class="px-4 pb-2 pt-3 max-h-[500px] overflow-y-auto">
       <div
         v-for="(variable, index) in startVariables"
         :key="variable.variable"
@@ -28,7 +28,7 @@
       <div class="flex items-center justify-between px-4 py-2 w-full">
         <el-button
           type="primary"
-          :disabled="workflowIsRunning"
+          :loading="workflowIsRunning"
           class="w-full"
           @click="doRun"
         >
@@ -97,23 +97,15 @@ const doRun = async () => {
     return
   }
   emit('run')
-  try {
-    await handleRun({
-      id: instanceId,
-      inputs: getProcessedInputs(initInputs, startVariables.value as any),
-      graph: {
-        nodes: transformGraphNodesToNodes(store.nodes.value),
-        edges: transformGraphEdgesToEdges(store.edges.value),
-        viewport: store.viewport.value
-      }
-    })
-  } catch (error) {
-    ElNotification({
-      title: 'Error',
-      message: (error as Error).message,
-      type: 'error'
-    })
-  }
+  await handleRun({
+    id: instanceId,
+    inputs: getProcessedInputs(initInputs, startVariables.value as any),
+    graph: {
+      nodes: transformGraphNodesToNodes(store.nodes.value),
+      edges: transformGraphEdgesToEdges(store.edges.value),
+      viewport: store.viewport.value
+    }
+  })
 }
 </script>
 
