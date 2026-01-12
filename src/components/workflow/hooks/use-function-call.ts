@@ -24,6 +24,7 @@ import {
 import { useNodeLoopInteractions } from "../nodes/loop/use-interactions";
 import { api } from '@/api'
 import type { OperatorOverviewNodeType } from "../nodes/operator-overview/types";
+import { cloneDeep } from "lodash-es";
 
 export const enum FunctionCallName {
   GetWorkflowInfo = "get_workflow_info",
@@ -393,7 +394,7 @@ export const useFunctionCall = (
       }
     }
     else {
-      const graphNodes = unref(nodes).map(async (node) => {
+      const graphNodes = cloneDeep(nodes.value).map(async (node) => {
         if (node.data.type === BlockEnum.OperatorOverview) {
           try {
             const res = await api.workflow.graph2AST({
@@ -417,7 +418,7 @@ export const useFunctionCall = (
         },
         workflow_info: {
           nodes: transformNodesToSimpleNodes(await Promise.all(graphNodes)),
-          edges: transformEdgesToSimpleEdges(edges.value),
+          edges: transformEdgesToSimpleEdges(cloneDeep(edges.value)),
         }
       };
     }
@@ -426,7 +427,7 @@ export const useFunctionCall = (
   const callGetNodesInfo = async ({ nodeIds }: { nodeIds: string[] }) => {
     const store = useVueFlow(payload.value.workflowId);
     const { nodes } = store;
-    const _nodes = unref(nodes)
+    const _nodes = cloneDeep(nodes.value)
       .filter((node) => nodeIds.includes(node.id))
       .map(async (node) => {
         if (node.data.type === BlockEnum.OperatorOverview) {
@@ -498,7 +499,7 @@ export const useFunctionCall = (
     }, 1000);
     const { edges } = useVueFlow(payload.value.workflowId);
     return {
-      current_connections: transformEdgesToSimpleEdges(unref(edges)),
+      current_connections: transformEdgesToSimpleEdges(cloneDeep(edges.value)),
     }
   };
 
@@ -535,10 +536,11 @@ export const useFunctionCall = (
   const callDeleteNodes = ({ nodeIds }: { nodeIds: string[] }) => {
     const { handleNodeDelete } = useNodesInteractions(payload.value.workflowId);
     nodeIds.forEach((nodeId) => handleNodeDelete(nodeId));
-    const { edges, nodes } = useVueFlow(payload.value.workflowId);
+    const store = useVueFlow(payload.value.workflowId);
+    const { edges, nodes } = store;
     return {
-      current_nodes: transformNodesToSimpleNodes(unref(nodes)),
-      current_connections: transformEdgesToSimpleEdges(unref(edges)),
+      current_nodes: transformNodesToSimpleNodes(cloneDeep(nodes.value)),
+      current_connections: transformEdgesToSimpleEdges(cloneDeep(edges.value)),
     }
   };
 
