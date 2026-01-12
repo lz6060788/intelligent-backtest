@@ -46,7 +46,7 @@ export const useWorkflowAppStore = defineStore('workflow-app', () => {
   const openNewWorkflow = (id: string, name?: string) => {
     if (workflowList.value.find(workflow => workflow.id === id)) {
       changeActiveWorkflowId(id);
-      return
+      return activeWorkflowId.value;
     }
     const vueflow = useVueFlow(MAIN_WORKFLOW_APP_ID);
     const { nodes } = vueflow;
