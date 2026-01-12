@@ -25,6 +25,7 @@ import { useNodeLoopInteractions } from "../nodes/loop/use-interactions";
 import { api } from '@/api'
 import type { OperatorOverviewNodeType } from "../nodes/operator-overview/types";
 import { cloneDeep } from "lodash-es";
+import { toNodeOutputVars } from "../nodes/_base/variable/utils";
 
 export const enum FunctionCallName {
   GetWorkflowInfo = "get_workflow_info",
@@ -427,6 +428,7 @@ export const useFunctionCall = (
   const callGetNodesInfo = async ({ nodeIds }: { nodeIds: string[] }) => {
     const store = useVueFlow(payload.value.workflowId);
     const { nodes } = store;
+    const allVars = toNodeOutputVars(nodes.value, false, undefined, [], [], {}, []);
     const _nodes = cloneDeep(nodes.value)
       .filter((node) => nodeIds.includes(node.id))
       .map(async (node) => {
@@ -444,6 +446,8 @@ export const useFunctionCall = (
             node.data.graph = null;
           }
         }
+        const vars = allVars.find(v => v.nodeId === node.id)?.vars;
+        node.output_variables = vars;
         return node
       });
     return await Promise.all(_nodes);
