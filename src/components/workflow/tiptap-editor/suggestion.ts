@@ -31,9 +31,29 @@ export default function suggestion(options: {
   return {
     char: options.triggerChar || '/',
     allowedPrefixes: null,
+    allowSpaces: false,
   
     render: () => {
       let component: any
+      let editorInstance: any // 保存引用
+
+      const destroy = () => {
+        if (component) {
+          component.destroy()
+          component.element.remove() // 从 DOM 移除
+          component = null
+        }
+      }
+
+      // 处理失去焦点事件
+      const handleBlur = (event: FocusEvent) => {
+        // 关键：防止点击 Suggestion 列表项时触发编辑器的 blur 导致菜单立刻关闭
+        // 检查焦点的去向 (relatedTarget) 是否在组件内部
+        if (component && component.element.contains(event.relatedTarget as Node)) {
+          return
+        }
+        destroy()
+      }
   
       return {
         onStart: (props: any) => {
@@ -54,6 +74,9 @@ export default function suggestion(options: {
           document.body.appendChild(component.element)
   
           updatePosition(props.editor, component.element)
+
+          editorInstance = props.editor // 保存引用
+          editorInstance.view.dom.addEventListener('blur', handleBlur)
         },
   
         onUpdate(props: any) {
@@ -68,22 +91,28 @@ export default function suggestion(options: {
   
         onKeyDown(props: any) {
           if (props.event.key === 'Escape') {
-            component.destroy()
-            component.element.remove()
+            destroy()
 
             return true
           }
           if (props.event.key === 'Backspace') {
+            destroy()
             return false
           }
+
+          if (props.event.key === ' ') {
+              destroy()
+              return false // 返回 false 让编辑器继续处理空格输入
+            }
           return false
         },
 
         onExit() {
+          if (editorInstance) {
+            editorInstance.view.dom.removeEventListener('blur', handleBlur)
+          }
           if (component) {
-            component.destroy()
-            component.element.remove()
-            component = null
+            destroy()
           }
         },
       }

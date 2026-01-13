@@ -14,12 +14,14 @@ import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import Mention from '@tiptap/extension-mention'
+import HardBreak from '@tiptap/extension-hard-break'
 import CharacterCount from '@tiptap/extension-character-count'
 
 import suggestion from './suggestion.js'
 import VariableNode from './VariableNode.js'
 import type { NodeOutPutVar } from '@/types/var.js'
 import { type Node } from '@/types'
+import { escape } from 'lodash-es'
 
 type Props = {
   limit?: number;
@@ -59,6 +61,7 @@ const editor = useEditor({
     Paragraph,
     Text,
     VariableNode,
+    HardBreak,
     CharacterCount.configure({
       limit: props.limit,
     }),
@@ -76,7 +79,7 @@ const editor = useEditor({
       suggestion: suggestion({ vars: props.vars, triggerChar: '/' }),
     }),
   ],
-  content: props.value,
+  content: props.value.replace(/\n/g, '<br>'),
   editable: props.editable,
   onBlur: () => {
     emit('blur', getContent())
@@ -99,7 +102,10 @@ const getContent = () => {
   if (editor.value) {
     return {
       json: editor.value.getJSON(),
-      text: editor.value.getText(),
+      // text: escape(editor.value.getText()),
+      text: editor.value.getText()
+              .replace(/</g, '&lt;')    // 处理未转义的 <
+              .replace(/>/g, '&gt;'),   // 处理未转义的 >,
       html: editor.value.getHTML(),
     }
   }
@@ -120,7 +126,7 @@ const clear = () => {
 }
 
 const setContent = (value: string) => {
-  editor.value?.commands.setContent(value)
+  editor.value?.commands.setContent(value ? value.replace(/\n/g, '<br>') : '')
 }
 
 defineExpose({
