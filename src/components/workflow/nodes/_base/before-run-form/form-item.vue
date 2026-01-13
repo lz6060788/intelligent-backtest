@@ -23,6 +23,7 @@
         v-model="selectValue"
         class="w-full"
         :filterable="false"
+        :placeholder="payload.placeholder || t('appDebug.variableConfig.inputPlaceholder')"
         @change="handleSelectChange"
       >
         <el-option
@@ -36,7 +37,7 @@
       <el-input
         v-if="type === InputVarType.textInput"
         :model-value="value || ''"
-        :placeholder="t('appDebug.variableConfig.inputPlaceholder')"
+        :placeholder="payload.placeholder || t('appDebug.variableConfig.inputPlaceholder')"
         :autofocus="autoFocus"
         @update:model-value="handleInputChange"
       />
@@ -45,7 +46,7 @@
         v-if="type === InputVarType.number"
         type="number"
         :model-value="value || ''"
-        :placeholder="t('appDebug.variableConfig.inputPlaceholder')"
+        :placeholder="payload.placeholder || t('appDebug.variableConfig.inputPlaceholder')"
         :autofocus="autoFocus"
         @update:model-value="handleInputChange"
       />
@@ -54,7 +55,7 @@
         v-if="type === InputVarType.paragraph"
         type="textarea"
         :model-value="value || ''"
-        :placeholder="t('appDebug.variableConfig.inputPlaceholder')"
+        :placeholder="payload.placeholder || t('appDebug.variableConfig.inputPlaceholder')"
         :autofocus="autoFocus"
         @update:model-value="handleInputChange"
       />
@@ -70,7 +71,7 @@
       <CodeEditor
         v-if="type === InputVarType.json || type === InputVarType.arrayNumber || type === InputVarType.arrayString"
         :value="value || ''"
-        :placeholder="t('appDebug.variableConfig.inputPlaceholder')"
+        :placeholder="payload.placeholder || t('appDebug.variableConfig.inputPlaceholder')"
         :autofocus="autoFocus"
         :language="CodeLanguage.json"
         @change="handleInputChange"
