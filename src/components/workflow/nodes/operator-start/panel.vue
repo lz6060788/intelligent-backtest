@@ -2,13 +2,13 @@
   <div class="mt-2">
 
     <div class="space-y-4 px-4 pb-4">
-      <Inputs
+      <!-- <Inputs
         :payload="payload.inputs"
         :node-id="id"
         :read-only="readOnly"
         @show-add-var-modal="showAddVarModal"
         @var-list-change="handleInputVarListChange"
-      />
+      /> -->
       <Variable
         :payload="payload"
         :node-id="id"
@@ -60,7 +60,6 @@ import Split from '@/components/base/split.vue'
 import { InputVarType, type InputVar, type NodePanelProps } from '@/types'
 import { computed } from 'vue'
 import Variable from './components/variable.vue'
-import Inputs from './components/inputs.vue'
 import ConfigVarModal from '@/components/configuration/config-var/config-modal/index.vue'
 
 const i18nPrefix = 'workflow.nodes.operatorStart'

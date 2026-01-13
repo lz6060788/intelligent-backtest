@@ -990,9 +990,14 @@ const translation = {
       },
     },
     operatorStart: {
+      dateRange: 'Date Range',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      startDatePlaceholder: 'Enter start date, format YYYYMMDD',
+      endDatePlaceholder: 'Enter end date, format YYYYMMDD',
       setOutputVariable: 'Set output variable',
-      inputs: 'Inputs',
-      outputs: 'Outputs',
+      inputs: 'External References',
+      outputs: 'Built-in Variables',
       outputVars: {
         hight: 'Hight',
         open: 'Open',
@@ -1010,6 +1015,7 @@ const translation = {
       noOutputVars: 'No output',
       inputVars: 'Input Variables',
       noInputVars: 'No input variables',
+      dateRange: 'Range',
     },
     backtest: {
       ticker: 'Ticker',

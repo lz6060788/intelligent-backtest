@@ -993,9 +993,14 @@ const translation = {
       },
     },
     operatorStart: {
+      dateRange: '日期范围',
+      startDate: '开始时间',
+      endDate: '结束时间',
+      startDatePlaceholder: '输入开始日期，格式 YYYYMMDD',
+      endDatePlaceholder: '输入结束日期，格式 YYYYMMDD',
       setOutputVariable: '设置输出变量',
-      inputs: '输入',
-      outputs: '输出',
+      inputs: '外部引用',
+      outputs: '内置变量',
       outputVars: {
         hight: '高',
         open: '开',
@@ -1013,6 +1018,7 @@ const translation = {
       noOutputVars: '暂未设置输出',
       inputVars: '输入变量',
       noInputVars: '暂未设置输入变量',
+      dateRange: '范围',
     },
     backtest: {
       ticker: '标的列表',
