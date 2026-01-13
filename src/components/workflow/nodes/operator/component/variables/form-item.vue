@@ -101,7 +101,7 @@ const filterVar = (variable: Var) => {
     return true
   } else if (variable.type === VarType.number && [OperatorArgumentValueTypeEnum.INT, OperatorArgumentValueTypeEnum.FLOAT].includes(type.value)) {
     return true
-  } else if (variable.type === VarType[type.value]) {
+  } else if (variable.type === type.value as unknown as VarType) {
     return true
   }
   return false

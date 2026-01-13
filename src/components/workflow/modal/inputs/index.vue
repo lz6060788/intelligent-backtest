@@ -54,6 +54,7 @@ import { useCheckInputsForms } from '@/components/workflow/hooks'
 import { getProcessedInputs } from '../../utils/input-format'
 import { useVueFlow } from '@vue-flow/core'
 import { transformGraphEdgesToEdges, transformGraphNodesToNodes } from '../../utils'
+import type { OperatorStartNodeType } from '../../nodes/operator-start/types'
 
 const { instanceId,  instance: workflowStore } = useWorkflowInstance()
 const store = useVueFlow(instanceId)
@@ -68,11 +69,15 @@ const { t } = useI18n()
 
 const { nodes } = store
 const startNode = computed(() => {
-  return nodes.value.find(node => node.data.type === BlockEnum.Start)
+  return nodes.value.find(node => node.data.type === BlockEnum.Start || node.data.type === BlockEnum.OperatorStart)
 })
 
 const startVariables = computed(() => {
-  return (startNode.value?.data as StartNodeType).variables
+  return startNode.value?.data.type === BlockEnum.Start
+    ? (startNode.value?.data as StartNodeType).variables
+    : startNode.value?.data.type === BlockEnum.OperatorStart
+      ? (startNode.value?.data as OperatorStartNodeType).inputs
+      : []
 })
 
 const { checkInputsForm } = useCheckInputsForms()
@@ -106,6 +111,7 @@ const doRun = async () => {
       viewport: store.viewport.value
     }
   })
+  emit('close')
 }
 </script>
 

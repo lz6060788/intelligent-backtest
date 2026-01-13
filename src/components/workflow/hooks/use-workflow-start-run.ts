@@ -28,7 +28,11 @@ export const useWorkflowStartRun = (id?: string) => {
       return
 
     const startNode = nodes.value.find(node => node.data.type === BlockEnum.Start || node.data.type === BlockEnum.OperatorStart)
-    const startVariables = startNode?.data.type === BlockEnum.Start ? (startNode?.data.variables || []) : []
+    const startVariables = startNode?.data.type === BlockEnum.Start
+    ? (startNode?.data.variables || [])
+    : startNode?.data.type === BlockEnum.OperatorStart
+      ? (startNode?.data.inputs || [])
+      : []
     const {
       // showDebugAndPreviewPanel,
       // setShowDebugAndPreviewPanel,

@@ -520,8 +520,11 @@ const formatItem = (
     }
 
     case BlockEnum.OperatorStart: {
-      const { variables } = data as OperatorStartNodeType
-      res.vars = variables
+      const { variables, inputs } = data as OperatorStartNodeType
+      res.vars = [...variables, ...inputs.map(input => ({
+        variable: input.variable,
+        type: inputVarTypeToVarType(input.type),
+      }))]
       break
     }
 
@@ -1758,10 +1761,10 @@ export const getNodeOutputVars = (
     }
 
     case BlockEnum.OperatorStart: {
-      const { variables } = data as OperatorStartNodeType
-      res = variables.map((v) => {
+      const { variables, inputs } = data as OperatorStartNodeType
+      res = [...variables.map((v) => {
         return [id, v.variable]
-      })
+      }), ...inputs.map(input => [id, input.variable])]
       break
     }
 
