@@ -7,6 +7,8 @@ import { api } from '@/api'
 import { ElMessageBox, ElNotification } from 'element-plus'
 import { WorkflowRunningStatus } from '@/types/workflow'
 import { h } from 'vue'
+import CodeEditor from '@/components/workflow/nodes/_base/editor/code-editor/index.vue'
+import { CodeLanguage } from '../nodes/code/types'
 
 export const useWorkflowRun = (id?: string) => {
   const { instanceId, instance: workflowStore } = useWorkflowInstance(id)
@@ -31,10 +33,24 @@ export const useWorkflowRun = (id?: string) => {
     try {
       workflowStore.setWorkflowIsRunning(true)
       const res = await api.workflow.run(params)
-      ElMessageBox.alert(generateResponseVNodes(res.response), '运行结果', {
+      ElMessageBox.alert(h(CodeEditor, {
+        language: CodeLanguage.json,
+        value: JSON.stringify(res.response, null, 2),
+        readonly: true,
+        height: 600,
+        style: {
+          width: '800px',
+        }
+      }), '运行结果', {
         showConfirmButton: false,
         showCancelButton: false,
-        type: 'success',
+        type: '',
+        customStyle: {
+          width: '830px',
+          height: '680px',
+          maxWidth: '830px',
+          maxHeight: '680px',
+        },
       })
       return res
     }
