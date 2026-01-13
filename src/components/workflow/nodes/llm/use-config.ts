@@ -158,7 +158,7 @@ const useConfig = (id: string, payload: Ref<LLMNodeType>) => {
   const outputVarsCollapsed = ref(false)
 
   const filterInputVar = (varPayload: Var) => {
-    return [VarType.number, VarType.string, VarType.secret, VarType.arrayString, VarType.arrayNumber, VarType.object].includes(varPayload.type)
+    return true
   }
 
   const filterJinja2InputVar = (varPayload: Var) => {
