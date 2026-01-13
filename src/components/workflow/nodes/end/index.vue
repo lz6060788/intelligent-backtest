@@ -21,6 +21,9 @@ import { useWorkflowVariables } from '../../hooks/use-workflow-variables';
 import { BlockEnum, type NodeProps } from '@/types';
 import type { EndNodeType } from './types';
 import { computed } from 'vue';
+import {
+  VariableLabelInNode,
+} from '@/components/workflow/nodes/_base/variable/variable-label'
 
 const props = withDefaults(defineProps<NodeProps<EndNodeType>>(), {
 });
