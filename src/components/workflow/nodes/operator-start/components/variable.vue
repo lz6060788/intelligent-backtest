@@ -13,9 +13,9 @@
           {{ t(`${i18nPrefix}.setOutputVariable`) }}
         </el-button>
         <template #dropdown>
-          <el-dropdown-menu>
+          <el-dropdown-menu class="max-h-[300px] overflow-y-auto">
             <el-dropdown-item v-for="item in unusedVariables" :key="item.variable" @click="emit('addVariable', item)">
-              {{ t(`${i18nPrefix}.outputVars.${item.variable}`) }}
+              {{ item.variable }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -26,7 +26,7 @@
         <div class="flex items-center space-x-2">
           <div class="w-full bg-gray-700 rounded-md px-2 py-1 flex-1">
             <span>
-              {{ t(`${i18nPrefix}.outputVars.${item.variable}`) }}
+              {{ item.variable }}
             </span>
             <span class="text-xs text-gray-400 ml-2">
               {{ item.type }}
