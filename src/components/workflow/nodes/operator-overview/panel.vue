@@ -8,7 +8,7 @@
             :key="index"
             class="group relative flex items-center space-x-1 max-w-full"
           >
-            <p class="w-20 truncate">{{ variable.label }}</p>
+            <p class="w-20 truncate text-sm text-gray-300">{{ variable.label }}</p>
             <VarReferencePicker
               :node-id="props.id"
               :readonly="readOnly"
@@ -29,7 +29,7 @@
         </div>
       </Field>
       <Field :title="t(`${i18nPrefix}.output`)">
-        <OutputVars :defaultCollapsed="false" v-if="outputVars.length > 0">
+        <template v-if="outputVars.length > 0">
           <VarItem
             v-for="item in outputVars"
             :key="item.alias"
@@ -37,7 +37,7 @@
             :type="item.type || 'unknown'"
             description=""
           />
-        </OutputVars>
+        </template>
         <div v-else class="text-text-secondary text-sm p-4">
           {{ t(`${i18nPrefix}.noOutputVars`) }}
         </div>
@@ -64,7 +64,6 @@ const i18nPrefix = 'workflow.nodes.operatorOverview'
 const props = defineProps<NodePanelProps<OperatorOverviewNodeType>>()
 
 const payload = computed(() => props.data)
-
 
 const {
   readOnly,
