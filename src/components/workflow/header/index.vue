@@ -38,23 +38,15 @@ const debugPrint = () => {
 
 const { handleWorkflowStartRun } = useWorkflowStartRun()
 const runWorkflow = async () => {
-  try {
-    await handleWorkflowStartRun({
-      id: instanceId,
-      inputs: {},
-      graph: {
-        nodes: transformGraphNodesToNodes(store.nodes.value),
-        edges: transformGraphEdgesToEdges(store.edges.value),
-        viewport: store.viewport.value
-      }
-    })
-  } catch (error) {
-    ElNotification({
-      title: '运行失败',
-      message: (error as Error).message,
-      type: 'error'
-    })
-  }
+  await handleWorkflowStartRun({
+    id: instanceId,
+    inputs: {},
+    graph: {
+      nodes: transformGraphNodesToNodes(store.nodes.value),
+      edges: transformGraphEdgesToEdges(store.edges.value),
+      viewport: store.viewport.value
+    }
+  })
 }
 
 const saveToLocal = () => {
