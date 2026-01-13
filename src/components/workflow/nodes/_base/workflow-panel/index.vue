@@ -69,10 +69,10 @@
               :type="props.data!.type"
               size="md"
             />
-            <el-input v-if="showTitleInput" v-model="props.data!.title" @blur="handleTitleBlur" />
+            <el-input v-if="showTitleInput" v-model="props.data!.title" @blur="handleTitleBlur" ref="titleInputRef" />
             <div v-else class="w-full flex items-center">
-              <h2 class="flex-1 w-0 truncate" :title="data!.title">{{ data!.title }}</h2>
-              <RiEdit2Fill class="w-4 h-4 cursor-pointer ml-1 hover:text-blue-500" @click="showTitleInput = true"></RiEdit2Fill>
+              <h2 class="max-w-50 truncate" :title="data!.title">{{ data!.title }}</h2>
+              <RiEdit2Fill class="w-4 h-4 cursor-pointer ml-1 hover:text-blue-500" @click="handleEditTitle"></RiEdit2Fill>
             </div>
           </div>
           <div class="flex shrink-0 items-center text-text-tertiary">
@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { RiCloseLine, RiPlayLargeLine, RiEdit2Fill } from '@remixicon/vue'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash-es'
@@ -322,6 +322,13 @@ const {
 } = useNodeDataUpdate()
 
 const showTitleInput = ref(false);
+const titleInputRef = ref<HTMLInputElement>()
+const handleEditTitle = () => {
+  showTitleInput.value = true
+  nextTick(() => {
+    titleInputRef.value?.focus()
+  })
+}
 const handleTitleBlur = (title: string) => {
   // handleNodeDataUpdateWithSyncDraft({ id: props.id, data: { title } })
   saveStateToHistory(WorkflowHistoryEvent.NodeTitleChange, { nodeId: props.id })
