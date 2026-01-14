@@ -64,6 +64,7 @@ import { OperatorArgumentValueTypeEnum } from '../../constant/enums'
 import type {
   OperatorVariable,
 } from '../../types'
+import { isNil } from 'lodash-es'
 
 
 /**
@@ -86,7 +87,7 @@ const { t } = useI18n()
 
 const isConst = computed(() => props.item.isConst)
 const type = computed(() => props.item.type)
-const value = computed(() => props.item.value || '')
+const value = computed(() => isNil(props.item.value) ? '' : props.item.value)
 
 const handleInputChange = (value: string) => {
   emit('change', value)
