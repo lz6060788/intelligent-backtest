@@ -80,10 +80,10 @@ const { t } = useI18n()
 const { instanceId } = useWorkflowInstance()
 
 const signalVariableOptions = [
-  {
-    label: t(`${i18nPrefix}.manual`),
-    value: true,
-  },
+  // {
+  //   label: t(`${i18nPrefix}.manual`),
+  //   value: true,
+  // },
   {
     label: t(`${i18nPrefix}.auto`),
     value: false,
